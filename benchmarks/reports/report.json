@@ -1,8 +1,452 @@
 {
   "schemaVersion": "1",
-  "generatedAt": "2026-07-19T08:34:02.271Z",
-  "runCount": 2,
+  "generatedAt": "2026-07-19T08:55:18.750Z",
+  "runCount": 8,
   "runs": [
+    {
+      "schemaVersion": "1",
+      "id": "benchmark_19jkde7",
+      "recordedAt": "2026-07-19T08:54:40.758Z",
+      "experiment": "context-controlled",
+      "condition": "codex-with-kerno-capsule",
+      "task": {
+        "id": "refund-debug",
+        "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+        "repository": "relaycart-ts",
+        "license": "Apache-2.0",
+        "startingCommit": "06afe8c2b9366ccc9ec0756b24a473d751abb5b5",
+        "branch": "main",
+        "successCriteria": [
+          "all three pinned assertions pass",
+          "concurrent deliveries credit once",
+          "restart after marker timeout does not re-credit",
+          "public RefundSucceeded event shape is unchanged"
+        ],
+        "testCommands": [
+          "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+        ]
+      },
+      "environment": {
+        "platform": "darwin",
+        "architecture": "arm64",
+        "node": "v22.13.1",
+        "codex": "codex-cli 0.145.0-alpha.18",
+        "recordedFrom": "live-app-server"
+      },
+      "model": {
+        "requested": "gpt-5.6-sol",
+        "reasoningEffort": "low",
+        "effective": null,
+        "truthLabel": "requested-unconfirmed"
+      },
+      "permissions": "workspace-write:no-network:never-approve",
+      "kernoConfiguration": {
+        "capsuleBudget": 2500,
+        "initialCapsuleId": "capsule_90zc43",
+        "childCapsuleId": "capsule_1jp55cj",
+        "routingPolicy": "context-controlled-pinned-live-model-lowest-effort"
+      },
+      "finalStatus": "passed",
+      "tests": {
+        "passed": true,
+        "exitCode": 0,
+        "artifactHash": "9c822d55d2081672f1b2fbf992cffa93f8de8f295da5581a59cbbf291036101f",
+        "outputTail": "TAP version 13\n# (node:2323) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 1.0255\n  ...\n# (node:2324) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.488125\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.506208\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 111.220667\n\n(node:2322) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+      },
+      "metrics": {
+        "totalTokens": 95383,
+        "filesOpened": 2,
+        "repeatedReads": 0,
+        "toolCalls": 11,
+        "contextExpansions": 1,
+        "latencyMs": 107289,
+        "changedLines": 16,
+        "unnecessaryChangedLines": null,
+        "reviewerFindings": 0
+      },
+      "review": {
+        "status": "passed",
+        "artifactHash": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+        "summary": "{\"status\":\"passed\",\"findings\":[]}"
+      },
+      "artifacts": {
+        "events": "benchmarks/recorded-results/live/benchmark_19jkde7/events.json",
+        "diff": "benchmarks/recorded-results/live/benchmark_19jkde7/diff.patch",
+        "tests": "benchmarks/recorded-results/live/benchmark_19jkde7/tests.txt",
+        "review": "benchmarks/recorded-results/live/benchmark_19jkde7/review.txt"
+      },
+      "limitations": [
+        "Requested model was not independently confirmed by an effective-model or reroute event."
+      ]
+    },
+    {
+      "schemaVersion": "1",
+      "id": "benchmark_1crq47p",
+      "recordedAt": "2026-07-19T08:50:19.464Z",
+      "experiment": "context-controlled",
+      "condition": "codex-with-kerno-capsule",
+      "task": {
+        "id": "refund-debug",
+        "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+        "repository": "relaycart-ts",
+        "license": "Apache-2.0",
+        "startingCommit": "11deaf4b716b3334b8d3f39654dd1e4f99e7bb47",
+        "branch": "main",
+        "successCriteria": [
+          "all three pinned assertions pass",
+          "concurrent deliveries credit once",
+          "restart after marker timeout does not re-credit",
+          "public RefundSucceeded event shape is unchanged"
+        ],
+        "testCommands": [
+          "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+        ]
+      },
+      "environment": {
+        "platform": "darwin",
+        "architecture": "arm64",
+        "node": "v22.13.1",
+        "codex": "codex-cli 0.145.0-alpha.18",
+        "recordedFrom": "live-app-server"
+      },
+      "model": {
+        "requested": "gpt-5.6-sol",
+        "reasoningEffort": "low",
+        "effective": null,
+        "truthLabel": "requested-unconfirmed"
+      },
+      "permissions": "workspace-write:no-network:never-approve",
+      "kernoConfiguration": {
+        "capsuleBudget": 2500,
+        "initialCapsuleId": "capsule_8zows1",
+        "childCapsuleId": "capsule_18zyki2",
+        "routingPolicy": "context-controlled-pinned-live-model-lowest-effort"
+      },
+      "finalStatus": "partial",
+      "tests": {
+        "passed": true,
+        "exitCode": 0,
+        "artifactHash": "2652a5f8893005e6f22af43ae754ebd45d0ce956c1f0d32f7ee191fd68c881f6",
+        "outputTail": "TAP version 13\n# (node:35591) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.769917\n  ...\n# (node:35592) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.518667\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.558459\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 106.643958\n\n(node:35590) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+      },
+      "metrics": {
+        "totalTokens": 95206,
+        "filesOpened": 2,
+        "repeatedReads": 0,
+        "toolCalls": 14,
+        "contextExpansions": 1,
+        "latencyMs": 95371,
+        "changedLines": 16,
+        "unnecessaryChangedLines": null,
+        "reviewerFindings": 1
+      },
+      "review": {
+        "status": "failed",
+        "artifactHash": "b97d884c5d0bebb2fdf895273a7099c3a753fe34d1cbc63e682be7631bd891e4",
+        "summary": "{\"status\":\"failed\",\"findings\":[{\"severity\":\"high\",\"file\":\"src/transactions/transaction-boundary.ts:17\",\"message\":\"The idempotency cache is treated as authoritative: has(eventId) can return early without consulting the durable ledger. A stale, corrupt, or prematurely written marker therefore permanently suppresses a legitimate refund, contradicting the stated contract that the ledger owns uniqueness and the marker is repairable. The three pinned tests pass and RefundSucceeded is unchanged, but they do not cover this transaction-consistency failure.\"}]}"
+      },
+      "artifacts": {
+        "events": "benchmarks/recorded-results/live/benchmark_1crq47p/events.json",
+        "diff": "benchmarks/recorded-results/live/benchmark_1crq47p/diff.patch",
+        "tests": "benchmarks/recorded-results/live/benchmark_1crq47p/tests.txt",
+        "review": "benchmarks/recorded-results/live/benchmark_1crq47p/review.txt"
+      },
+      "limitations": [
+        "Requested model was not independently confirmed by an effective-model or reroute event."
+      ]
+    },
+    {
+      "schemaVersion": "1",
+      "id": "benchmark_1dbgx40",
+      "recordedAt": "2026-07-19T08:42:51.622Z",
+      "experiment": "context-controlled",
+      "condition": "plain-codex",
+      "task": {
+        "id": "refund-debug",
+        "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+        "repository": "relaycart-ts",
+        "license": "Apache-2.0",
+        "startingCommit": "3a6cfad4d92e52e37347e2368b9dd111e5d63646",
+        "branch": "main",
+        "successCriteria": [
+          "all three pinned assertions pass",
+          "concurrent deliveries credit once",
+          "restart after marker timeout does not re-credit",
+          "public RefundSucceeded event shape is unchanged"
+        ],
+        "testCommands": [
+          "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+        ]
+      },
+      "environment": {
+        "platform": "darwin",
+        "architecture": "arm64",
+        "node": "v22.13.1",
+        "codex": "codex-cli 0.145.0-alpha.18",
+        "recordedFrom": "live-app-server"
+      },
+      "model": {
+        "requested": "gpt-5.6-sol",
+        "reasoningEffort": "low",
+        "effective": null,
+        "truthLabel": "requested-unconfirmed"
+      },
+      "permissions": "workspace-write:no-network:never-approve",
+      "kernoConfiguration": null,
+      "finalStatus": "partial",
+      "tests": {
+        "passed": true,
+        "exitCode": 0,
+        "artifactHash": "6b28145f3d6459e1dd35c653a0aa614b6f40eef6b614b2f0bfbabdbfc4f7b8d0",
+        "outputTail": "TAP version 13\n# (node:48498) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.805667\n  ...\n# (node:48499) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 1.00975\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.610792\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 115.0085\n\n(node:48497) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+      },
+      "metrics": {
+        "totalTokens": 113569,
+        "filesOpened": 6,
+        "repeatedReads": 2,
+        "toolCalls": 14,
+        "contextExpansions": 0,
+        "latencyMs": 89044,
+        "changedLines": 17,
+        "unnecessaryChangedLines": null,
+        "reviewerFindings": 1
+      },
+      "review": {
+        "status": "failed",
+        "artifactHash": "885388d9554ad56a50c327eae24f7a8b5d664a2170bed6bad317cacac7ff745a",
+        "summary": "{\"status\":\"failed\",\"findings\":[{\"severity\":\"high\",\"file\":\"src/transactions/transaction-boundary.ts:31\",\"message\":\"The claimed atomicity is only process-local. `committed` and `inflight` are in-memory state cached by object identity in a module-level WeakMap. A process restart, separate worker, or separately constructed store clients loses/bypasses that state; if `ledger.credit()` succeeds and `idempotency.mark()` fails, a retry can credit the refund again. The pinned test passes because its simulated restart creates only a new handler while reusing the same process and store instances, so it does not verify durable transaction semantics.\"}]}"
+      },
+      "artifacts": {
+        "events": "benchmarks/recorded-results/live/benchmark_1dbgx40/events.json",
+        "diff": "benchmarks/recorded-results/live/benchmark_1dbgx40/diff.patch",
+        "tests": "benchmarks/recorded-results/live/benchmark_1dbgx40/tests.txt",
+        "review": "benchmarks/recorded-results/live/benchmark_1dbgx40/review.txt"
+      },
+      "limitations": [
+        "Requested model was not independently confirmed by an effective-model or reroute event.",
+        "Baseline validity requires the Kerno plugin to be absent from the App Server profile; verify the run preflight."
+      ]
+    },
+    {
+      "schemaVersion": "1",
+      "id": "benchmark_1dwiafn",
+      "recordedAt": "2026-07-19T08:52:41.110Z",
+      "experiment": "context-controlled",
+      "condition": "plain-codex",
+      "task": {
+        "id": "refund-debug",
+        "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+        "repository": "relaycart-ts",
+        "license": "Apache-2.0",
+        "startingCommit": "06afe8c2b9366ccc9ec0756b24a473d751abb5b5",
+        "branch": "main",
+        "successCriteria": [
+          "all three pinned assertions pass",
+          "concurrent deliveries credit once",
+          "restart after marker timeout does not re-credit",
+          "public RefundSucceeded event shape is unchanged"
+        ],
+        "testCommands": [
+          "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+        ]
+      },
+      "environment": {
+        "platform": "darwin",
+        "architecture": "arm64",
+        "node": "v22.13.1",
+        "codex": "codex-cli 0.145.0-alpha.18",
+        "recordedFrom": "live-app-server"
+      },
+      "model": {
+        "requested": "gpt-5.6-sol",
+        "reasoningEffort": "low",
+        "effective": null,
+        "truthLabel": "requested-unconfirmed"
+      },
+      "permissions": "workspace-write:no-network:never-approve",
+      "kernoConfiguration": null,
+      "finalStatus": "passed",
+      "tests": {
+        "passed": true,
+        "exitCode": 0,
+        "artifactHash": "757836080830cf8cf5aeb8a83e113e8862fe4d3c2d8a5a83fa00ccc7eadc4416",
+        "outputTail": "TAP version 13\n# (node:87499) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.814541\n  ...\n# (node:87500) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.525458\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.567084\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 104.524333\n\n(node:87498) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+      },
+      "metrics": {
+        "totalTokens": 93670,
+        "filesOpened": 6,
+        "repeatedReads": 2,
+        "toolCalls": 12,
+        "contextExpansions": 0,
+        "latencyMs": 71922,
+        "changedLines": 16,
+        "unnecessaryChangedLines": null,
+        "reviewerFindings": 0
+      },
+      "review": {
+        "status": "passed",
+        "artifactHash": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+        "summary": "{\"status\":\"passed\",\"findings\":[]}"
+      },
+      "artifacts": {
+        "events": "benchmarks/recorded-results/live/benchmark_1dwiafn/events.json",
+        "diff": "benchmarks/recorded-results/live/benchmark_1dwiafn/diff.patch",
+        "tests": "benchmarks/recorded-results/live/benchmark_1dwiafn/tests.txt",
+        "review": "benchmarks/recorded-results/live/benchmark_1dwiafn/review.txt"
+      },
+      "limitations": [
+        "Requested model was not independently confirmed by an effective-model or reroute event.",
+        "Baseline validity requires the Kerno plugin to be absent from the App Server profile; verify the run preflight."
+      ]
+    },
+    {
+      "schemaVersion": "1",
+      "id": "benchmark_1yh5ycw",
+      "recordedAt": "2026-07-19T08:45:17.031Z",
+      "experiment": "context-controlled",
+      "condition": "codex-with-kerno-capsule",
+      "task": {
+        "id": "refund-debug",
+        "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+        "repository": "relaycart-ts",
+        "license": "Apache-2.0",
+        "startingCommit": "3a6cfad4d92e52e37347e2368b9dd111e5d63646",
+        "branch": "main",
+        "successCriteria": [
+          "all three pinned assertions pass",
+          "concurrent deliveries credit once",
+          "restart after marker timeout does not re-credit",
+          "public RefundSucceeded event shape is unchanged"
+        ],
+        "testCommands": [
+          "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+        ]
+      },
+      "environment": {
+        "platform": "darwin",
+        "architecture": "arm64",
+        "node": "v22.13.1",
+        "codex": "codex-cli 0.145.0-alpha.18",
+        "recordedFrom": "live-app-server"
+      },
+      "model": {
+        "requested": "gpt-5.6-sol",
+        "reasoningEffort": "low",
+        "effective": null,
+        "truthLabel": "requested-unconfirmed"
+      },
+      "permissions": "workspace-write:no-network:never-approve",
+      "kernoConfiguration": {
+        "capsuleBudget": 2500,
+        "initialCapsuleId": "capsule_plajuq",
+        "childCapsuleId": "capsule_nu7c8t",
+        "routingPolicy": "context-controlled-pinned-live-model-lowest-effort"
+      },
+      "finalStatus": "partial",
+      "tests": {
+        "passed": true,
+        "exitCode": 0,
+        "artifactHash": "7d3a82e341399da636d7cf94541623740f5d6c7edd24f26a2113adfde5cd24b2",
+        "outputTail": "TAP version 13\n# (node:62134) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.968\n  ...\n# (node:62135) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.566459\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.913292\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 150.944667\n\n(node:62133) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+      },
+      "metrics": {
+        "totalTokens": 115807,
+        "filesOpened": 2,
+        "repeatedReads": 0,
+        "toolCalls": 14,
+        "contextExpansions": 1,
+        "latencyMs": 127116,
+        "changedLines": 16,
+        "unnecessaryChangedLines": null,
+        "reviewerFindings": 1
+      },
+      "review": {
+        "status": "failed",
+        "artifactHash": "bbb45e1d242d8b9339226ce38da88914d389c01a86a4193b04a17815f7917ea2",
+        "summary": "{\"status\":\"failed\",\"findings\":[{\"severity\":\"high\",\"file\":\"src/transactions/transaction-boundary.ts\",\"message\":\"The claimed atomic transaction is only process-local bookkeeping. `committed` is updated before `ledger.credit`, while `idempotency.mark` runs afterward against independent stores. A process crash between those operations loses the WeakMap state and permits a duplicate credit; a ledger implementation that commits and then throws also deletes `committed`, enabling another credit. The three pinned assertions pass, and `RefundSucceeded` is unchanged, but the atomicity test only reconstructs the handler with the same in-memory store objects and therefore does not verify restart/crash safety.\"}]}"
+      },
+      "artifacts": {
+        "events": "benchmarks/recorded-results/live/benchmark_1yh5ycw/events.json",
+        "diff": "benchmarks/recorded-results/live/benchmark_1yh5ycw/diff.patch",
+        "tests": "benchmarks/recorded-results/live/benchmark_1yh5ycw/tests.txt",
+        "review": "benchmarks/recorded-results/live/benchmark_1yh5ycw/review.txt"
+      },
+      "limitations": [
+        "Requested model was not independently confirmed by an effective-model or reroute event."
+      ]
+    },
+    {
+      "schemaVersion": "1",
+      "id": "benchmark_c5vvsi",
+      "recordedAt": "2026-07-19T08:48:38.348Z",
+      "experiment": "context-controlled",
+      "condition": "plain-codex",
+      "task": {
+        "id": "refund-debug",
+        "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+        "repository": "relaycart-ts",
+        "license": "Apache-2.0",
+        "startingCommit": "11deaf4b716b3334b8d3f39654dd1e4f99e7bb47",
+        "branch": "main",
+        "successCriteria": [
+          "all three pinned assertions pass",
+          "concurrent deliveries credit once",
+          "restart after marker timeout does not re-credit",
+          "public RefundSucceeded event shape is unchanged"
+        ],
+        "testCommands": [
+          "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+        ]
+      },
+      "environment": {
+        "platform": "darwin",
+        "architecture": "arm64",
+        "node": "v22.13.1",
+        "codex": "codex-cli 0.145.0-alpha.18",
+        "recordedFrom": "live-app-server"
+      },
+      "model": {
+        "requested": "gpt-5.6-sol",
+        "reasoningEffort": "low",
+        "effective": null,
+        "truthLabel": "requested-unconfirmed"
+      },
+      "permissions": "workspace-write:no-network:never-approve",
+      "kernoConfiguration": null,
+      "finalStatus": "partial",
+      "tests": {
+        "passed": true,
+        "exitCode": 0,
+        "artifactHash": "3927e08e9b16227556a5ba8ae130c3ddee93e111c57f8f5c4ed15f9571219532",
+        "outputTail": "TAP version 13\n# (node:20638) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.82425\n  ...\n# (node:20639) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.713916\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.574\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 114.48675\n\n(node:20637) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+      },
+      "metrics": {
+        "totalTokens": 110300,
+        "filesOpened": 6,
+        "repeatedReads": 2,
+        "toolCalls": 12,
+        "contextExpansions": 0,
+        "latencyMs": 107059,
+        "changedLines": 16,
+        "unnecessaryChangedLines": null,
+        "reviewerFindings": 1
+      },
+      "review": {
+        "status": "failed",
+        "artifactHash": "ba01b7875183e9dd1a3d7afc636b3d891c042e46a4c70d25519cd8aedceb356b",
+        "summary": "{\"status\":\"failed\",\"findings\":[{\"severity\":\"high\",\"file\":\"src/transactions/transaction-boundary.ts:17\",\"message\":\"The idempotency marker is treated as authoritative: a cache hit returns before consulting the durable ledger. This contradicts the stated contract that the ledger owns uniqueness and the marker is repairable, and can permanently suppress a refund if the marker is stale or incorrectly present. The three pinned assertions pass and RefundSucceeded remains unchanged, but they do not cover this false-positive marker case.\"}]}"
+      },
+      "artifacts": {
+        "events": "benchmarks/recorded-results/live/benchmark_c5vvsi/events.json",
+        "diff": "benchmarks/recorded-results/live/benchmark_c5vvsi/diff.patch",
+        "tests": "benchmarks/recorded-results/live/benchmark_c5vvsi/tests.txt",
+        "review": "benchmarks/recorded-results/live/benchmark_c5vvsi/review.txt"
+      },
+      "limitations": [
+        "Requested model was not independently confirmed by an effective-model or reroute event.",
+        "Baseline validity requires the Kerno plugin to be absent from the App Server profile; verify the run preflight."
+      ]
+    },
     {
       "schemaVersion": "1",
       "id": "benchmark_jkyxs4",
@@ -156,16 +600,16 @@
     {
       "taskId": "refund-debug",
       "experiment": "context-controlled",
-      "baselineRunId": "benchmark_vqexyg",
-      "kernoRunId": "benchmark_jkyxs4",
+      "baselineRunId": "benchmark_1dwiafn",
+      "kernoRunId": "benchmark_19jkde7",
       "fairness": {
         "passed": true,
         "mismatches": []
       },
       "metrics": {
         "totalTokens": {
-          "baseline": 91587,
-          "kerno": 134979
+          "baseline": 93670,
+          "kerno": 95383
         },
         "filesOpened": {
           "baseline": 6,
@@ -176,16 +620,16 @@
           "kerno": 0
         },
         "toolCalls": {
-          "baseline": 11,
-          "kerno": 18
+          "baseline": 12,
+          "kerno": 11
         },
         "contextExpansions": {
           "baseline": 0,
           "kerno": 1
         },
         "latencyMs": {
-          "baseline": 77242,
-          "kerno": 119785
+          "baseline": 71922,
+          "kerno": 107289
         },
         "changedLines": {
           "baseline": 16,
@@ -196,8 +640,8 @@
           "kerno": null
         },
         "reviewerFindings": {
-          "baseline": 2,
-          "kerno": null
+          "baseline": 0,
+          "kerno": 0
         }
       }
     }

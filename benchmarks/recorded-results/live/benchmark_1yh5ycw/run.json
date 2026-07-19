@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "1",
+  "id": "benchmark_1yh5ycw",
+  "recordedAt": "2026-07-19T08:45:17.031Z",
+  "experiment": "context-controlled",
+  "condition": "codex-with-kerno-capsule",
+  "task": {
+    "id": "refund-debug",
+    "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+    "repository": "relaycart-ts",
+    "license": "Apache-2.0",
+    "startingCommit": "3a6cfad4d92e52e37347e2368b9dd111e5d63646",
+    "branch": "main",
+    "successCriteria": [
+      "all three pinned assertions pass",
+      "concurrent deliveries credit once",
+      "restart after marker timeout does not re-credit",
+      "public RefundSucceeded event shape is unchanged"
+    ],
+    "testCommands": [
+      "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+    ]
+  },
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v22.13.1",
+    "codex": "codex-cli 0.145.0-alpha.18",
+    "recordedFrom": "live-app-server"
+  },
+  "model": {
+    "requested": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "effective": null,
+    "truthLabel": "requested-unconfirmed"
+  },
+  "permissions": "workspace-write:no-network:never-approve",
+  "kernoConfiguration": {
+    "capsuleBudget": 2500,
+    "initialCapsuleId": "capsule_plajuq",
+    "childCapsuleId": "capsule_nu7c8t",
+    "routingPolicy": "context-controlled-pinned-live-model-lowest-effort"
+  },
+  "finalStatus": "partial",
+  "tests": {
+    "passed": true,
+    "exitCode": 0,
+    "artifactHash": "7d3a82e341399da636d7cf94541623740f5d6c7edd24f26a2113adfde5cd24b2",
+    "outputTail": "TAP version 13\n# (node:62134) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.968\n  ...\n# (node:62135) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.566459\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.913292\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 150.944667\n\n(node:62133) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+  },
+  "metrics": {
+    "totalTokens": 115807,
+    "filesOpened": 2,
+    "repeatedReads": 0,
+    "toolCalls": 14,
+    "contextExpansions": 1,
+    "latencyMs": 127116,
+    "changedLines": 16,
+    "unnecessaryChangedLines": null,
+    "reviewerFindings": 1
+  },
+  "review": {
+    "status": "failed",
+    "artifactHash": "bbb45e1d242d8b9339226ce38da88914d389c01a86a4193b04a17815f7917ea2",
+    "summary": "{\"status\":\"failed\",\"findings\":[{\"severity\":\"high\",\"file\":\"src/transactions/transaction-boundary.ts\",\"message\":\"The claimed atomic transaction is only process-local bookkeeping. `committed` is updated before `ledger.credit`, while `idempotency.mark` runs afterward against independent stores. A process crash between those operations loses the WeakMap state and permits a duplicate credit; a ledger implementation that commits and then throws also deletes `committed`, enabling another credit. The three pinned assertions pass, and `RefundSucceeded` is unchanged, but the atomicity test only reconstructs the handler with the same in-memory store objects and therefore does not verify restart/crash safety.\"}]}"
+  },
+  "artifacts": {
+    "events": "benchmarks/recorded-results/live/benchmark_1yh5ycw/events.json",
+    "diff": "benchmarks/recorded-results/live/benchmark_1yh5ycw/diff.patch",
+    "tests": "benchmarks/recorded-results/live/benchmark_1yh5ycw/tests.txt",
+    "review": "benchmarks/recorded-results/live/benchmark_1yh5ycw/review.txt"
+  },
+  "limitations": [
+    "Requested model was not independently confirmed by an effective-model or reroute event."
+  ]
+}

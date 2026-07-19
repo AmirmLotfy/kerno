@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "1",
+  "id": "benchmark_1dbgx40",
+  "recordedAt": "2026-07-19T08:42:51.622Z",
+  "experiment": "context-controlled",
+  "condition": "plain-codex",
+  "task": {
+    "id": "refund-debug",
+    "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+    "repository": "relaycart-ts",
+    "license": "Apache-2.0",
+    "startingCommit": "3a6cfad4d92e52e37347e2368b9dd111e5d63646",
+    "branch": "main",
+    "successCriteria": [
+      "all three pinned assertions pass",
+      "concurrent deliveries credit once",
+      "restart after marker timeout does not re-credit",
+      "public RefundSucceeded event shape is unchanged"
+    ],
+    "testCommands": [
+      "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+    ]
+  },
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v22.13.1",
+    "codex": "codex-cli 0.145.0-alpha.18",
+    "recordedFrom": "live-app-server"
+  },
+  "model": {
+    "requested": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "effective": null,
+    "truthLabel": "requested-unconfirmed"
+  },
+  "permissions": "workspace-write:no-network:never-approve",
+  "kernoConfiguration": null,
+  "finalStatus": "partial",
+  "tests": {
+    "passed": true,
+    "exitCode": 0,
+    "artifactHash": "6b28145f3d6459e1dd35c653a0aa614b6f40eef6b614b2f0bfbabdbfc4f7b8d0",
+    "outputTail": "TAP version 13\n# (node:48498) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.805667\n  ...\n# (node:48499) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 1.00975\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.610792\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 115.0085\n\n(node:48497) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+  },
+  "metrics": {
+    "totalTokens": 113569,
+    "filesOpened": 6,
+    "repeatedReads": 2,
+    "toolCalls": 14,
+    "contextExpansions": 0,
+    "latencyMs": 89044,
+    "changedLines": 17,
+    "unnecessaryChangedLines": null,
+    "reviewerFindings": 1
+  },
+  "review": {
+    "status": "failed",
+    "artifactHash": "885388d9554ad56a50c327eae24f7a8b5d664a2170bed6bad317cacac7ff745a",
+    "summary": "{\"status\":\"failed\",\"findings\":[{\"severity\":\"high\",\"file\":\"src/transactions/transaction-boundary.ts:31\",\"message\":\"The claimed atomicity is only process-local. `committed` and `inflight` are in-memory state cached by object identity in a module-level WeakMap. A process restart, separate worker, or separately constructed store clients loses/bypasses that state; if `ledger.credit()` succeeds and `idempotency.mark()` fails, a retry can credit the refund again. The pinned test passes because its simulated restart creates only a new handler while reusing the same process and store instances, so it does not verify durable transaction semantics.\"}]}"
+  },
+  "artifacts": {
+    "events": "benchmarks/recorded-results/live/benchmark_1dbgx40/events.json",
+    "diff": "benchmarks/recorded-results/live/benchmark_1dbgx40/diff.patch",
+    "tests": "benchmarks/recorded-results/live/benchmark_1dbgx40/tests.txt",
+    "review": "benchmarks/recorded-results/live/benchmark_1dbgx40/review.txt"
+  },
+  "limitations": [
+    "Requested model was not independently confirmed by an effective-model or reroute event.",
+    "Baseline validity requires the Kerno plugin to be absent from the App Server profile; verify the run preflight."
+  ]
+}

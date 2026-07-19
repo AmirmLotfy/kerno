@@ -66,7 +66,7 @@ Context quality is falsifiable: a failing test can prove a capsule incomplete. â
 
 ## What is next
 
-Complete all three pre-registered paired tasks and routing experiment, improve reviewer reliability, validate Windows only if tested, then explore optional parsers and embeddings without weakening evidence/invalidation semantics.
+Complete all three pre-registered paired tasks and routing experiment, validate Windows only if tested, then explore optional parsers and embeddings without weakening evidence/invalidation semantics.
 
 ## Judge test field
 

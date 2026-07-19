@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "1",
+  "id": "benchmark_1crq47p",
+  "recordedAt": "2026-07-19T08:50:19.464Z",
+  "experiment": "context-controlled",
+  "condition": "codex-with-kerno-capsule",
+  "task": {
+    "id": "refund-debug",
+    "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+    "repository": "relaycart-ts",
+    "license": "Apache-2.0",
+    "startingCommit": "11deaf4b716b3334b8d3f39654dd1e4f99e7bb47",
+    "branch": "main",
+    "successCriteria": [
+      "all three pinned assertions pass",
+      "concurrent deliveries credit once",
+      "restart after marker timeout does not re-credit",
+      "public RefundSucceeded event shape is unchanged"
+    ],
+    "testCommands": [
+      "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+    ]
+  },
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v22.13.1",
+    "codex": "codex-cli 0.145.0-alpha.18",
+    "recordedFrom": "live-app-server"
+  },
+  "model": {
+    "requested": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "effective": null,
+    "truthLabel": "requested-unconfirmed"
+  },
+  "permissions": "workspace-write:no-network:never-approve",
+  "kernoConfiguration": {
+    "capsuleBudget": 2500,
+    "initialCapsuleId": "capsule_8zows1",
+    "childCapsuleId": "capsule_18zyki2",
+    "routingPolicy": "context-controlled-pinned-live-model-lowest-effort"
+  },
+  "finalStatus": "partial",
+  "tests": {
+    "passed": true,
+    "exitCode": 0,
+    "artifactHash": "2652a5f8893005e6f22af43ae754ebd45d0ce956c1f0d32f7ee191fd68c881f6",
+    "outputTail": "TAP version 13\n# (node:35591) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.769917\n  ...\n# (node:35592) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.518667\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.558459\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 106.643958\n\n(node:35590) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+  },
+  "metrics": {
+    "totalTokens": 95206,
+    "filesOpened": 2,
+    "repeatedReads": 0,
+    "toolCalls": 14,
+    "contextExpansions": 1,
+    "latencyMs": 95371,
+    "changedLines": 16,
+    "unnecessaryChangedLines": null,
+    "reviewerFindings": 1
+  },
+  "review": {
+    "status": "failed",
+    "artifactHash": "b97d884c5d0bebb2fdf895273a7099c3a753fe34d1cbc63e682be7631bd891e4",
+    "summary": "{\"status\":\"failed\",\"findings\":[{\"severity\":\"high\",\"file\":\"src/transactions/transaction-boundary.ts:17\",\"message\":\"The idempotency cache is treated as authoritative: has(eventId) can return early without consulting the durable ledger. A stale, corrupt, or prematurely written marker therefore permanently suppresses a legitimate refund, contradicting the stated contract that the ledger owns uniqueness and the marker is repairable. The three pinned tests pass and RefundSucceeded is unchanged, but they do not cover this transaction-consistency failure.\"}]}"
+  },
+  "artifacts": {
+    "events": "benchmarks/recorded-results/live/benchmark_1crq47p/events.json",
+    "diff": "benchmarks/recorded-results/live/benchmark_1crq47p/diff.patch",
+    "tests": "benchmarks/recorded-results/live/benchmark_1crq47p/tests.txt",
+    "review": "benchmarks/recorded-results/live/benchmark_1crq47p/review.txt"
+  },
+  "limitations": [
+    "Requested model was not independently confirmed by an effective-model or reroute event."
+  ]
+}

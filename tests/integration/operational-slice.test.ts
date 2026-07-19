@@ -44,7 +44,10 @@ describe("complete operational vertical slice", () => {
     const failing = await targetTest(root); expect(failing.exitCode).not.toBe(0);
     const failedOutcome = data(await client.callTool({ name: "kerno_record_outcome", arguments: { runId: "run_operational", status: "failed", tests: [], review: [], changedFiles: [], artifacts: [{ kind: "test", source: "command", output: failing.output, exitCode: failing.exitCode, command: ["node", "--test"] }] } }));
     const child = data(await client.callTool({ name: "kerno_expand_context", arguments: { capsuleId: capsule.id, evidence: { kind: "test_failure", artifactId: failedOutcome.artifacts[0].id, text: "TransactionBoundary must serialize the ledger credit and idempotency marker", symbols: ["TransactionBoundary"] } } }));
-    expect(child.items.map((item: any) => item.locator.path)).toEqual(["src/transactions/transaction-boundary.ts"]);
+    const expandedPaths = child.items.map((item: any) => item.locator.path);
+    expect(expandedPaths).toContain("src/transactions/transaction-boundary.ts");
+    expect(expandedPaths).toEqual(expect.arrayContaining(["tests/atomicity.integration.test.ts"]));
+    expect(expandedPaths.length).toBeLessThanOrEqual(2);
 
     const persistedEvents: any[] = []; const orchestrator = new CodexPhaseOrchestrator({ command: process.execPath, args: [fake], eventSink: (event) => { persistedEvents.push(event); service.store.appendEvent(event); } }); resources.push(orchestrator);
     const catalog = await orchestrator.initialize(); service.recordCatalog(catalog.catalogSnapshotId, catalog.models, "app-server");

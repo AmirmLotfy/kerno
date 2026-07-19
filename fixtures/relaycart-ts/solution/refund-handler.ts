@@ -1,6 +1,6 @@
 import type { IdempotencyStore } from "../idempotency/idempotency-store.ts";
 import type { Ledger } from "../ledger/ledger.ts";
-import { MemoryTransactionBoundary, type TransactionBoundary } from "../transactions/transaction-boundary.ts";
+import { transactionBoundaryFor, type TransactionBoundary } from "../transactions/transaction-boundary.ts";
 
 export type RefundSucceeded = {
   id: string;
@@ -12,7 +12,7 @@ export type RefundSucceeded = {
 export class RefundHandler {
   private readonly transaction: TransactionBoundary;
   constructor(ledger: Ledger, idempotency: IdempotencyStore, transaction?: TransactionBoundary) {
-    this.transaction = transaction ?? new MemoryTransactionBoundary(ledger, idempotency);
+    this.transaction = transaction ?? transactionBoundaryFor(ledger, idempotency);
   }
 
   async handle(event: RefundSucceeded): Promise<void> {

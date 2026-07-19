@@ -85,7 +85,7 @@ export function buildBenchmarkReport(rawRuns: unknown[]): BenchmarkReport {
   const keys = [...new Set(runs.map((run) => `${run.experiment}:${run.task.id}`))];
   const comparisons = keys.map((key) => {
     const [experiment, taskId] = key.split(":", 2) as [BenchmarkRun["experiment"], string];
-    const candidates = runs.filter((run) => run.experiment === experiment && run.task.id === taskId);
+    const candidates = runs.filter((run) => run.experiment === experiment && run.task.id === taskId).sort((left, right) => right.recordedAt.localeCompare(left.recordedAt));
     const baselineCondition = experiment === "context-controlled" ? "plain-codex" : "plain-default-workflow";
     const kernoCondition = experiment === "context-controlled" ? "codex-with-kerno-capsule" : "kerno-phase-routing";
     const baseline = candidates.find((run) => run.condition === baselineCondition);

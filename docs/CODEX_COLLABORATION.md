@@ -32,6 +32,7 @@ Codex output was not accepted on authorship alone. It was corrected when:
 - benchmark exports exposed local home/temp paths;
 - the first paired benchmark used more tokens, calls, and latency with Kerno;
 - reviewer output was incomplete and therefore could not support a pass;
+- independent review proved process-local transaction state and an authoritative cache marker were not durable correctness, causing both designs to be rejected;
 - dashboard tests asserted old labels after the evidence-first redesign.
 
 Validation uses strict type checking, deterministic unit/integration/security tests, MCP/plugin/CLI smoke tests, a real App Server probe, production dashboard build, Playwright, dependency/license/secret audits, fixture acceptance commands, and clean-clone testing.

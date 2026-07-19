@@ -26,22 +26,23 @@ All attempts, failures, timeouts, and unfavorable results remain. Missing events
 - Runtime: Codex App Server, macOS arm64, Node v22.13.1.
 - Requested model/effort: `gpt-5.6-sol` / `low`, selected from live `model/list`.
 - Effective model: not independently confirmed; no effective/reroute event was observed.
-- Outcome: both pinned test suites passed; both final statuses are `partial` because independent review evidence was incomplete.
+- Outcome: the latest pair passed pinned tests and fresh independent review with zero findings in both conditions.
 - Fairness validation: passed with no mismatches.
+- Retention: eight total attempts are checked in. Six earlier partial runs include timeouts and reviewer findings that exposed and drove fixes for process-local transaction state and a stale authoritative marker.
 
 | Measured metric | Plain Codex | Kerno | Interpretation |
 |---|---:|---:|---|
-| Total observed thread tokens | 91,587 | 134,979 | Kerno worse in this pair |
+| Total observed thread tokens | 93,670 | 95,383 | Kerno slightly worse in this pair |
 | Unique observable files | 6 | 2 | Kerno narrower |
 | Repeated observable reads | 2 | 0 | Kerno fewer |
-| Tool calls | 11 | 18 | Kerno worse |
+| Tool calls | 12 | 11 | Kerno fewer |
 | Context expansions | 0 | 1 | expected proof loop |
-| Latency | 77,242 ms | 119,785 ms | Kerno worse |
+| Latency | 71,922 ms | 107,289 ms | Kerno worse |
 | Changed lines | 16 | 16 | equal |
 | Unnecessary changed lines | unavailable | unavailable | not inferred |
-| Reviewer findings | 2 | unavailable | not comparable |
+| Reviewer findings | 0 | 0 | equal; fresh threads passed |
 
-This single pair is a case study, not a performance claim. Files/reads cover observable command events and may undercount internal runtime reads. The baseline reviewer phase failed; Kerno review was unavailable. Those limitations prevent a pass status.
+This single latest pair is a case study, not a performance claim. Files/reads cover observable command events and may undercount internal runtime reads. Requested models remain unconfirmed because no effective/reroute event was emitted. Earlier failed review artifacts are part of the result set rather than deleted outliers.
 
 ## Metric sources
 

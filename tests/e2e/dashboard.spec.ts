@@ -33,7 +33,7 @@ test("judge replay exposes every product state and the evidence views", async ({
 
   await page.getByRole("button", { name: "Limits" }).click();
   await expect(page.getByRole("heading", { name: "Claims bounded by their evidence." })).toBeVisible();
-  await expect(page.getByText("Effective runtime model for the recorded pair", { exact: true })).toBeVisible();
+  await expect(page.getByText("Independent review in the deterministic replay", { exact: true })).toBeVisible();
 });
 
 test("judge views remain usable on a narrow viewport", async ({ page }) => {

@@ -108,20 +108,20 @@ Kerno is a strict TypeScript/npm-workspaces monorepo using Zod, `better-sqlite3`
 
 ## Benchmark status
 
-One real context-controlled pair is checked in for `refund-debug`, from the same task, generated starting commit, permissions, requested model (`gpt-5.6-sol`), and lowest supported effort (`low`). Both conditions passed pinned tests and remained `partial` because independent review evidence was incomplete.
+One real context-controlled pair is checked in for `refund-debug`, from the same task, generated starting commit, permissions, requested model (`gpt-5.6-sol`), and lowest supported effort (`low`). The latest conditions both passed pinned tests and a fresh independent review with zero findings. Six earlier partial attempts remain retained because their reviews exposed fixture design defects that were then corrected.
 
 Measured in that pair:
 
 | Metric | Plain Codex | Codex + Kerno capsule |
 |---|---:|---:|
-| Total observed thread tokens | 91,587 | 134,979 |
+| Total observed thread tokens | 93,670 | 95,383 |
 | Unique files observed | 6 | 2 |
 | Repeated observable reads | 2 | 0 |
-| Tool calls | 11 | 18 |
-| Latency | 77,242 ms | 119,785 ms |
+| Tool calls | 12 | 11 |
+| Latency | 71,922 ms | 107,289 ms |
 | Changed lines | 16 | 16 |
 
-This is an unfavorable Kerno result for tokens, calls, and latency, and a favorable one for inspected-file breadth and repeated reads. It is one pair, not a generalized productivity claim. Exact cost is not reported. The required three-task benchmark matrix remains a release blocker; see [Benchmark](docs/BENCHMARK.md).
+This is an unfavorable Kerno result for tokens and latency, and a favorable one for inspected-file breadth, repeated reads, and tool calls. It is one pair, not a generalized productivity claim. Exact cost is not reported. The required three-task benchmark matrix remains a release blocker; see [Benchmark](docs/BENCHMARK.md).
 
 ## Privacy and security
 
@@ -149,7 +149,7 @@ Pattern redaction is defense in depth, not a guarantee that every secret is reco
 
 Codex was the primary engineering collaborator: it inspected official interfaces, built and revised the monorepo, generated tests, exercised the plugin/MCP/App Server paths, and corrected failures found by type, integration, security, and browser checks. GPT-5.6 powered the main Codex implementation work and the recorded live benchmark request. Focused review agents were used for compliance, P0 gap analysis, and security review; the root task reconciled their findings.
 
-Human decisions controlled the product thesis, scope, architecture, security boundaries, evidence semantics, evaluation fairness, visual direction, and which claims were withheld. Generated output was rejected or corrected when it implied silent parent-model switching, treated caller assertions as evidence, exposed local paths, used an overlong plugin prompt, or overstated benchmark completeness. Full details are in [Codex Collaboration](docs/CODEX_COLLABORATION.md).
+Human decisions controlled the product thesis, scope, architecture, security boundaries, evidence semantics, evaluation fairness, visual direction, and which claims were withheld. Generated output was rejected or corrected when it implied silent parent-model switching, treated caller assertions as evidence, exposed local paths, used an overlong plugin prompt, or let process-local/cache state masquerade as durable transaction truth. Full details are in [Codex Collaboration](docs/CODEX_COLLABORATION.md).
 
 ## Development
 
