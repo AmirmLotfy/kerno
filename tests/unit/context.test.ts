@@ -10,6 +10,8 @@ describe("context engine", () => {
   it("builds a deterministic bounded capsule with provenance", async () => {
     const snapshot = await indexRepository(fixture);
     const task = analyzeTask(snapshot.repository.id, snapshot.id, taskText);
+    expect(task.intent).toBe("debugging");
+    expect(task.symbols).not.toEqual(expect.arrayContaining(["Make", "API"]));
     const first = buildContextCapsule(task, snapshot, { budgetTokens: 2500 });
     const second = buildContextCapsule(task, snapshot, { budgetTokens: 2500 });
     expect(first.estimatedTokens).toBeLessThanOrEqual(2500);

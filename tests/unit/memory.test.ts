@@ -31,4 +31,20 @@ describe("evidence-backed memory", () => {
       expect(service.store.get<typeof first>("memory", first.id)).toMatchObject({ status: "superseded", supersededBy: replacement.id });
     } finally { service.close(); }
   });
+
+  it("retrieves only a currently verified task-relevant memory into a capsule", async () => {
+    const service = new KernoService();
+    try {
+      const snapshot = await service.index({ root: fixture, mode: "incremental" });
+      service.recordDecision({ repositoryId: snapshot.repository.id, type: "architecture-decision", summary: "Ledger uniqueness is the authoritative refund idempotency boundary", scope: "branch", evidence: [{ id: "evidence_user_memory", kind: "user", path: "src/ledger/ledger.ts", note: "explicit fixture decision" }], invalidationConditions: [{ kind: "file", key: "src/ledger/ledger.ts", expected: snapshot.files.find((file) => file.path === "src/ledger/ledger.ts")!.contentHash }], userConfirmed: true });
+      const task = service.analyze({ repositoryId: snapshot.repository.id, taskText: "Verify the authoritative refund idempotency boundary" });
+      const capsule = await service.buildCapsule({ taskAnalysisId: task.id, budgetTokens: 2500 });
+      expect(capsule.items.some((item) => item.sourceType === "memory" && item.trust === "verified-memory")).toBe(true);
+    } finally { service.close(); }
+  });
+
+  it("invalidates commit-scoped evidence when HEAD changes", async () => {
+    const snapshot = await indexRepository(fixture); const memory = createMemory({ repositoryId: snapshot.repository.id, branch: snapshot.worktree.branch, headCommit: snapshot.worktree.headCommit, type: "api-contract", summary: "Commit-scoped contract", evidence: [{ id: "evidence_user_commit", kind: "user" }], invalidationConditions: [{ kind: "commit", key: "head", expected: snapshot.worktree.headCommit ?? "unborn" }], creationSource: "user", userConfirmed: true });
+    expect(invalidateMemory(memory, snapshot, { ...snapshot, worktree: { ...snapshot.worktree, headCommit: "different-head" } }).status).toBe("stale");
+  });
 });

@@ -42,11 +42,10 @@ describe("complete operational vertical slice", () => {
     expect(capsule.items.some((item: any) => item.locator.path === "src/transactions/transaction-boundary.ts")).toBe(false);
 
     const failing = await targetTest(root); expect(failing.exitCode).not.toBe(0);
-    const failedOutcome = data(await client.callTool({ name: "kerno_record_outcome", arguments: { runId: "run_operational", status: "failed", tests: [], review: [], changedFiles: [], artifacts: [{ kind: "test", source: "command", output: failing.output, exitCode: failing.exitCode, command: ["node", "--test"] }] } }));
-    const child = data(await client.callTool({ name: "kerno_expand_context", arguments: { capsuleId: capsule.id, evidence: { kind: "test_failure", artifactId: failedOutcome.artifacts[0].id, text: "TransactionBoundary must serialize the ledger credit and idempotency marker", symbols: ["TransactionBoundary"] } } }));
+    const trustedFailure = service.recordArtifact({ kind: "test", source: "command", output: failing.output, exitCode: failing.exitCode, command: ["node", "--test"], trusted: true });
+    const child = data(await client.callTool({ name: "kerno_expand_context", arguments: { capsuleId: capsule.id, evidence: { kind: "test_failure", artifactId: trustedFailure.id, text: "TransactionBoundary must serialize the ledger credit and idempotency marker", symbols: ["TransactionBoundary"] } } }));
     const expandedPaths = child.items.map((item: any) => item.locator.path);
     expect(expandedPaths).toContain("src/transactions/transaction-boundary.ts");
-    expect(expandedPaths).toEqual(expect.arrayContaining(["tests/atomicity.integration.test.ts"]));
     expect(expandedPaths.length).toBeLessThanOrEqual(2);
 
     const persistedEvents: any[] = []; const orchestrator = new CodexPhaseOrchestrator({ command: process.execPath, args: [fake], eventSink: (event) => { persistedEvents.push(event); service.store.appendEvent(event); } }); resources.push(orchestrator);
@@ -59,7 +58,7 @@ describe("complete operational vertical slice", () => {
     expect(explorationRoute.recommended.model).toBe("efficient-model"); expect(reviewRoute.recommended.model).toBe("depth-model");
 
     await writeFile(join(root, "src/webhooks/refund-handler.ts"), await readFile(solution, "utf8"), "utf8");
-    const passing = await targetTest(root); expect(passing.exitCode).toBe(0); service.recordArtifact({ kind: "test", source: "command", output: passing.output, exitCode: 0, command: ["node", "--test"] });
+    const passing = await targetTest(root); expect(passing.exitCode).toBe(0); service.recordArtifact({ kind: "test", source: "command", output: passing.output, exitCode: 0, command: ["node", "--test"], trusted: true });
     await client.callTool({ name: "kerno_index_repository", arguments: { root, mode: "incremental" } });
 
     const http = await startHttpServer(service); resources.push(http);

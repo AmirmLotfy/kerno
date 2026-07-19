@@ -8,21 +8,12 @@ import ignore from "ignore";
 import ts from "typescript";
 import { parser as pythonParser } from "@lezer/python";
 import type { FileSnapshot, GraphEdge, IndexSnapshot, RepositoryIdentity, SymbolRecord, WorktreeState } from "@kerno/contracts";
-import { KernoError, stableId } from "@kerno/contracts";
+import { KernoError, redactSensitiveString, stableId } from "@kerno/contracts";
 
 const execFile = promisify(execFileCallback);
 const MAX_FILE_SIZE = 1024 * 1024;
 const ENGINE_VERSION = "0.1.0";
-const ALWAYS_IGNORE = [".git/", ".kerno/", ".kerno-cache/", "node_modules/", "dist/", "coverage/", "build/", ".next/", "__pycache__/", "*.min.js", "*.map"];
-const SECRET_PATTERNS = [
-  /(api[_-]?key|secret|token|password)\s*[:=]\s*["'][^"']{8,}["']/gi,
-  /\b(OPENAI_API_KEY|ANTHROPIC_API_KEY|AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|GITHUB_TOKEN|NPM_TOKEN|DATABASE_URL)\s*[:=]\s*["']?[^\s"',}]{8,}["']?/gi,
-  /\bAuthorization\s*:\s*Bearer\s+[A-Za-z0-9._~+/=-]{12,}/gi,
-  /\bAKIA[0-9A-Z]{16}\b/g,
-  /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g,
-  /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g,
-  /\b(?:sk(?:-proj)?|ghp|github_pat)[_-][A-Za-z0-9_-]{16,}\b/g
-];
+const ALWAYS_IGNORE = [".git/", ".kerno/", ".kerno-cache/", "node_modules/", "dist/", "coverage/", "build/", ".next/", "__pycache__/", ".env", ".env.*", "*.pem", "*.key", "*.p12", "*.pfx", "*.min.js", "*.map"];
 
 export type PreviousFile = Pick<FileSnapshot, "path" | "contentHash"> & { snapshot: FileSnapshot };
 
@@ -45,13 +36,7 @@ function isLikelyBinary(buffer: Buffer): boolean {
   return sample.includes(0);
 }
 export function redactSecrets(value: string): { text: string; redacted: boolean } {
-  let text = value;
-  let redacted = false;
-  for (const pattern of SECRET_PATTERNS) {
-    pattern.lastIndex = 0;
-    if (pattern.test(text)) { redacted = true; pattern.lastIndex = 0; text = text.replace(pattern, "[REDACTED_SECRET]"); }
-  }
-  return { text, redacted };
+  return redactSensitiveString(value);
 }
 
 async function git(root: string, args: string[]): Promise<string | null> {

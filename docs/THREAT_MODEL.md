@@ -26,7 +26,7 @@ Boundaries: repository enrollment; filesystem discovery; parsers; Git subprocess
 | Repository prompt injection | source delimited and labeled untrusted; content cannot set policy | malicious-content tests |
 | Command injection | Git via fixed `execFile` arguments; MCP has no command fields; indexing executes no scripts | contract and hostile-input tests |
 | Secret leakage | pattern redaction before persistence/output/export; checked artifacts sanitized; local path scan | redaction, secret scan |
-| Forged evidence | artifacts persisted and hashed; unknown IDs/caller verification rejected | evidence/outcome tests |
+| Forged evidence | only trusted internal execution may mark an artifact verified; caller annotations, exit codes, and unknown IDs cannot prove outcomes | evidence/outcome tests |
 | Cross-branch stale memory | repository/worktree/branch/commit/file/symbol keys; conservative stale state | invalidation tests |
 | Loopback access | `127.0.0.1`, ephemeral bearer token, strict origin/CORS, no token logs | HTTP security tests |
 | Hook abuse | allowlisted metadata, short timeout, fail open, opt-in, no source mutation | hook tests and documented disable path |
@@ -40,7 +40,7 @@ No source upload or telemetry is enabled. State remains under the selected local
 
 ## Residual risk
 
-Pattern redaction cannot prove every secret is absent. Parser heuristics can omit or misclassify relationships. File-system state can change between checks despite containment defenses. Codex may independently load legitimate repository instructions such as `AGENTS.md`; Kerno prevents retrieved excerpts from gaining new authority but cannot alter Codex’s native instruction hierarchy. Live model identity may remain requested-unconfirmed when the runtime emits no effective-model event.
+Pattern redaction cannot prove every secret is absent. Local SQLite/JSON state is permission-restricted but not encrypted at rest. Parser heuristics can omit or misclassify relationships. File-system state can change between checks despite containment defenses. Codex may independently load legitimate repository instructions such as `AGENTS.md`; Kerno prevents retrieved excerpts from gaining new authority but cannot alter Codex’s native instruction hierarchy. Live model identity may remain requested-unconfirmed when the runtime emits no effective-model event.
 
 ## Security release gate
 

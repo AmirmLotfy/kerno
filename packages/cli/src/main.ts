@@ -1,5 +1,5 @@
 import { execFile as execFileCallback } from "node:child_process";
-import { access, mkdir, rm, writeFile } from "node:fs/promises";
+import { access, chmod, lstat, mkdir, readFile, realpath, rm, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, join, parse, resolve, sep } from "node:path";
 import { promisify } from "node:util";
@@ -41,9 +41,32 @@ function isInside(parent: string, candidate: string): boolean { return candidate
 export function assertSafeDataDirectory(dataDir: string, repositoryRoot: string): void {
   const target = resolve(dataDir); const root = resolve(repositoryRoot); const home = resolve(homedir()); const filesystemRoot = parse(target).root;
   if (target === filesystemRoot || target === home || target === root || isInside(target, root) || isInside(target, home)) throw new KernoError("INVALID_INPUT", `Refusing destructive data path: ${target}`);
-  if (basename(target) !== ".kerno") throw new KernoError("INVALID_INPUT", "Data deletion is limited to a directory named .kerno");
+}
+async function prepareDataDirectory(dataDir: string): Promise<void> {
+  const target = resolve(dataDir);
+  const before = await lstat(target).catch(() => null);
+  if (before?.isSymbolicLink()) throw new KernoError("SYMLINK_ESCAPE", `Refusing symlinked Kerno data directory: ${target}`);
+  await mkdir(target, { recursive: true, mode: 0o700 });
+  const after = await lstat(target);
+  const expected = join(await realpath(resolve(target, "..")), basename(target));
+  if (!after.isDirectory() || after.isSymbolicLink() || await realpath(target) !== expected) throw new KernoError("SYMLINK_ESCAPE", `Kerno data directory must resolve directly: ${target}`);
+  await chmod(target, 0o700);
+  const marker = join(target, ".kerno-owned");
+  const markerStat = await lstat(marker).catch(() => null);
+  if (markerStat?.isSymbolicLink()) throw new KernoError("SYMLINK_ESCAPE", `Refusing symlinked Kerno ownership marker: ${marker}`);
+  if (!markerStat) await writeFile(marker, "kerno-local-data-v1\n", { flag: "wx", mode: 0o600 });
+}
+function safeExportValue(value: unknown, repositoryRoot: string): unknown {
+  if (Array.isArray(value)) return value.map((item) => safeExportValue(item, repositoryRoot));
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, item]) => {
+    if (["excerpt", "redactedOutput"].includes(key)) return [key, "[OMITTED_FROM_SAFE_EXPORT]"];
+    if (["canonicalRoot", "canonicalPath"].includes(key)) return [key, "[REPOSITORY_ROOT]"];
+    return [key, safeExportValue(item, repositoryRoot)];
+  }));
+  return typeof value === "string" ? redactSecrets(value.replaceAll(repositoryRoot, "[REPOSITORY_ROOT]")).text : value;
 }
 async function runFixedNpm(root: string, args: string[]): Promise<void> { await execFile("npm", args, { cwd: root, maxBuffer: 16 * 1024 * 1024 }); }
+async function commandOutput(command: string, args: string[]): Promise<string | null> { try { return (await execFile(command, args, { maxBuffer: 4 * 1024 * 1024 })).stdout.trim(); } catch { return null; } }
 
 export async function runCli(argv: string[], io: CliIO = defaultIO): Promise<number> {
   const args = [...argv]; const command = args.shift() ?? "help"; const json = args.includes("--json");
@@ -54,35 +77,44 @@ export async function runCli(argv: string[], io: CliIO = defaultIO): Promise<num
     if (command === "data-delete") {
       if (!args.includes("--yes")) throw new KernoError("INVALID_INPUT", "Data deletion requires --yes");
       assertSafeDataDirectory(dataDir, root);
-      if (!(await exists(join(dataDir, ".kerno-owned")))) throw new KernoError("INVALID_INPUT", `Refusing to delete unmarked directory ${dataDir}`);
+      const marker = join(dataDir, ".kerno-owned");
+      if ((await readFile(marker, "utf8").catch(() => "")) !== "kerno-local-data-v1\n") throw new KernoError("INVALID_INPUT", `Refusing to delete unmarked directory ${dataDir}`);
+      const expected = join(await realpath(resolve(dataDir, "..")), basename(dataDir));
+      if ((await lstat(dataDir)).isSymbolicLink() || await realpath(dataDir) !== expected) throw new KernoError("SYMLINK_ESCAPE", `Refusing symlinked data directory ${dataDir}`);
       await rm(dataDir, { recursive: true, force: false }); emit(io, { deleted: dataDir, recoverable: false }, json); return 0;
     }
-    await mkdir(dataDir, { recursive: true, mode: 0o700 });
-    const marker = join(dataDir, ".kerno-owned"); if (!(await exists(marker))) await writeFile(marker, "kerno-local-data-v1\n", { flag: "wx", mode: 0o600 });
+    await prepareDataDirectory(dataDir);
     if (command === "init") {
       const ignorePath = join(root, ".kernoignore");
       if (!(await exists(ignorePath))) await writeFile(ignorePath, ".env\n.env.*\n*.pem\n*.key\n", { flag: "wx", mode: 0o600 });
       emit(io, { initialized: true, root, dataDir, ignoreFile: ignorePath }, json); return 0;
     }
-    const service = new KernoService({ databasePath: join(dataDir, "kerno.db") });
+    const portable = process.env.KERNO_STORAGE === "json";
+    const service = new KernoService({ databasePath: join(dataDir, portable ? "kerno-state.json" : "kerno.db"), ...(portable ? { storage: "json" as const } : {}) });
     try {
       const repository = async () => inspectRepository(root);
       if (command === "doctor") {
         const pluginRoot = join(root, "plugins/kerno");
-        const checks = { node: process.version, root, git: (await repository()).worktree.headCommit !== null, storage: service.store.health(), pluginManifest: await exists(join(pluginRoot, ".codex-plugin/plugin.json")), bundledMcp: await exists(join(pluginRoot, "dist/kerno-mcp.cjs")) };
-        emit(io, { ok: checks.storage.ok && checks.pluginManifest && checks.bundledMcp, checks }, json); return checks.pluginManifest && checks.bundledMcp ? 0 : 3;
+        const [npmVersion, gitVersion, codexVersion, pluginList] = await Promise.all([commandOutput("npm", ["--version"]), commandOutput("git", ["--version"]), commandOutput("codex", ["--version"]), commandOutput("codex", ["plugin", "list"])]);
+        const [major, minor] = process.versions.node.split(".").map(Number); const nodeSupported = (major === 22 && (minor ?? 0) >= 13) || major === 23 || major === 24;
+        const checks = { node: { version: process.version, supported: nodeSupported, required: ">=22.13 <25" }, npm: npmVersion, git: gitVersion, codex: codexVersion, root, storage: service.store.health(), pluginManifest: await exists(join(pluginRoot, ".codex-plugin/plugin.json")), bundledMcp: await exists(join(pluginRoot, "dist/kerno-mcp.cjs")), pluginInstalled: pluginList?.includes("kerno@personal") ?? false, liveAuthentication: "not checked; run npm run test:app-server:live" };
+        const ok = nodeSupported && Boolean(npmVersion && gitVersion && codexVersion) && checks.storage.ok && checks.pluginManifest && checks.bundledMcp;
+        const actions = [...(!checks.pluginInstalled ? ["Install kerno@personal from the repository marketplace, then restart Codex and start a new task."] : []), ...(!nodeSupported ? ["Use Node 22.13+ or Node 24 LTS."] : [])];
+        emit(io, { ok, checks, actions }, json); return ok ? 0 : 3;
       }
       if (command === "index") emit(io, await service.index({ root, mode: args.includes("--full") ? "full" : "incremental" }), json);
-      else if (command === "status") { const inspected = await repository(); emit(io, service.status({ repositoryId: valueAfter(args, "--repository") ?? inspected.repository.id, worktreeId: inspected.worktree.id }), json); }
+      else if (command === "status") { const inspected = await repository(); emit(io, await service.status({ repositoryId: valueAfter(args, "--repository") ?? inspected.repository.id, worktreeId: inspected.worktree.id }), json); }
       else if (command === "analyze") { const inspected = await repository(); emit(io, service.analyze({ repositoryId: valueAfter(args, "--repository") ?? inspected.repository.id, worktreeId: inspected.worktree.id, taskText: valueAfter(args, "--task") ?? "" }), json); }
-      else if (command === "capsule") emit(io, service.buildCapsule({ taskAnalysisId: valueAfter(args, "--task-id"), budgetTokens: Number(valueAfter(args, "--budget") ?? 2500) }), json);
+      else if (command === "capsule") emit(io, await service.buildCapsule({ taskAnalysisId: valueAfter(args, "--task-id"), budgetTokens: Number(valueAfter(args, "--budget") ?? 2500) }), json);
       else if (command === "explain") emit(io, service.explain({ capsuleId: valueAfter(args, "--capsule"), itemIds: valueAfter(args, "--item") ? [valueAfter(args, "--item")] : undefined }), json);
       else if (command === "expand") emit(io, service.expand({ capsuleId: valueAfter(args, "--capsule"), evidence: { kind: "test_failure", artifactId: valueAfter(args, "--artifact"), text: valueAfter(args, "--evidence") ?? "" } }), json);
       else if (command === "invalidate") { const inspected = await repository(); emit(io, service.invalidate({ repositoryId: valueAfter(args, "--repository") ?? inspected.repository.id, trigger: { kind: "manual", key: valueAfter(args, "--reason") ?? "CLI manual invalidation" }, dryRun: !args.includes("--apply") }), json); }
       else if (command === "data-export") {
-        const out = resolve(valueAfter(args, "--out") ?? "kerno-export.json");
+        const requestedOut = valueAfter(args, "--out"); if (!requestedOut) throw new KernoError("INVALID_INPUT", "data-export requires an explicit --out path");
+        const out = resolve(requestedOut);
+        const outStat = await lstat(out).catch(() => null); if (outStat) throw new KernoError("INVALID_INPUT", `Refusing to overwrite existing export ${out}`);
         const payload = { exportedAt: new Date().toISOString(), repositories: service.store.list("snapshot"), tasks: service.store.list("task"), capsules: service.store.list("capsule"), memories: service.store.list("memory"), routes: service.store.list("route"), artifacts: service.store.list("artifact") };
-        await writeFile(out, `${redactSecrets(JSON.stringify(payload, null, 2)).text}\n`, { mode: 0o600 }); emit(io, { exported: out }, json);
+        await writeFile(out, `${JSON.stringify(safeExportValue(payload, root), null, 2)}\n`, { flag: "wx", mode: 0o600 }); emit(io, { exported: out }, json);
       } else if (command === "serve") { const handle = await startHttpServer(service, { port: Number(valueAfter(args, "--port") ?? 0) }); emit(io, { url: handle.url, token: handle.token }, true); await new Promise(() => {}); }
       else if (command === "demo") { await runFixedNpm(root, ["run", "demo:record"]); emit(io, { recorded: join(root, "benchmarks/recorded-results/canonical-run.json") }, json); }
       else if (command === "benchmark") { const condition = args.includes("--kerno") ? "--kerno" : "--baseline"; await runFixedNpm(root, ["run", "benchmark:live", "--", condition]); emit(io, { completed: condition.slice(2) }, json); }

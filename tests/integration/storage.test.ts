@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { chmod, mkdtemp, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -13,8 +13,10 @@ afterEach(async () => { while (cleanup.length) await rm(cleanup.pop()!, { recurs
 describe("storage migrations and integrity", () => {
   it("creates versioned domain tables and persists normalized index rows transactionally", async () => {
     const root = await mkdtemp(join(tmpdir(), "kerno-storage-")); cleanup.push(root);
+    await chmod(root, 0o755);
     const store = new SqliteStateStore(join(root, "kerno.db"));
     try {
+      expect((await stat(root)).mode & 0o777).toBe(0o700); expect((await stat(join(root, "kerno.db"))).mode & 0o777).toBe(0o600);
       expect(store.health()).toEqual({ ok: true, backend: "sqlite", schemaVersion: 2, integrity: "ok" });
       const snapshot = await indexRepository(fixture); store.saveSnapshot(snapshot);
       const names = (store.db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as Array<{ name: string }>).map((row) => row.name);

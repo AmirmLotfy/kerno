@@ -5,6 +5,34 @@ export const idSchema = z.string().min(3).max(160);
 export const isoDateSchema = z.string().datetime();
 export const relativePathSchema = z.string().min(1).max(4096).refine((value) => !value.startsWith("/") && !value.includes("\0") && !value.split("/").includes(".."), "expected a safe repository-relative path");
 
+const SENSITIVE_KEY = /(?:authorization|credential|password|secret|token|api[_-]?key|database[_-]?url|private[_-]?key)/i;
+const SENSITIVE_VALUES = [
+  /\b(?:OPENAI_API_KEY|ANTHROPIC_API_KEY|AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|GITHUB_TOKEN|NPM_TOKEN|DATABASE_URL)\b\s*[:=]\s*["']?[^\s"',}\\]{8,}["']?/gi,
+  /\b(?:api[_-]?key|secret|token|password|database[_-]?url)\b\s*[:=]\s*["']?[^\s"',}\\]{8,}["']?/gi,
+  /\bAuthorization\s*:\s*Bearer\s+[A-Za-z0-9._~+/=-]{12,}/gi,
+  /\bAKIA[0-9A-Z]{16}\b/g,
+  /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g,
+  /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g,
+  /\b(?:sk(?:-proj)?|ghp|github_pat)[_-][A-Za-z0-9_-]{12,}\b/g
+];
+
+export function redactSensitiveString(value: string): { text: string; redacted: boolean } {
+  let text = value; let redacted = false;
+  for (const pattern of SENSITIVE_VALUES) {
+    pattern.lastIndex = 0;
+    if (pattern.test(text)) { redacted = true; pattern.lastIndex = 0; text = text.replace(pattern, "[REDACTED_SECRET]"); }
+  }
+  return { text, redacted };
+}
+
+export function redactSensitiveValue(value: unknown, depth = 0): unknown {
+  if (depth > 8) return "[TRUNCATED_DEPTH]";
+  if (typeof value === "string") return redactSensitiveString(value).text;
+  if (Array.isArray(value)) return value.slice(0, 512).map((item) => redactSensitiveValue(item, depth + 1));
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value as Record<string, unknown>).slice(0, 512).map(([key, item]) => [key, SENSITIVE_KEY.test(key) ? "[REDACTED_SECRET]" : redactSensitiveValue(item, depth + 1)]));
+  return value;
+}
+
 export const evidenceRefSchema = z.object({
   id: idSchema,
   kind: z.enum(["file", "symbol", "test", "runtime", "review", "user", "git"]),
@@ -25,7 +53,7 @@ export const evidenceArtifactSchema = z.object({
   exitCode: z.number().int().nullable().optional(),
   command: z.array(z.string().max(4096)).max(64).optional(),
   redactedOutput: z.string().max(64_000),
-  verified: z.literal(true)
+  verified: z.boolean()
 }).strict();
 export type EvidenceArtifact = z.infer<typeof evidenceArtifactSchema>;
 
@@ -233,26 +261,39 @@ export const benchmarkRunSchema = z.object({
     id: z.string().min(1), text: z.string().min(1), repository: z.string().min(1), license: z.string().min(1),
     startingCommit: z.string().min(1), branch: z.string().min(1), successCriteria: z.array(z.string()).min(1), testCommands: z.array(z.string()).min(1)
   }).strict(),
-  environment: z.object({ platform: z.string(), architecture: z.string(), node: z.string(), codex: z.string(), recordedFrom: z.enum(["live-app-server", "recorded-real-run"]) }).strict(),
+  environment: z.object({
+    platform: z.string(), architecture: z.string(), node: z.string(), codex: z.string(), recordedFrom: z.enum(["live-app-server", "recorded-real-run"]),
+    profileIsolation: z.enum(["verified-clean", "unverified"]).default("unverified"),
+    profileEvidenceHash: z.string().nullable().default(null)
+  }).strict(),
   model: z.object({ requested: z.string().nullable(), reasoningEffort: z.string().nullable(), effective: z.string().nullable(), truthLabel: z.enum(["not-requested", "requested-unconfirmed", "rerouted", "verified"]) }).strict(),
   permissions: z.string().min(1),
   kernoConfiguration: z.object({ capsuleBudget: z.number().int().positive(), initialCapsuleId: idSchema, childCapsuleId: idSchema.nullable(), routingPolicy: z.string() }).strict().nullable(),
   finalStatus: z.enum(["passed", "failed", "partial", "timeout", "unavailable"]),
   tests: z.object({ passed: z.boolean(), exitCode: z.number().int().nullable(), artifactHash: z.string(), outputTail: z.string() }).strict(),
   metrics: z.object({
-    totalTokens: nullableMetric, filesOpened: nullableMetric, repeatedReads: nullableMetric, toolCalls: nullableMetric,
+    taskSuccess: nullableMetric.default(null), testsPassed: nullableMetric.default(null), totalTokens: nullableMetric, filesOpened: nullableMetric, repeatedReads: nullableMetric, toolCalls: nullableMetric,
     contextExpansions: nullableMetric, latencyMs: nullableMetric, changedLines: nullableMetric,
-    unnecessaryChangedLines: nullableMetric, reviewerFindings: nullableMetric
+    timeToFirstValidPatchMs: nullableMetric.default(null), unnecessaryChangedLines: nullableMetric, reviewerFindings: nullableMetric, staleContextMistakes: nullableMetric.default(null)
   }).strict(),
   review: z.object({ status: z.enum(["passed", "failed", "not-observed", "unavailable"]), artifactHash: z.string().nullable(), summary: z.string() }).strict(),
   artifacts: z.object({ events: z.string().nullable(), diff: z.string().nullable(), tests: z.string(), review: z.string().nullable() }).strict(),
+  artifactHashes: z.object({ events: z.string().nullable(), diff: z.string().nullable(), tests: z.string().nullable(), review: z.string().nullable() }).strict().default({ events: null, diff: null, tests: null, review: null }),
   limitations: z.array(z.string())
 }).strict();
 export type BenchmarkRun = z.infer<typeof benchmarkRunSchema>;
 
 export const benchmarkReportSchema = z.object({
   schemaVersion: z.literal(SCHEMA_VERSION), generatedAt: isoDateSchema, runCount: z.number().int().nonnegative(), runs: z.array(benchmarkRunSchema),
-  comparisons: z.array(z.object({ taskId: z.string(), experiment: z.string(), baselineRunId: idSchema.nullable(), kernoRunId: idSchema.nullable(), fairness: z.object({ passed: z.boolean(), mismatches: z.array(z.string()) }).strict(), metrics: z.record(z.string(), z.object({ baseline: z.number().nullable(), kerno: z.number().nullable() }).strict()) }).strict())
+  comparisons: z.array(z.object({
+    taskId: z.string(), experiment: z.string(), baselineRunId: idSchema.nullable(), kernoRunId: idSchema.nullable(),
+    fairness: z.object({ passed: z.boolean(), mismatches: z.array(z.string()) }).strict(),
+    outcomes: z.object({
+      baseline: z.object({ finalStatus: z.string(), testsPassed: z.boolean(), testArtifactHash: z.string(), reviewStatus: z.string(), reviewerFindings: z.number().nullable() }).strict().nullable(),
+      kerno: z.object({ finalStatus: z.string(), testsPassed: z.boolean(), testArtifactHash: z.string(), reviewStatus: z.string(), reviewerFindings: z.number().nullable() }).strict().nullable()
+    }).strict(),
+    metrics: z.record(z.string(), z.object({ baseline: z.number().nullable(), kerno: z.number().nullable() }).strict())
+  }).strict())
 }).strict();
 export type BenchmarkReport = z.infer<typeof benchmarkReportSchema>;
 
@@ -271,7 +312,7 @@ export const buildCapsuleInputSchema = z.object({ taskAnalysisId: idSchema, phas
 export const expansionEvidenceSchema = z.object({ kind: z.enum(["test_failure", "runtime", "unresolved_dependency", "review"]), artifactId: idSchema, text: z.string().min(1).max(64_000), paths: z.array(relativePathSchema).max(64).optional(), symbols: z.array(z.string().max(512)).max(64).optional() }).strict();
 export const expandContextInputSchema = z.object({ capsuleId: idSchema, evidence: expansionEvidenceSchema, additionalBudgetTokens: z.number().int().min(128).max(3000).optional() }).strict();
 export const explainContextInputSchema = z.object({ capsuleId: idSchema, itemIds: z.array(idSchema).optional() }).strict();
-export const impactAnalysisInputSchema = z.object({ repositoryId: idSchema, targets: z.array(z.object({ path: relativePathSchema.optional(), symbol: z.string().optional() }).strict()).min(1), depth: z.number().int().min(1).max(4).default(2) }).strict();
+export const impactAnalysisInputSchema = z.object({ repositoryId: idSchema, targets: z.array(z.object({ path: relativePathSchema.optional(), symbol: z.string().max(512).optional() }).strict()).min(1).max(128), depth: z.number().int().min(1).max(4).default(2) }).strict();
 export const recordDecisionInputSchema = z.object({
   repositoryId: idSchema,
   type: durableMemorySchema.shape.type,
@@ -283,9 +324,9 @@ export const recordDecisionInputSchema = z.object({
   supersedes: z.array(idSchema).max(64).optional()
 }).strict();
 export const recordOutcomeInputSchema = z.object({
-  runId: idSchema, status: z.enum(["passed", "failed", "partial"]), tests: z.array(evidenceRefSchema).max(256), review: z.array(evidenceRefSchema).max(256), changedFiles: z.array(relativePathSchema).max(4096),
+  runId: idSchema, status: z.enum(["passed", "failed", "partial"]), tests: z.array(evidenceRefSchema).max(128), review: z.array(evidenceRefSchema).max(128), changedFiles: z.array(relativePathSchema).max(512),
   artifacts: z.array(z.object({ kind: z.enum(["test", "runtime", "review"]), source: z.enum(["command", "app-server", "hook", "user-confirmed"]), output: z.string().max(64_000), exitCode: z.number().int().nullable().optional(), command: z.array(z.string().max(4096)).max(64).optional() }).strict()).max(32).optional()
-}).strict();
+}).strict().refine((value) => Buffer.byteLength(JSON.stringify(value), "utf8") <= 64 * 1024, "record outcome input exceeds 64 KiB");
 export const invalidateContextInputSchema = z.object({ repositoryId: idSchema, trigger: z.object({ kind: z.enum(["branch_change", "file_change", "symbol_change", "manual"]), key: z.string().optional() }).strict(), memoryIds: z.array(idSchema).optional(), dryRun: z.boolean().default(true) }).strict();
 export const routeTaskInputSchema = z.object({ taskAnalysisId: idSchema, phase: taskPhaseSchema, catalogSnapshotId: idSchema, preferences: z.object({ latency: z.enum(["fast", "balanced", "depth"]).optional(), efficiencyModel: z.string().optional(), depthModel: z.string().optional() }).strict().optional() }).strict();
 export const compareRunsInputSchema = z.object({ baselineRunId: idSchema, kernoRunId: idSchema }).strict();

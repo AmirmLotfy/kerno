@@ -21,10 +21,12 @@ describe("branch and file invalidation", () => {
     try {
       const main = await service.index({ root, mode: "incremental" });
       const task = service.analyze({ repositoryId: main.repository.id, taskText: "Fix the duplicate refund webhook credit" });
-      const capsule = service.buildCapsule({ taskAnalysisId: task.id, budgetTokens: 1200 });
+      const capsule = await service.buildCapsule({ taskAnalysisId: task.id, budgetTokens: 1200 });
       const memory = service.recordDecision({ repositoryId: main.repository.id, type: "api-contract", summary: "Refund event shape is stable", scope: "branch", evidence: [{ id: "evidence_user", kind: "user", note: "explicit test confirmation" }], invalidationConditions: [], userConfirmed: true });
       await git("checkout", "-b", "changed-interface");
       await appendFile(join(root, "src/webhooks/refund-handler.ts"), "\nexport const changedInterface = true;\n");
+      await expect(service.status({ repositoryId: main.repository.id, worktreeId: main.worktree.id })).resolves.toMatchObject({ snapshotStatus: "stale" });
+      await expect(service.buildCapsule({ taskAnalysisId: task.id, budgetTokens: 1200 })).rejects.toThrow("re-index");
       await service.index({ root, mode: "incremental" });
       expect(service.store.capsule(capsule.id)?.status).toBe("stale");
       expect(service.store.memories(main.repository.id).find((item) => item.id === memory.id)?.status).toBe("stale");

@@ -56,15 +56,15 @@ GPT-5.6 powered the main Codex implementation work and was discovered/requested 
 ## Accomplishments
 
 - One deterministic failure → targeted child capsule → passing patch → invalidation loop.
-- Twelve strict MCP contracts and a locally installable Codex plugin.
+- Thirteen strict MCP contracts and a locally installable Codex plugin.
 - Live catalog discovery and explicit phase orchestration with honest route labels.
 - Evidence-first dashboard covering all empty/loading/success/failure states.
-- One retained fair paired benchmark, including dimensions where Kerno performed worse.
+- One retained real same-task pair with unfavorable observations and an explicit `FAIRNESS UNVERIFIED` result; no causal performance claim is made.
 - Local-first security controls and reproducible tests/artifacts.
 
 ## What was learned
 
-Context quality is falsifiable: a failing test can prove a capsule incomplete. “Requested model” and “effective model” must remain separate. Token reduction is not guaranteed; in the first real pair Kerno narrowed inspected files but used more tokens, calls, and latency. That result improved the product’s honesty and evaluation design.
+Context quality is falsifiable: a failing test can prove a capsule incomplete. “Requested model” and “effective model” must remain separate. Token reduction is not guaranteed. The first real same-task pair lacked final clean-profile provenance, so Kerno revoked its former fairness label rather than using raw observations as a causal claim. That correction improved the product’s honesty and evaluation design.
 
 ## What is next
 
@@ -73,13 +73,13 @@ Complete all three pre-registered paired tasks and routing experiment, validate 
 ## Judge test field
 
 ```text
-Requirements: Node >=22.13 <25, npm, Git. Run: npm install; npm run doctor; npm run judge. Open http://127.0.0.1:4173. Replay mode needs no Codex login. Live mode requires a signed-in Codex CLI and is documented in docs/JUDGE_QUICKSTART.md. All replay/live/model/estimate/unavailable states are labeled in the UI.
+Requirements: Node >=22.13 <25, npm, Git. Run: npm install; npm run doctor; npm run judge. Open http://127.0.0.1:4173. Replay mode needs no Codex login. Live mode requires a signed-in Codex CLI and is documented in docs/JUDGE_QUICKSTART.md. All replay/live/model/estimate/unavailable/fairness states are labeled in the UI.
 ```
 
 ## Plugin/developer-tool installation field
 
 ```text
-Run npm run package:plugin and npm run plugin:smoke. Add .agents/plugins/marketplace.json as a local Codex marketplace, install kerno, refresh Codex, and start a new task. If cache-relative MCP launch fails, run npm run setup:judge for the documented project-scoped fallback.
+Run npm run package:plugin and npm run plugin:smoke. Then run `codex plugin marketplace add .` and `codex plugin add kerno@personal`, refresh Codex, and start a new task. If cache-relative MCP launch fails, run npm run setup:judge for the documented project-scoped fallback.
 ```
 
 ## Supported-platform field

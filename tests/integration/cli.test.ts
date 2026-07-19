@@ -21,6 +21,17 @@ describe("Kerno CLI", () => {
     const root = await mkdtemp(join(tmpdir(), "kerno-delete-")); cleanup.push(root);
     const errors: string[] = [];
     expect(await runCli(["data-delete", "--root", root, "--data", join(root, "not-kerno"), "--yes"], { out: () => {}, err: (value) => errors.push(value) })).toBe(2);
-    expect(errors.join("")).toContain("limited to a directory named .kerno");
+    expect(errors.join("")).toContain("unmarked directory");
+  });
+  it("exports and deletes the portable plugin store without overwriting or leaking excerpts", async () => {
+    const root = await mkdtemp(join(tmpdir(), "kerno-portable-")); cleanup.push(root); const data = join(root, "plugin-data"); const output = join(root, "safe-export.json");
+    const previousStorage = process.env.KERNO_STORAGE; process.env.KERNO_STORAGE = "json";
+    try {
+      expect(await runCli(["init", "--root", root, "--data", data, "--json"], { out: () => {}, err: () => {} })).toBe(0);
+      expect(await runCli(["data-export", "--root", root, "--data", data, "--out", output, "--json"], { out: () => {}, err: () => {} })).toBe(0);
+      const exported = await readFile(output, "utf8"); expect(exported).not.toContain(root); expect(exported).not.toContain("OMITTED_FROM_SAFE_EXPORT\"\n");
+      expect(await runCli(["data-export", "--root", root, "--data", data, "--out", output, "--json"], { out: () => {}, err: () => {} })).toBe(2);
+      expect(await runCli(["data-delete", "--root", root, "--data", data, "--yes", "--json"], { out: () => {}, err: () => {} })).toBe(0);
+    } finally { if (previousStorage === undefined) delete process.env.KERNO_STORAGE; else process.env.KERNO_STORAGE = previousStorage; }
   });
 });

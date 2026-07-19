@@ -90,3 +90,24 @@
 - Status: accepted; supersedes ADR-009’s underspecified palette and typographic K treatment
 - Decision: Use `@kerno/brand` as the sole editable source for oxide, warm graphite, ivory, stone, aubergine, semantic, dark, and chart tokens. Replace the typographic K with the container-free Context Core; allow a graphite container only for launcher-scale assets.
 - Consequence: Dashboard components consume semantic aliases, green is restricted to true success, review is aubergine, Baseline/Kerno are stone/oxide, plugin and marketing copies are generated from canonical SVGs, and automated checks reject old colors or divergent mirrors.
+
+## ADR-014 — Trusted artifacts originate inside the execution boundary
+
+- Date: 2026-07-19
+- Status: accepted; strengthens ADR-004
+- Decision: MCP callers may attach descriptions, but only artifacts created by Kerno-controlled execution or an explicit trusted internal adapter can verify memory, outcomes, or expansion evidence.
+- Consequence: Caller-supplied `verified` flags, exit codes, and prose cannot promote a claim; nested secrets are redacted before persistence and events.
+
+## ADR-015 — Revoke fairness when isolation provenance is absent
+
+- Date: 2026-07-19
+- Status: accepted; corrects ADR-010’s earlier pair wording
+- Decision: A context-controlled pair requires a verified clean profile, profile-evidence hash, and hashes for raw events, diff, tests, and review. Historical results lacking those fields remain retained but fail fairness validation.
+- Consequence: The dashboard and reports show raw observations under `FAIRNESS UNVERIFIED` and make no causal Kerno-versus-baseline claim.
+
+## ADR-016 — Live route failure is product evidence
+
+- Date: 2026-07-19
+- Status: accepted
+- Decision: Authentication, capacity, usage-limit, and App Server failures are retained and displayed separately from deterministic replay. A requested model remains requested-unconfirmed without effective/reroute evidence.
+- Consequence: The final account-capacity failure blocks live-mode readiness but cannot make the reliable replay appear live.

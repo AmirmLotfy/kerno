@@ -33,7 +33,7 @@ Every capsule item exposes its source, file or symbol, freshness, confidence, es
 - Deterministic task classification, lexical/graph/test retrieval, token budgeting, deduplication, and explainable context-value scoring.
 - Evidence-backed memories with candidate, verified, stale, superseded, and rejected states.
 - File-, symbol-, branch-, commit-, worktree-, and parser-version invalidation.
-- Twelve strict MCP tools and an installable local Codex plugin with a Kerno context skill.
+- Thirteen strict MCP tools and an installable local Codex plugin with a Kerno context skill.
 - App Server model discovery, explicit phase requests, event capture, timeout/auth/unavailability handling, and a fresh review thread.
 - Read-only dashboard with repository, capsule, routing, context, comparison, and limitations views.
 - Immutable deterministic replay plus a live, paired App Server benchmark format.
@@ -69,7 +69,15 @@ npm run package:plugin
 npm run plugin:smoke
 ```
 
-Add this repository’s `.agents/plugins/marketplace.json` as a local marketplace, install `kerno`, refresh Codex, and start a new task. The plugin packages the skill and MCP configuration. Reviewable hooks are available in `plugins/kerno/hooks/` as an explicit opt-in because the current validator does not accept a manifest `hooks` field.
+Install from the repository-local marketplace, refresh Codex, and start a new task:
+
+```bash
+codex plugin marketplace add .
+codex plugin add kerno@personal
+codex plugin list
+```
+
+The plugin packages the skill and MCP configuration. Reviewable hooks are available in `plugins/kerno/hooks/` as an explicit opt-in because the current manifest surface does not accept a `hooks` field.
 
 If a Codex surface cannot resolve the plugin-cache-relative executable, run `npm run setup:judge` and use the generated project-scoped MCP fallback.
 
@@ -79,7 +87,7 @@ Start with a prompt such as:
 
 > Use Kerno to diagnose this unfamiliar cross-module bug with the smallest verified context. Explain every inclusion and expand only from test evidence.
 
-The Kerno skill calls the local MCP server. The most useful tools are `kerno_index_repository`, `kerno_analyze_task`, `kerno_build_context_capsule`, `kerno_explain_context`, `kerno_expand_context`, `kerno_route_task`, and `kerno_record_outcome`. All twelve contracts are documented in [Architecture](docs/ARCHITECTURE.md).
+The Kerno skill calls the local MCP server. The most useful tools are `kerno_index_repository`, `kerno_analyze_task`, `kerno_build_context_capsule`, `kerno_explain_context`, `kerno_expand_context`, `kerno_discover_models`, `kerno_route_task`, and `kerno_record_outcome`. All thirteen contracts are documented in [Architecture](docs/ARCHITECTURE.md).
 
 ## Model routing: two honest modes
 
@@ -113,20 +121,20 @@ Kerno is a strict TypeScript/npm-workspaces monorepo using Zod, `better-sqlite3`
 
 ## Benchmark status
 
-One real context-controlled pair is checked in for `refund-debug`, from the same task, generated starting commit, permissions, requested model (`gpt-5.6-sol`), and lowest supported effort (`low`). The latest conditions both passed pinned tests and a fresh independent review with zero findings. Six earlier partial attempts remain retained because their reviews exposed fixture design defects that were then corrected.
+One real same-task pair is checked in for `refund-debug`. Both latest conditions passed pinned tests and a fresh independent review with zero findings, and six earlier partial attempts remain retained because their reviews exposed fixture design defects. The historical pair predates profile-isolation and raw-artifact-hash enforcement, so the current validator correctly marks it **fairness unverified**. It is retained as operational evidence, not used for a causal Kerno-versus-baseline claim.
 
-Measured in that pair:
+Raw observations in that unverified pair:
 
 | Metric | Plain Codex | Codex + Kerno capsule |
 |---|---:|---:|
 | Total observed thread tokens | 93,670 | 95,383 |
 | Unique files observed | 6 | 2 |
 | Repeated observable reads | 2 | 0 |
-| Tool calls | 12 | 11 |
+| Tool calls | 8 | 9 |
 | Latency | 71,922 ms | 107,289 ms |
 | Changed lines | 16 | 16 |
 
-This is an unfavorable Kerno result for tokens and latency, and a favorable one for inspected-file breadth, repeated reads, and tool calls. It is one pair, not a generalized productivity claim. Exact cost is not reported. The required three-task benchmark matrix remains a release blocker; see [Benchmark](docs/BENCHMARK.md).
+Because the environment isolation and artifact provenance are incomplete, these values must not be compared causally. Exact cost is not reported. The required three-task benchmark matrix, verified-clean profiles, artifact hashes, and separate routing experiment remain release blockers; see [Benchmark](docs/BENCHMARK.md).
 
 ## Privacy and security
 

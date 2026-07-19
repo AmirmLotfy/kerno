@@ -21,13 +21,13 @@ describe("first vertical slice", () => {
     expect(second.stats.reused).toBe(first.files.length);
 
     const task = service.analyze({ repositoryId: second.repository.id, taskText });
-    const capsule = service.buildCapsule({ taskAnalysisId: task.id, budgetTokens: 2500 });
+    const capsule = await service.buildCapsule({ taskAnalysisId: task.id, budgetTokens: 2500 });
     expect(capsule.items.some((item) => item.locator.path.includes("transaction-boundary"))).toBe(false);
     let output = ""; let exitCode = 0;
     try { await execFile(process.execPath, ["--test", "--experimental-strip-types", "tests/refund.integration.test.ts"], { cwd: fixture }); }
     catch (error: any) { output = `${error.stdout ?? ""}\n${error.stderr ?? error.message ?? ""}`; exitCode = typeof error.code === "number" ? error.code : 1; }
     expect(exitCode).not.toBe(0);
-    const artifact = service.recordArtifact({ kind: "test", source: "command", output, exitCode, command: [process.execPath, "--test", "tests/refund.integration.test.ts"] });
+    const artifact = service.recordArtifact({ kind: "test", source: "command", output, exitCode, command: [process.execPath, "--test", "tests/refund.integration.test.ts"], trusted: true });
     const child = service.expand({
       capsuleId: capsule.id,
       evidence: {

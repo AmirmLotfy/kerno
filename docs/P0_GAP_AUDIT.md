@@ -7,14 +7,14 @@ Status meanings: **Pass** is exercised and evidenced; **Partial** has working fo
 | P0 area | Status at audit | Root cause / evidence | Required closure |
 |---|---|---|---|
 | Live compliance grounding | Pass | Official pages rechecked; no controlling change; plugin unavailable | Recheck immediately before authorized submission |
-| Installable plugin and local marketplace | Pass | Validator, cachebuster, install, and 12-tool bundled MCP smoke pass | Fresh-profile check before video |
+| Installable plugin and local marketplace | Pass with validator caveat | Cachebuster, real reinstall, cache/source hash match, and 13-tool bundled MCP smoke pass; plugin-creator validator is unavailable because its host Python lacks PyYAML | Fresh isolated profile before video; do not claim validator pass |
 | Core contracts and schema validation | Pass | Strict Zod contract tests pass | Maintain boundary tests |
 | SQLite migrations and portable store | Pass | Migration, integrity, recovery, WAL, lease, and normalized-table tests pass | Fresh database gate remains mandatory |
 | Safe incremental JS/TS/Python indexing | Pass | Parser, ignore, symlink, secret, branch, and zero-reparse tests pass | Do not overstate call-graph precision |
 | Bounded capsule, provenance, exclusions, scoring | Pass | Unit and vertical integration tests pass | Surface all details in dashboard |
 | Evidence-backed memory and invalidation | Pass | Candidate/verified/stale/superseded and branch/file/symbol tests pass | Surface counts and supersession in UI |
 | Evidence-driven expansion | Pass | Genuine failing test produces transaction-only child capsule | Preserve immutable artifacts |
-| Trusted model discovery and routing | Pass | Live `model/list` and completed read-only GPT-5.6 turn recorded; forged catalogs rejected | Keep requested/effective truth labels |
+| Trusted model discovery and routing | Partial | Live `model/list` and accepted GPT-5.6 request recorded; final execution failed from `usageLimitExceeded`; forged catalogs rejected | Restore capacity and capture a completed route; keep requested/effective truth labels |
 | Live writable phase and independent review | Partial | Accepted live writable turn timed out before review; adapter now preserves timeout evidence | Capture a successful implementation and fresh review or disclose blocker |
 | HTTP/SSE daemon | Pass | Loopback auth/origin/ordered-event integration tests pass | Document live connection parameters |
 | Dashboard required states and views | Partial | Evidence-first replay works, but lifecycle states, live data adapter, full route detail, excluded candidates, and measured comparison need implementation | Implement state gallery, live/replay adapter, route/context/comparison completeness |
@@ -50,8 +50,8 @@ Updated July 19, 2026 after the complete local gate.
 | Dashboard states and views | **Pass** | All 16 requested lifecycle states, six views, truth labels, desktop/mobile Playwright, and production build pass. |
 | Second substantial fixture | **Pass** | Original Apache-2.0 `gatehouse-python` has multiple modules, imports, interface refactor, failing seed, passing pinned solution, and indexer integration coverage. |
 | Benchmark exporter | **Pass** | Strict run schema plus JSON, CSV, Markdown, dashboard exports; missing values remain null. |
-| Three-task App Server matrix | **Fail / release blocker** | One fair `refund-debug` pair retained. Two more paired tasks and the separate routing experiment are not recorded. |
-| Fairness proof | **Partial** | The retained pair passes model/effort/task/commit/permissions fairness. Full matrix is absent. |
+| Three-task App Server matrix | **Fail / release blocker** | One historical `refund-debug` pair retained. Two more paired tasks and the separate routing experiment are not recorded. |
+| Fairness proof | **Fail / release blocker** | The historical pair lacks verified clean-profile evidence and raw artifact hashes; the strengthened validator correctly rejects it. |
 | Live writable phase / review | **Pass** | Latest same-task pair produced passing patches and fresh independent reviews with zero findings; earlier failed reviews remain retained and drove transaction-invariant corrections. |
 | Root doctor / judge path | **Pass locally** | `npm run doctor`, `npm run judge -- --check`, CLI/plugin/MCP/E2E paths pass. |
 | Actual fresh clone | **Pass on macOS** | Non-hardlinked clone of `1b6955e` passed `npm ci`, doctor, judge, 33 deterministic tests, builds, secret/license/dependency audits, and 2 browser tests. Linux remains remote-CI pending. |
@@ -61,4 +61,4 @@ Updated July 19, 2026 after the complete local gate.
 | Demo assets | **Partial / release blocker** | Recording fixture, final screenshot, script, fallback, and checklists exist. Public `<3:00` video has not been recorded/uploaded. |
 | Submission identifiers and eligibility | **Blocked on external/human input** | Repository URL, video URL, primary `/feedback` ID, exact authenticated field labels, and entrant eligibility confirmation remain unavailable. |
 
-Kerno is locally operational and judge-demonstrable, but it is **not submission-ready** while the three-task benchmark matrix, public video/URLs, Session ID, remote Linux result, and human eligibility/form checks remain incomplete.
+Kerno is locally operational and judge-demonstrable, but it is **not submission-ready** while the live route is capacity-blocked, no benchmark pair passes the final fairness gate, the three-task matrix is incomplete, and the public video/URLs, Session ID, remote Linux result, and human eligibility/form checks remain incomplete.

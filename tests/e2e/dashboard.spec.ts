@@ -25,11 +25,11 @@ test("judge replay exposes every product state and the evidence views", async ({
 
   await page.getByRole("button", { name: "Routing" }).click();
   await expect(page.getByRole("heading", { name: "Recommendation, request, and runtime truth never collapse into one label." })).toBeVisible();
-  await expect(page.getByText("Available-model snapshot")).toBeVisible();
+  await expect(page.getByText("Policy catalog example")).toBeVisible();
+  await expect(page.getByText("RECORDED REAL APP SERVER RUN")).toBeVisible();
 
   await page.getByRole("button", { name: "Comparison" }).click();
-  await expect(page.getByRole("heading", { name: "A fair pair is available." })).toBeVisible();
-  await expect(page.getByText("Total Tokens")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Correctness first. Missing data stays missing." })).toBeVisible();
 
   await page.getByRole("button", { name: "Limits" }).click();
   await expect(page.getByRole("heading", { name: "Claims bounded by their evidence." })).toBeVisible();
@@ -45,5 +45,5 @@ test("judge views remain usable on a narrow viewport", async ({ page }) => {
   await page.getByRole("button", { name: "Context" }).click();
   await expect(page.getByText("Why included")).toBeVisible();
   await page.getByRole("button", { name: "Comparison" }).click();
-  await expect(page.getByRole("heading", { name: "A fair pair is available." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Correctness first. Missing data stays missing." })).toBeVisible();
 });

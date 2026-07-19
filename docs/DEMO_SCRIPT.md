@@ -1,65 +1,70 @@
-# Kerno three-minute demo script
+# Kerno final demo script
 
-Target: **2:56–2:59**, public YouTube, English narration. No setup, loading, terminal typing, fake cursor work, copyrighted music, or unsupported claims.
+Target: **2:48** (hard stop 2:55), public YouTube, English narration. Setup, loading, terminal typing, copyrighted music, unsupported claims, and hidden manual repair stay out of the cut.
 
 | Time | Narration | Exact screen action | Expected visible result |
 |---:|---|---|---|
-| 0:00–0:08 | “Coding agents keep rediscovering repositories—and worse, reusing old beliefs after the code changes.” | Cold open on Home, slow crop across task and outcome. | Unfamiliar cross-module refund task; Kerno identity. |
-| 0:08–0:18 | “Kerno is the context control plane for Codex: the smallest fresh, verified context for every task.” | Reveal header and recorded/live truth label. | Product thesis and honest mode label. |
-| 0:18–0:27 | “This repository was indexed incrementally: seven files, forty-six symbols, and zero unchanged files reparsed.” | Home repository ledger and freshness card. | Branch, commit, language mix, measured index facts. |
-| 0:27–0:35 | “The task is a retry bug spanning the webhook, ledger, idempotency, and transaction boundary.” | Point to task copy and risk classification. | Concrete scope; no typing. |
-| 0:35–0:48 | “Kerno selects a bounded capsule instead of dumping the repository.” | Click Context; scroll selected items. | Budget/estimate, ranked files and symbols. |
-| 0:48–1:02 | “Every item explains why it matters, where it came from, how fresh and confident it is, and what invalidates it.” | Select handler, then direct test. | Why-included drawer, provenance, score breakdown, invalidation keys. |
-| 1:02–1:15 | “It also shows the candidates it deliberately left out.” | Hold excluded candidates panel; highlight transaction boundary exclusion. | Transparent alternative/reason, not hidden retrieval. |
-| 1:15–1:26 | “Routing stays honest. Plugin Mode recommends; Orchestrator Mode uses a separate Codex phase thread discovered from the live model catalog.” | Click Routing; pan catalog → selected route. | Phase, task features, model snapshot, effort, confidence, fallback. |
-| 1:26–1:36 | “Recommended, requested, and effective are separate. If the runtime does not confirm the model, Kerno says so.” | Highlight requested/effective truth cells. | Requested-unconfirmed; no simulated switch. |
-| 1:36–1:44 | “The first pinned integration test fails. That is evidence the capsule is incomplete.” | Click Timeline at test-failed event. | Real failing artifact, status, timestamp. |
-| 1:44–1:50 | “Kerno adds only the missing transaction contract—one bounded child capsule.” | Advance one event; return briefly to expansion card. | Targeted expansion, item and token estimate. |
-| 1:50–2:02 | “Codex applies the atomic boundary. All three pinned assertions pass without changing the public event shape.” | Timeline pass event, then Home outcome. | `3 tests passed`; exact acceptance story. |
-| 2:02–2:15 | “A fresh read-only reviewer thread is part of the live workflow. In this replay, its result is unavailable, so Kerno does not invent one.” | Highlight outcome subtitle / Limit truth. | Independent review limitation visible. |
-| 2:15–2:25 | “Now the handler changes. Its source hash no longer matches.” | Timeline invalidation event. | Changed file/hash evidence. |
-| 2:25–2:35 | “The old capsule becomes stale immediately instead of crossing the branch or interface boundary silently.” | State tour → Context invalidated. | Persistent stale/invalidation label. |
-| 2:35–2:43 | “The same-task benchmark keeps unfavorable results.” | Click Comparison. | Fair pair and measured table. |
-| 2:43–2:50 | “Kerno opened fewer files and repeated no reads—but used more tokens, calls, and time.” | Highlight those rows without percentage animation. | Exact measured values, missing data unavailable. |
-| 2:50–2:56 | “Codex and GPT-5.6 built and operate Kerno; humans set the product, security, and evaluation boundaries.” | Quick logo/product wide shot. | Collaboration claim. |
-| 2:56–2:59 | “Right context. Right model. Every task.” | End card. | Kerno mark and promise. |
+| 0:00–0:09 | “Coding agents keep rediscovering repositories—and can reuse old beliefs after the code changes.” | Cold open on Home and task. | Kerno mark, unfamiliar refund task, replay truth label. |
+| 0:09–0:18 | “Kerno is the context control plane for Codex: small, fresh, evidence-backed context for each task.” | Reveal repository ledger. | Branch, commit, index state, local-first label. |
+| 0:18–0:29 | “This fixture was indexed incrementally: seven files, forty-eight symbols, and zero unchanged files reparsed.” | Hold repository card. | Measured fixture facts. |
+| 0:29–0:40 | “The retry bug crosses webhook, ledger, idempotency, tests, and a transaction boundary.” | Point to task and risk features. | Debugging classification and concrete scope. |
+| 0:40–0:54 | “Kerno selects a bounded capsule instead of dumping the repository.” | Open Context; show budget and selected rows. | 1,094 estimated tokens of a 2,500 budget. |
+| 0:54–1:08 | “Every item shows its source, confidence, freshness, estimated cost, evidence chain, inclusion reason, and invalidation keys.” | Open Why included; move between handler and test. | Score breakdown and provenance. |
+| 1:08–1:18 | “It also shows what it deliberately excluded—including the transaction contract.” | Hold excluded candidates. | Transparent initial omission. |
+| 1:18–1:30 | “Routing stays honest. The policy recommends from a live catalog; this validation requested GPT-5.6, low effort.” | Open Routing and retained runtime panel. | `RECORDED REAL APP SERVER RUN`; requested route. |
+| 1:30–1:39 | “The request was accepted, then the account hit its usage limit. Kerno shows failed and requested-unconfirmed—not a simulated switch.” | Highlight truth labels and failure. | Real capacity failure; no effective-model claim. |
+| 1:39–1:49 | “The deterministic fixture test fails. That is evidence the capsule is incomplete.” | Open Timeline at `test.failed`. | Real artifact and timestamp. |
+| 1:49–1:58 | “Kerno adds only the missing transaction contract as a bounded child capsule.” | Advance to expansion and child-capsule diff. | One 327-token addition. |
+| 1:58–2:09 | “The pinned solution applies the atomic boundary. All three assertions pass without changing the public event shape.” | Advance to pass and outcome. | Passing test artifact. |
+| 2:09–2:18 | “A live workflow uses a fresh read-only review thread. This deterministic replay did not run one, so review is unavailable—not invented.” | Highlight review limitation. | Explicit unavailable state. |
+| 2:18–2:28 | “Then the handler changes. Its hash no longer matches, and the old capsule becomes stale.” | Advance to invalidation. | Stale status with changed file. |
+| 2:28–2:39 | “The benchmark keeps all eight real attempts, including failures and worse results.” | Open Comparison. | Retained run count and raw observations. |
+| 2:39–2:46 | “This historical pair lacks clean-profile proof, so Kerno labels fairness unverified and makes no causal performance claim.” | Highlight fairness banner. | Missing provenance, never zero/fair. |
+| 2:46–2:52 | “Codex accelerated implementation and review. GPT-5.6 powered this root build task and the retained requested route; humans set product, security, and evidence boundaries.” | Product wide shot. | Specific collaboration claim. |
+| 2:52–2:55 | “Right context. Right model. Every task.” | End card. | Kerno mark and promise. |
 
-## Recording fixture
+## Reproducible recording fixture
 
-Use `npm run demo:record`, which re-runs the deterministic `relaycart-ts` proof loop and writes `apps/dashboard/public/replay.json` with timestamp, source commit, event sequence, and artifact hash. `npm run benchmark:report` supplies the retained real pair. Never edit replay values by hand.
+```bash
+npm run demo:reset
+npm run demo:preflight
+npm run judge
+```
 
-## Fallback recording plan
+`demo:reset` regenerates the deterministic fixture replay and reports from retained raw artifacts. `demo:preflight` verifies failure, expansion, pass, invalidation, timeline order, truth labels, and required assets. It does not claim to validate a video that has not been recorded.
 
-If live Codex capacity, authentication, or latency is unreliable, record the immutable deterministic replay and disclose that model/tool/usage events are unavailable there. Use a previously retained sanitized real App Server artifact only under `RECORDED REAL RUN`; never call it live. If dashboard startup fails, use the generated screenshot plus terminal acceptance output, but do not imply interactivity.
+## Shot list and cut list
 
-## Cut list
+1. Home/problem/repository ledger.
+2. Capsule list, Why included, and exclusions.
+3. Routing policy plus separately retained real App Server evidence.
+4. Failure → targeted expansion → passing test.
+5. Review unavailable truth state.
+6. Source-hash invalidation.
+7. Fairness-unverified benchmark view.
+8. Collaboration and closing mark.
 
-1. Home/problem/identity.
-2. Capsule ranked list.
-3. Why-included detail and exclusions.
-4. Routing truth labels.
-5. Timeline failure/expansion/pass.
-6. Invalidation state.
-7. Fair comparison.
-8. Closing card.
+Cut all terminal startup, page loading, cursor hunting, long scrolling, empty waits, repeated explanation, benchmark percentages, price/cost claims, and any implication that the deterministic pinned solution was authored live during the replay.
 
-## Asset checklist
+## Backup recording path
 
-- 1440×900 dashboard capture, readable at 1080p.
-- Context Core light/dark SVGs, current light/dark product screenshots, and the warm ivory closing composition from `docs/assets/brand/`.
-- Oxide is used for active context/routing; aubergine identifies independent review. Do not color-grade these into blue/cyan product tones.
-- Release replay/report generated from final commit.
-- Optional sanitized real routing clip with truth label.
-- Exact task/acceptance text and final artifact hashes.
-- Public-repository/license/attribution proof.
-- No unlicensed audio, imagery, or trademarks.
+If live capacity, authentication, or latency is unreliable, use only the deterministic fixture replay plus the retained sanitized App Server evidence panel. Both remain persistently labeled. Never call the combined screen a live run, never imply the replay includes Codex execution, and never replace requested-unconfirmed with an effective model. If the dashboard fails, use the latest checked screenshot and terminal acceptance output, while explicitly describing the interface as a captured fallback.
 
-## Pre-recording checklist
+## Assets checklist
 
-- Full gates, clean clone, plugin validation, MCP/CLI/dashboard/replay checks pass.
-- Browser cache/profile is clean; no local file paths, usernames, notifications, tokens, or unrelated tabs.
-- Truth labels remain visible in every shot.
-- Narration says “estimated” for capsule tokens and “requested-unconfirmed” where applicable.
-- Final video is `< 3:00`, public, signed-out accessible, English audio intelligible, captions checked.
-- Every metric spoken matches `benchmarks/reports/report.json`.
-- Record two clean takes; retain the complete one, not a selectively stitched benchmark outcome.
+- 1440×900 warm-light dashboard; optional verified dark-theme shot.
+- `docs/assets/brand/kerno-horizontal-light.svg` and dark counterpart.
+- `docs/assets/brand/kerno-devpost-thumbnail.png` for the submission card.
+- Current generated replay, benchmark report, and retained runtime evidence.
+- Exact task text, test artifact hashes, and source commit visible or documented.
+- English voiceover; no unlicensed audio, imagery, third-party model logos, notifications, credentials, usernames, or private paths.
+
+## Final recording checklist
+
+- Run full gates and isolated clone validation from the final tested commit.
+- Run `npm run demo:reset`, `npm run demo:preflight`, and `npm run judge`.
+- Confirm every spoken value against the generated JSON immediately before recording.
+- Keep replay/live/requested/effective/estimated/unavailable/fairness labels visible.
+- Record two complete takes; keep the complete truthful take rather than cherry-picking outcome footage.
+- Confirm English audio and captions, no clipping, and a signed-out public YouTube duration below 3:00.
+- Add the final public URL only after upload and signed-out verification; no upload is authorized in this task.

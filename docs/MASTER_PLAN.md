@@ -98,4 +98,4 @@ P0 is done when a clean clone installs; the plugin exposes its skill/tools; unch
 5. Clean-room plugin/replay/live preflight before video.
 6. Repository access, public video, README/license, `/feedback` Session ID, and every authenticated field before submission.
 
-Current external evidence boundary: live `model/list` and one read-only `gpt-5.6-sol` phase completed successfully with usage/tool events. A disposable writable implementation benchmark exceeded its five-minute turn timeout before independent review, so successful live implementation/review and baseline artifacts remain uncaptured and must not be inferred from adapter tests.
+Current validation evidence boundary: live `model/list` returned four models and accepted a `gpt-5.6-sol`/`low` request, but the final phase failed with `usageLimitExceeded`. No effective-model event was emitted. Historical benchmark artifacts contain completed implementation/review attempts but lack the final clean-profile provenance required for a fair comparison, so successful live readiness and fair baseline claims must not be inferred.

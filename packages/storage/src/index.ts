@@ -1,5 +1,5 @@
 import Database from "better-sqlite3";
-import { closeSync, copyFileSync, existsSync, fsyncSync, mkdirSync, openSync, readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
+import { chmodSync, closeSync, copyFileSync, existsSync, fsyncSync, mkdirSync, openSync, readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import type { ContextCapsule, DurableMemory, IndexSnapshot, RouteDecision, RunEvent, TaskAnalysis } from "@kerno/contracts";
 
@@ -38,12 +38,13 @@ export interface StateStore {
 export class SqliteStateStore {
   readonly db: Database.Database;
   constructor(path = ":memory:") {
-    if (path !== ":memory:") mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
+    if (path !== ":memory:") { mkdirSync(dirname(path), { recursive: true, mode: 0o700 }); chmodSync(dirname(path), 0o700); }
     try { this.db = new Database(path); }
     catch (error) { throw new Error(`Kerno storage could not open ${path}: ${error instanceof Error ? error.message : String(error)}`); }
     this.db.pragma("journal_mode = WAL");
     this.db.pragma("foreign_keys = ON");
     this.db.pragma("busy_timeout = 5000");
+    if (path !== ":memory:") chmodSync(path, 0o600);
     this.migrate();
     const integrity = this.db.pragma("quick_check", { simple: true });
     if (integrity !== "ok") { this.db.close(); throw new Error(`Kerno storage integrity check failed: ${String(integrity)}`); }
@@ -262,6 +263,7 @@ export class JsonStateStore implements StateStore {
   private transactionDepth = 0;
   constructor(private path: string) {
     mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
+    chmodSync(dirname(path), 0o700);
     try { this.state = existsSync(path) ? JSON.parse(readFileSync(path, "utf8")) as JsonState : { schemaVersion: 1, entities: [], events: [] }; }
     catch (error) {
       const backup = `${path}.bak`;
@@ -273,11 +275,12 @@ export class JsonStateStore implements StateStore {
   private persist(): void {
     if (this.transactionDepth > 0) return;
     const temp = `${this.path}.${process.pid}.tmp`; const backup = `${this.path}.bak`;
-    if (existsSync(this.path)) copyFileSync(this.path, backup);
+    if (existsSync(this.path)) { copyFileSync(this.path, backup); chmodSync(backup, 0o600); }
     const descriptor = openSync(temp, "w", 0o600);
     try { writeFileSync(descriptor, `${JSON.stringify(this.state)}\n`); fsyncSync(descriptor); }
     finally { closeSync(descriptor); }
     renameSync(temp, this.path);
+    chmodSync(this.path, 0o600);
     if (existsSync(temp)) unlinkSync(temp);
   }
   transaction<T>(operation: () => T): T {

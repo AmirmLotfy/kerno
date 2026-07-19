@@ -2,7 +2,7 @@ import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { createInterface, type Interface } from "node:readline";
 import { randomUUID } from "node:crypto";
 import type { CatalogModel, RouteDecision, RunEvent, TaskPhase } from "@kerno/contracts";
-import { KernoError } from "@kerno/contracts";
+import { KernoError, redactSensitiveValue } from "@kerno/contracts";
 
 type JsonObject = Record<string, any>;
 type Pending = { resolve: (value: any) => void; reject: (reason: Error) => void; timer: NodeJS.Timeout };
@@ -11,6 +11,7 @@ export type AppServerClientOptions = {
   command?: string;
   args?: string[];
   cwd?: string;
+  env?: NodeJS.ProcessEnv;
   requestTimeoutMs?: number;
   onNotification?: (method: string, params: unknown) => void;
 };
@@ -30,7 +31,7 @@ export class AppServerClient {
     if (this.process) throw new Error("App Server client is already initialized");
     const command = this.options.command ?? "codex";
     const args = this.options.args ?? ["app-server"];
-    this.process = spawn(command, args, { cwd: this.options.cwd, stdio: ["pipe", "pipe", "pipe"] });
+    this.process = spawn(command, args, { cwd: this.options.cwd, env: this.options.env, stdio: ["pipe", "pipe", "pipe"] });
     this.process.stderr.on("data", (chunk) => this.options.onNotification?.("app-server/stderr", chunk.toString().slice(0, 8_192)));
     this.process.once("exit", (code) => this.failAll(new Error(`App Server exited with code ${code ?? "unknown"}`)));
     this.process.once("error", (error) => this.failAll(error));
@@ -181,10 +182,12 @@ export function classifyTurnFailure(status: string, error: unknown): PhaseRun["f
 function sanitizeRuntimePayload(value: unknown, depth = 0): unknown {
   if (depth > 6) return "[TRUNCATED_DEPTH]";
   if (typeof value === "string") {
-    const safe = value.replace(/\b(?:sk|ghp|github_pat)_[A-Za-z0-9_-]{12,}\b/g, "[REDACTED_SECRET]");
+    const redacted = String(redactSensitiveValue(value));
+    const home = process.env.HOME; const workspace = process.cwd();
+    const safe = redacted.replaceAll(workspace, "[WORKSPACE]").replaceAll(home ?? "\0", "[HOME]");
     return safe.length > 16_000 ? `${safe.slice(0, 16_000)}…[truncated]` : safe;
   }
   if (Array.isArray(value)) return value.slice(0, 200).map((item) => sanitizeRuntimePayload(item, depth + 1));
-  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value as Record<string, unknown>).slice(0, 200).map(([key, item]) => [key, /token|secret|password/i.test(key) && typeof item === "string" ? "[REDACTED_SECRET]" : sanitizeRuntimePayload(item, depth + 1)]));
+  if (value && typeof value === "object") return redactSensitiveValue(Object.fromEntries(Object.entries(value as Record<string, unknown>).slice(0, 200).map(([key, item]) => [key, sanitizeRuntimePayload(item, depth + 1)])));
   return value;
 }

@@ -18,7 +18,7 @@ describe("MCP contract", () => {
     const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
     await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
     const tools = await client.listTools();
-    expect(tools.tools).toHaveLength(12);
+    expect(tools.tools).toHaveLength(13);
     expect(tools.tools.find((tool) => tool.name === "kerno_repository_status")?.annotations?.readOnlyHint).toBe(true);
     const indexed = await client.callTool({ name: "kerno_index_repository", arguments: { root: fixture, mode: "incremental" } });
     expect(indexed.isError).not.toBe(true);

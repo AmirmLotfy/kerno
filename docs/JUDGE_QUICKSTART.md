@@ -29,7 +29,7 @@ Judge tour:
 2. Context: ranked items, excluded candidates, “Why included,” score breakdown, provenance, invalidation keys, and child capsule.
 3. Routing: policy recommendation plus explicit unavailable/requested/effective distinctions.
 4. Timeline: test failure, expansion, passing result, and stale capsule.
-5. Comparison: one retained fair App Server pair, including unfavorable Kerno metrics.
+5. Comparison: one retained same-task App Server pair whose missing isolation evidence is visibly labeled `FAIRNESS UNVERIFIED`.
 6. Limits: measured, estimated, experimental, unavailable, replay/live, and platform labels.
 7. Use `Judge state tour` to inspect every empty/loading/success/failure state.
 
@@ -46,7 +46,15 @@ npm run package:plugin
 npm run plugin:smoke
 ```
 
-Add `.agents/plugins/marketplace.json` as a repository-local marketplace in a supported Codex desktop/CLI surface, install `kerno`, refresh/restart, and begin a new task. The plugin contains the skill and cache-portable MCP executable/configuration.
+Install from the repository-local marketplace, refresh/restart Codex, and begin a new task:
+
+```bash
+codex plugin marketplace add .
+codex plugin add kerno@personal
+codex plugin list
+```
+
+The plugin contains the skill and cache-portable MCP executable/configuration.
 
 The reviewed hooks under `plugins/kerno/hooks/` are optional. Current plugin validation rejects an explicit manifest `hooks` field, so Kerno does not pretend they are auto-packaged. If cache-relative MCP execution fails, run:
 
@@ -82,10 +90,11 @@ This calls live `model/list`, requests only supported effort values, consumes re
 
 ## Cleanup and uninstall
 
-Uninstall the plugin from Codex. This intentionally preserves Kerno state. Inspect/export before deleting:
+Uninstalling intentionally preserves Kerno state. Inspect/export before deleting:
 
 ```bash
-node packages/cli/dist/main.cjs data-export --root . --out kerno-export.json
+codex plugin remove kerno@personal
+node packages/cli/dist/main.cjs data-export --root . --data .kerno --out kerno-export.json
 node packages/cli/dist/main.cjs data-delete --root . --data .kerno --yes
 ```
 

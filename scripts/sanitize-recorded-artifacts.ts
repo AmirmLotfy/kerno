@@ -1,6 +1,7 @@
 import { readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { redactSensitiveString } from "@kerno/contracts";
 
 const projectRoot = fileURLToPath(new URL("../", import.meta.url)).replace(/\/$/, "");
 const benchmarkRoot = join(projectRoot, "benchmarks");
@@ -9,10 +10,10 @@ const home = process.env.HOME;
 function sanitize(text: string): string {
   let result = text.replaceAll(projectRoot, "[WORKSPACE]");
   if (home) result = result.replaceAll(home, "[HOME]");
-  return result
+  return redactSensitiveString(result
     .replace(/\/?private\/var\/folders\/[^\s"']+\/T\/kerno-live-benchmark-[A-Za-z0-9_-]+/g, "[BENCHMARK_TMP]")
     .replace(/\/var\/folders\/[^\s"']+\/T\/kerno-live-benchmark-[A-Za-z0-9_-]+/g, "[BENCHMARK_TMP]")
-    .replace(/\/tmp\/xcrun_db-[A-Za-z0-9_-]+/g, "[TEMP]/xcrun_db-[redacted]");
+    .replace(/\/tmp\/xcrun_db-[A-Za-z0-9_-]+/g, "[TEMP]/xcrun_db-[redacted]")).text;
 }
 
 async function walk(directory: string): Promise<string[]> {

@@ -1,8 +1,8 @@
-import { mkdirSync } from "node:fs";
-import { join } from "node:path";
+import { chmodSync, existsSync, lstatSync, mkdirSync, realpathSync, writeFileSync } from "node:fs";
+import { basename, join, resolve } from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { ZodError, type ZodTypeAny } from "zod";
+import { z, ZodError, type ZodTypeAny } from "zod";
 import {
   analyzeTaskInputSchema, buildCapsuleInputSchema, compareRunsInputSchema, expandContextInputSchema,
   explainContextInputSchema, impactAnalysisInputSchema, indexRepositoryInputSchema, invalidateContextInputSchema,
@@ -10,6 +10,7 @@ import {
   SCHEMA_VERSION, stableId
 } from "@kerno/contracts";
 import { KernoService } from "@kerno/daemon";
+import { AppServerClient } from "@kerno/orchestrator";
 
 type ToolSpec = {
   name: string; title: string; description: string; schema: ZodTypeAny; readOnly: boolean; destructive?: boolean;
@@ -30,6 +31,11 @@ export const KERNO_TOOL_SPECS: ToolSpec[] = [
   { name: "kerno_record_decision", title: "Record evidence-backed decision", description: "Record a local memory. Agent prose remains a candidate unless test evidence or explicit user confirmation verifies it.", schema: recordDecisionInputSchema, readOnly: false, run: (service, input) => service.recordDecision(input) },
   { name: "kerno_record_outcome", title: "Record outcome", description: "Record a run outcome only when linked test/review artifacts support the claimed state.", schema: recordOutcomeInputSchema, readOnly: false, run: (service, input) => service.recordOutcome(input) },
   { name: "kerno_invalidate_context", title: "Invalidate context", description: "Preview invalidation by default. Applying invalidation changes only Kerno local state and requires an explicit non-dry-run call.", schema: invalidateContextInputSchema, readOnly: false, destructive: true, run: (service, input) => service.invalidate(input) },
+  { name: "kerno_discover_models", title: "Discover Codex models", description: "Query the local Codex App Server model/list catalog, persist the returned snapshot, and expose supported reasoning efforts. This does not switch the current task model.", schema: z.object({}).strict(), readOnly: false, run: async (service) => {
+    const client = new AppServerClient({ requestTimeoutMs: 30_000 });
+    try { await client.initialize(); const catalog = await client.listModels(); service.recordCatalog(catalog.catalogSnapshotId, catalog.models, "app-server"); return { catalogSnapshotId: catalog.catalogSnapshotId, models: catalog.models }; }
+    finally { await client.close(); }
+  } },
   { name: "kerno_route_task", title: "Recommend route", description: "Choose a model and reasoning effort from a catalog previously captured from App Server model/list. Caller-invented catalogs are rejected. This recommendation does not switch a Plugin Mode parent task.", schema: routeTaskInputSchema, readOnly: false, run: (service, input) => service.route(input) },
   { name: "kerno_compare_runs", title: "Compare runs", description: "Compare immutable baseline and Kerno runs after enforcing fairness fields; unavailable metrics remain null.", schema: compareRunsInputSchema, readOnly: false, run: (service, input) => service.compare(input) }
 ];
@@ -53,6 +59,7 @@ export function createKernoMcpServer(service: KernoService): McpServer {
       annotations: { title: spec.title, readOnlyHint: spec.readOnly, destructiveHint: spec.destructive ?? false, idempotentHint: spec.readOnly, openWorldHint: false }
     }, async (input) => {
       try {
+        if (Buffer.byteLength(JSON.stringify(input), "utf8") > 64 * 1024) throw new KernoError("INVALID_INPUT", "MCP tool input exceeds 64 KiB");
         const data = await spec.run(service, input);
         const result = { schemaVersion: SCHEMA_VERSION, requestId: stableId("request", `${spec.name}:${Date.now()}:${Math.random()}`), repository: contextFor(service, input, data), data, warnings: [] as Array<{ code: string; message: string }> };
         return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }], structuredContent: result };
@@ -67,8 +74,15 @@ export function createKernoMcpServer(service: KernoService): McpServer {
 }
 
 export async function runStdioServer(): Promise<void> {
-  const dataDir = process.env.KERNO_DATA_DIR ?? join(process.cwd(), ".kerno");
+  const dataDir = resolve(process.env.KERNO_DATA_DIR ?? join(process.cwd(), ".kerno"));
+  if (existsSync(dataDir) && lstatSync(dataDir).isSymbolicLink()) throw new KernoError("SYMLINK_ESCAPE", `Refusing symlinked Kerno data directory: ${dataDir}`);
   mkdirSync(dataDir, { recursive: true, mode: 0o700 });
+  const expectedDataDir = join(realpathSync(resolve(dataDir, "..")), basename(dataDir));
+  if (lstatSync(dataDir).isSymbolicLink() || realpathSync(dataDir) !== expectedDataDir) throw new KernoError("SYMLINK_ESCAPE", `Kerno data directory must resolve directly: ${dataDir}`);
+  chmodSync(dataDir, 0o700);
+  const marker = join(dataDir, ".kerno-owned");
+  if (existsSync(marker) && lstatSync(marker).isSymbolicLink()) throw new KernoError("SYMLINK_ESCAPE", `Refusing symlinked Kerno marker: ${marker}`);
+  if (!existsSync(marker)) writeFileSync(marker, "kerno-local-data-v1\n", { flag: "wx", mode: 0o600 });
   const portable = process.env.KERNO_STORAGE === "json";
   const service = new KernoService({ databasePath: join(dataDir, portable ? "kerno-state.json" : "kerno.db"), ...(portable ? { storage: "json" as const } : {}) });
   const server = createKernoMcpServer(service);

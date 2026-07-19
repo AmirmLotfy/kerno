@@ -6,7 +6,7 @@ import { execFile as execFileCallback } from "node:child_process";
 import { promisify } from "node:util";
 import { KernoService } from "@kerno/daemon";
 import { routeTask } from "@kerno/core";
-import { benchmarkReportSchema, benchmarkRunSchema, type BenchmarkReport, type BenchmarkRun } from "@kerno/contracts";
+import { benchmarkReportSchema, benchmarkRunSchema, type BenchmarkReport, type BenchmarkRun, type RunEvent } from "@kerno/contracts";
 
 const execFile = promisify(execFileCallback);
 export type DemoReplay = Awaited<ReturnType<typeof recordCanonicalReplay>>;
@@ -37,15 +37,18 @@ export async function recordCanonicalReplay(options: { fixtureRoot: string; solu
     const secondIndex = await service.index({ root: worktree, mode: "incremental" });
     const taskText = "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.";
     const task = service.analyze({ repositoryId: firstIndex.repository.id, taskText });
-    const initial = service.buildCapsule({ taskAnalysisId: task.id, budgetTokens: 2500 });
+    const initial = await service.buildCapsule({ taskAnalysisId: task.id, budgetTokens: 2500 });
     const failing = await testFixture(worktree);
+    const failedAt = new Date().toISOString();
     if (failing.passed) throw new Error("Canonical fixture must fail before the solution is applied");
-    const failingArtifact = service.recordArtifact({ kind: "test", source: "command", output: failing.output, exitCode: failing.exitCode, command: [process.execPath, "--test", "--experimental-strip-types", "tests/refund.integration.test.ts", "tests/atomicity.integration.test.ts"] });
+    const failingArtifact = service.recordArtifact({ kind: "test", source: "command", output: failing.output, exitCode: failing.exitCode, command: [process.execPath, "--test", "--experimental-strip-types", "tests/refund.integration.test.ts", "tests/atomicity.integration.test.ts"], trusted: true });
     const child = service.expand({ capsuleId: initial.id, evidence: { kind: "test_failure", artifactId: failingArtifact.id, text: "TransactionBoundary is required to atomically couple the ledger credit and idempotency marker", symbols: ["TransactionBoundary"] } });
     const solution = await readFile(options.solutionPath, "utf8");
     await writeFile(join(worktree, "src/webhooks/refund-handler.ts"), solution, { mode: 0o600 });
     const passing = await testFixture(worktree);
+    const passedAt = new Date().toISOString();
     if (!passing.passed) throw new Error(`Canonical solution did not pass: ${passing.output.slice(0, 1000)}`);
+    const reviewUnavailableAt = new Date().toISOString();
     const changedIndex = await service.index({ root: worktree, mode: "incremental" });
     const storedInitial = service.store.capsule(initial.id);
     const models = [
@@ -58,15 +61,15 @@ export async function recordCanonicalReplay(options: { fixtureRoot: string; solu
       { type: "index.incremental", at: secondIndex.indexedAt, detail: `${secondIndex.stats.reused} unchanged files reused; ${secondIndex.stats.parsed} reparsed` },
       { type: "capsule.created", at: initial.createdAt, detail: `${initial.items.length} items · ${initial.estimatedTokens} estimated tokens` },
       { type: "route.recommended", at: initial.createdAt, detail: `${route.recommended.model} · ${route.recommended.reasoningEffort}; no runtime request in replay` },
-      { type: "test.failed", at: new Date().toISOString(), detail: "TransactionBoundary evidence missing" },
+      { type: "test.failed", at: failedAt, detail: "TransactionBoundary evidence missing" },
       { type: "capsule.expanded", at: child.createdAt, detail: child.items.map((item) => item.locator.path).join(", ") },
-      { type: "test.passed", at: new Date().toISOString(), detail: "3/3 pinned integration assertions passed" },
-      { type: "review.unavailable", at: new Date().toISOString(), detail: "No independent Codex review ran in deterministic replay" },
+      { type: "test.passed", at: passedAt, detail: "3/3 pinned integration assertions passed" },
+      { type: "review.unavailable", at: reviewUnavailableAt, detail: "No independent Codex review ran in deterministic replay" },
       { type: "context.invalidated", at: changedIndex.indexedAt, detail: `Initial capsule is ${storedInitial?.status ?? "unknown"} after handler hash changed` }
     ];
     const resultWithoutHash = {
       schemaVersion: "1" as const, label: "DETERMINISTIC FIXTURE REPLAY" as const, recordedAt: new Date().toISOString(), source: { fixture: "relaycart-ts", task: "refund-debug" },
-      repository: { id: firstIndex.repository.id, name: "relaycart-ts", branch: firstIndex.worktree.branch, head: firstIndex.worktree.headCommit, dirty: firstIndex.worktree.dirty, files: firstIndex.files.length, symbols: firstIndex.files.reduce((sum, file) => sum + file.symbols.length, 0), indexFreshness: changedIndex.indexedAt, unchangedReparsed: secondIndex.stats.parsed, languageBreakdown: Object.fromEntries([...new Set(firstIndex.files.map((file) => file.language))].map((language) => [language, firstIndex.files.filter((file) => file.language === language).length])), memoryCount: service.store.memories(firstIndex.repository.id).length, invalidationCount: storedInitial?.status === "stale" ? 1 : 0 },
+      repository: { id: changedIndex.repository.id, name: "relaycart-ts", branch: changedIndex.worktree.branch, head: changedIndex.worktree.headCommit, dirty: changedIndex.worktree.dirty, startingCommit: firstIndex.worktree.headCommit, files: changedIndex.files.length, symbols: changedIndex.files.reduce((sum, file) => sum + file.symbols.length, 0), indexFreshness: changedIndex.indexedAt, unchangedReparsed: secondIndex.stats.parsed, languageBreakdown: Object.fromEntries([...new Set(changedIndex.files.map((file) => file.language))].map((language) => [language, changedIndex.files.filter((file) => file.language === language).length])), memoryCount: service.store.memories(changedIndex.repository.id).length, invalidationCount: storedInitial?.status === "stale" ? 1 : 0 },
       task, initialCapsule: initial, childCapsule: child,
       route: { ...route, requested: null, effective: null, availableModels: models, runtimeEvents: [], tokenUsage: null, latencyMs: null, result: "not-observed", truthLabel: "RECOMMENDED ONLY — no App Server turn in deterministic replay" },
       tests: { before: { passed: failing.passed, durationMs: failing.durationMs, artifactHash: failing.artifactHash }, after: { passed: passing.passed, durationMs: passing.durationMs, artifactHash: passing.artifactHash } },
@@ -78,7 +81,17 @@ export async function recordCanonicalReplay(options: { fixtureRoot: string; solu
   } finally { service.close(); await rm(temp, { recursive: true, force: true }); }
 }
 
-const comparableMetrics = ["totalTokens", "filesOpened", "repeatedReads", "toolCalls", "contextExpansions", "latencyMs", "changedLines", "unnecessaryChangedLines", "reviewerFindings"] as const;
+const comparableMetrics = ["taskSuccess", "testsPassed", "totalTokens", "filesOpened", "repeatedReads", "toolCalls", "contextExpansions", "timeToFirstValidPatchMs", "latencyMs", "changedLines", "unnecessaryChangedLines", "reviewerFindings", "staleContextMistakes"] as const;
+
+const observableToolItemTypes = new Set(["commandExecution", "fileChange", "mcpToolCall", "collaborationToolCall", "dynamicToolCall", "webSearch"]);
+export function countObservableToolCalls(events: RunEvent[]): number {
+  return events.filter((event) => event.type === "item/completed" && observableToolItemTypes.has(String((event.redactedPayload as any)?.item?.type ?? ""))).length;
+}
+
+export function normalizeRecordedRunMetrics(rawRun: unknown, events: RunEvent[]): BenchmarkRun {
+  const run = benchmarkRunSchema.parse(rawRun);
+  return benchmarkRunSchema.parse({ ...run, metrics: { ...run.metrics, toolCalls: countObservableToolCalls(events) } });
+}
 
 export function buildBenchmarkReport(rawRuns: unknown[]): BenchmarkReport {
   const runs = rawRuns.map((run) => benchmarkRunSchema.parse(run));
@@ -92,13 +105,22 @@ export function buildBenchmarkReport(rawRuns: unknown[]): BenchmarkReport {
     const kerno = candidates.find((run) => run.condition === kernoCondition);
     const fairnessFields: Array<[string, unknown, unknown]> = baseline && kerno ? [
       ["task text", baseline.task.text, kerno.task.text], ["starting commit", baseline.task.startingCommit, kerno.task.startingCommit],
-      ["permissions", baseline.permissions, kerno.permissions],
+      ["repository", baseline.task.repository, kerno.task.repository], ["license", baseline.task.license, kerno.task.license],
+      ["branch", baseline.task.branch, kerno.task.branch], ["success criteria", JSON.stringify(baseline.task.successCriteria), JSON.stringify(kerno.task.successCriteria)],
+      ["test commands", JSON.stringify(baseline.task.testCommands), JSON.stringify(kerno.task.testCommands)], ["permissions", baseline.permissions, kerno.permissions],
+      ["platform", baseline.environment.platform, kerno.environment.platform], ["architecture", baseline.environment.architecture, kerno.environment.architecture],
+      ["Node runtime", baseline.environment.node, kerno.environment.node], ["Codex runtime", baseline.environment.codex, kerno.environment.codex],
       ...(experiment === "context-controlled" ? [["model", baseline.model.requested, kerno.model.requested], ["reasoning effort", baseline.model.reasoningEffort, kerno.model.reasoningEffort]] as Array<[string, unknown, unknown]> : [])
     ] : [];
     const mismatches = fairnessFields.filter(([, left, right]) => left !== right).map(([field]) => field);
+    if (baseline && kerno && (baseline.environment.profileIsolation !== "verified-clean" || kerno.environment.profileIsolation !== "verified-clean")) mismatches.push("profile isolation unverified");
+    if (baseline && kerno && (!baseline.environment.profileEvidenceHash || !kerno.environment.profileEvidenceHash)) mismatches.push("profile evidence missing");
+    if (baseline && kerno && ([baseline, kerno].some((run) => !run.artifactHashes.events || !run.artifactHashes.diff || !run.artifactHashes.tests || !run.artifactHashes.review))) mismatches.push("artifact hashes unverified");
+    const outcome = (run: BenchmarkRun | undefined) => run ? { finalStatus: run.finalStatus, testsPassed: run.tests.passed, testArtifactHash: run.tests.artifactHash, reviewStatus: run.review.status, reviewerFindings: run.metrics.reviewerFindings } : null;
     return {
       taskId, experiment, baselineRunId: baseline?.id ?? null, kernoRunId: kerno?.id ?? null,
       fairness: { passed: Boolean(baseline && kerno) && mismatches.length === 0, mismatches: baseline && kerno ? mismatches : ["missing condition"] },
+      outcomes: { baseline: outcome(baseline), kerno: outcome(kerno) },
       metrics: Object.fromEntries(comparableMetrics.map((metric) => [metric, { baseline: baseline?.metrics[metric] ?? null, kerno: kerno?.metrics[metric] ?? null }]))
     };
   });

@@ -28,7 +28,7 @@ dashboard <──────── loopback HTTP/SSE or sanitized immutable rep
 | `core` | Classification, candidate scoring, capsules, memory, invalidation, routing | Transport-specific behavior |
 | `storage` | Migrations, WAL, transactions, leases, FTS5, repository adapters | Recompute domain rules |
 | `daemon` | `KernoService`, loopback HTTP snapshots, ordered SSE | Expose mutation over P0 HTTP |
-| `mcp-server` | Twelve strict STDIO tools and structured errors | Shell-command inputs or source writes |
+| `mcp-server` | Thirteen strict STDIO tools and structured errors | Shell-command inputs or source writes |
 | `orchestrator` | App Server initialize/catalog/threads/turns/events/review | Assume catalog entries or claim unobserved effective models |
 | `cli` | Human operations, JSON output, explicit export/delete | Silent destructive actions |
 | `eval` | Fairness checks, metric derivation, JSON/CSV/Markdown/dashboard reports | Fill missing values with zero |
@@ -64,9 +64,9 @@ The plugin bundle uses a portable atomic JSON adapter because native module reso
 
 ## MCP contract surface
 
-`kerno_index_repository`, `kerno_repository_status`, `kerno_analyze_task`, `kerno_build_context_capsule`, `kerno_expand_context`, `kerno_explain_context`, `kerno_impact_analysis`, `kerno_record_decision`, `kerno_record_outcome`, `kerno_invalidate_context`, `kerno_route_task`, and `kerno_compare_runs` parse strict inputs, reject unknown fields, cap payloads, and return structured repository identity, data, and warnings.
+`kerno_index_repository`, `kerno_repository_status`, `kerno_analyze_task`, `kerno_build_context_capsule`, `kerno_expand_context`, `kerno_explain_context`, `kerno_impact_analysis`, `kerno_record_decision`, `kerno_record_outcome`, `kerno_invalidate_context`, `kerno_discover_models`, `kerno_route_task`, and `kerno_compare_runs` parse strict inputs, reject unknown fields, cap aggregate payloads, and return structured repository identity, data, and warnings.
 
-Read/write truth: indexing, analyses, capsules, memory/outcome/invalidation, routing logs, and comparisons write Kerno-local state only. No MCP tool accepts a command or writes repository source.
+Read/write truth: indexing, analyses, capsules, memory/outcome/invalidation, routing logs, and comparisons write Kerno-local state only. Model discovery starts only the fixed local App Server command and may consume authenticated capacity. No MCP tool accepts a caller-supplied command or writes repository source.
 
 ## Orchestration truth model
 
@@ -90,3 +90,5 @@ The daemon binds `127.0.0.1`, generates an ephemeral bearer token, applies stric
 - App Server unavailable/auth/capacity: explicit Plugin Mode recommendation or replay, never simulated routing.
 - Missing metric/reviewer event: `null`/unavailable, never zero/success.
 - Stale snapshot or branch mismatch: invalidate conservatively and require re-index.
+
+The CLI/daemon SQLite store and plugin portable store implement the same domain rules but are distinct local processes unless launched with the same configured portable state path. The default judge replay is intentionally generated in-process; P0 does not claim a continuously connected live dashboard control plane.

@@ -3,6 +3,7 @@ import type { CapsuleItem, CatalogModel, ContextCapsule, DurableMemory, Evidence
 import { KernoError, stableId } from "@kerno/contracts";
 
 const STOP = new Set(["the", "a", "an", "and", "or", "to", "of", "in", "on", "if", "at", "for", "without", "with", "can", "make", "this", "that", "is", "be", "before", "after", "not"]);
+const SYMBOL_STOP = new Set(["Make", "The", "This", "That", "Fix", "Add", "API", "Codex", "Kerno"]);
 const RISK_TERMS = {
   security: ["security", "auth", "secret", "token", "permission", "injection", "encryption"],
   migration: ["migration", "schema", "database", "backfill", "deploy"],
@@ -18,13 +19,13 @@ function clamp(value: number): number { return Math.max(0, Math.min(1, value)); 
 export function analyzeTask(repositoryId: string, snapshotId: string, taskText: string): TaskAnalysis {
   if (!taskText.trim()) throw new KernoError("INVALID_INPUT", "Task text is required");
   const lower = taskText.toLowerCase();
-  const intent: TaskAnalysis["intent"] = includesAny(lower, ["bug", "fix", "fails", "error", "duplicate", "retry"]) ? "debugging"
+  const intent: TaskAnalysis["intent"] = includesAny(lower, ["bug", "fix", "fails", "error", "duplicate", "retry", "retried", "twice", "double-credit", "double credit"]) ? "debugging"
     : includesAny(lower, ["refactor", "rename", "extract"]) ? "refactor"
       : includesAny(lower, ["test", "coverage"]) ? "test"
         : includesAny(lower, ["review", "audit"]) ? "review"
           : includesAny(lower, ["document", "readme"]) ? "documentation" : "change";
   const explicitPaths = [...taskText.matchAll(/(?:^|\s)([\w.-]+(?:\/[\w.-]+)+\.[A-Za-z0-9]+)/g)].map((match) => match[1]!).filter((path) => !path.split("/").includes(".."));
-  const symbols = [...taskText.matchAll(/\b[A-Z][A-Za-z0-9_]{2,}\b|\b[a-z_][A-Za-z0-9_]+\([^)]*\)/g)].map((match) => match[0].replace(/\(.*$/, ""));
+  const symbols = [...taskText.matchAll(/\b[A-Z][A-Za-z0-9_]{2,}\b|\b[a-z_][A-Za-z0-9_]+\([^)]*\)/g)].map((match) => match[0].replace(/\(.*$/, "")).filter((symbol) => !SYMBOL_STOP.has(symbol));
   const terms = tokenize(taskText);
   const security = includesAny(lower, RISK_TERMS.security) ? 0.85 : 0.15;
   const migration = includesAny(lower, RISK_TERMS.migration) ? 0.8 : 0.1;
@@ -108,7 +109,7 @@ function candidateFor(task: TaskAnalysis, snapshot: IndexSnapshot, file: FileSna
   return { file, item, eligible: taskRelevance >= 0.1 || graphProximity > 0 || testEvidence > 0 };
 }
 
-export function buildContextCapsule(task: TaskAnalysis, snapshot: IndexSnapshot, options: { phase?: TaskPhase; budgetTokens?: number; parentCapsuleId?: string; triggerEvidence?: EvidenceRef; extraTerms?: string[] } = {}): ContextCapsule {
+export function buildContextCapsule(task: TaskAnalysis, snapshot: IndexSnapshot, options: { phase?: TaskPhase; budgetTokens?: number; parentCapsuleId?: string; triggerEvidence?: EvidenceRef; extraTerms?: string[]; memories?: DurableMemory[] } = {}): ContextCapsule {
   if (task.snapshotId !== snapshot.id) throw new KernoError("STALE_SNAPSHOT", "Task analysis belongs to a different index snapshot");
   const budget = options.budgetTokens ?? 6000;
   const augmented: TaskAnalysis = options.extraTerms?.length ? { ...task, terms: [...new Set([...task.terms, ...options.extraTerms.flatMap(tokenize)])] } : task;
@@ -130,6 +131,31 @@ export function buildContextCapsule(task: TaskAnalysis, snapshot: IndexSnapshot,
     if (used + candidate.item.estimatedTokens > budget) { excluded.push({ path: candidate.file.path, score: candidate.item.score, reason: "capsule token budget" }); continue; }
     const duplicate = items.some((item) => item.contentHash === candidate.item.contentHash || item.locator.path === candidate.item.locator.path);
     if (duplicate) { excluded.push({ path: candidate.file.path, score: candidate.item.score, reason: "deduplicated" }); continue; }
+    items.push(candidate.item); used += candidate.item.estimatedTokens;
+  }
+  const memoryItems = (options.memories ?? []).filter((memory) => memory.status === "verified" && (!memory.worktreeId || memory.worktreeId === snapshot.worktree.id) && (!memory.branch || memory.branch === snapshot.worktree.branch)).map((memory) => {
+    const matches = augmented.terms.filter((term) => memory.summary.toLowerCase().includes(term)).length;
+    const relevance = clamp((matches / Math.max(4, augmented.terms.length)) * 2.5);
+    const estimatedTokens = Math.max(1, Math.ceil(memory.summary.length / 4));
+    const benefit = 0.30 * relevance + 0.10 + 0.10 * memory.confidence + 0.11 * 0.5;
+    const tokenPenalty = 1 + 1.5 * estimatedTokens / budget;
+    const path = memory.evidence.find((evidence) => evidence.path)?.path ?? `memory/${memory.id}.md`;
+    const contentHash = createHash("sha256").update(memory.summary).digest("hex");
+    const item: CapsuleItem = {
+      id: stableId("item", `${snapshot.id}:${memory.id}:${contentHash}`), sourceType: "memory", locator: { path }, contentHash,
+      headCommit: snapshot.worktree.headCommit, branch: snapshot.worktree.branch, freshness: 1, confidence: memory.confidence,
+      estimatedTokens, score: benefit / tokenPenalty,
+      scoreBreakdown: { taskRelevance: 0.30 * relevance, graphProximity: 0, freshness: 0.10, confidence: 0.10 * memory.confidence, riskImportance: 0, testEvidence: memory.creationSource === "test" ? 0.12 : 0, priorUsefulness: 0.055, tokenPenalty },
+      reason: `verified ${memory.type.replaceAll("-", " ")} matching task vocabulary`, excerpt: memory.summary,
+      provenance: memory.evidence,
+      invalidationKeys: [{ kind: "repository", key: snapshot.repository.id }, ...(memory.worktreeId ? [{ kind: "worktree" as const, key: memory.worktreeId }] : []), ...(memory.branch ? [{ kind: "branch" as const, key: memory.branch, expected: memory.headCommit ?? undefined }] : []), ...memory.invalidationConditions],
+      trust: "verified-memory"
+    };
+    return { memory, item, relevance };
+  }).filter((candidate) => candidate.relevance > 0).sort((a, b) => b.item.score - a.item.score || a.memory.id.localeCompare(b.memory.id));
+  for (const candidate of memoryItems) {
+    if (used + candidate.item.estimatedTokens > budget) { excluded.push({ path: candidate.item.locator.path, score: candidate.item.score, reason: "capsule token budget" }); continue; }
+    if (items.some((item) => item.id === candidate.item.id || (item.contentHash === candidate.item.contentHash && item.locator.path === candidate.item.locator.path))) continue;
     items.push(candidate.item); used += candidate.item.estimatedTokens;
   }
   const createdAt = new Date().toISOString();
@@ -188,6 +214,10 @@ export function invalidateMemory(memory: DurableMemory, previous: IndexSnapshot,
   if (memory.worktreeId && memory.worktreeId !== current.worktree.id) return { ...memory, status: "stale" };
   if (memory.branch && memory.branch !== current.worktree.branch) return { ...memory, status: "stale" };
   for (const key of memory.invalidationConditions) {
+    if (key.kind === "repository" && key.key !== current.repository.id) return { ...memory, status: "stale" };
+    if (key.kind === "worktree" && key.key !== current.worktree.id) return { ...memory, status: "stale" };
+    if (key.kind === "branch" && key.key !== (current.worktree.branch ?? "detached")) return { ...memory, status: "stale" };
+    if (key.kind === "commit" && key.expected && key.expected !== current.worktree.headCommit) return { ...memory, status: "stale" };
     if (key.kind === "file") {
       const file = current.files.find((candidate) => candidate.path === key.key);
       if (!file || (key.expected && file.contentHash !== key.expected)) return { ...memory, status: "stale" };
@@ -197,6 +227,16 @@ export function invalidateMemory(memory: DurableMemory, previous: IndexSnapshot,
       const actual = key.kind === "symbol-signature" ? symbol?.signatureHash : symbol?.bodyHash;
       if (!actual || (key.expected && actual !== key.expected)) return { ...memory, status: "stale" };
     }
+    if (key.kind === "engine" && key.key !== current.engineVersion && key.expected !== current.engineVersion) return { ...memory, status: "stale" };
+    if (key.kind === "graph") {
+      const actual = hashArtifact(current.edges);
+      if (!key.expected || key.expected !== actual) return { ...memory, status: "stale" };
+    }
+    if (key.kind === "config") {
+      const file = current.files.find((candidate) => candidate.path === key.key);
+      if (!file || (key.expected && file.contentHash !== key.expected)) return { ...memory, status: "stale" };
+    }
+    if (key.kind === "test-artifact" || key.kind === "manual") return { ...memory, status: "stale" };
   }
   void previous;
   return memory;

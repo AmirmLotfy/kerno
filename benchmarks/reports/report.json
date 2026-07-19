@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1",
-  "generatedAt": "2026-07-19T09:23:55.673Z",
+  "generatedAt": "2026-07-19T17:34:34.435Z",
   "runCount": 8,
   "runs": [
     {
@@ -31,7 +31,9 @@
         "architecture": "arm64",
         "node": "v22.13.1",
         "codex": "codex-cli 0.145.0-alpha.18",
-        "recordedFrom": "live-app-server"
+        "recordedFrom": "live-app-server",
+        "profileIsolation": "unverified",
+        "profileEvidenceHash": null
       },
       "model": {
         "requested": "gpt-5.6-sol",
@@ -54,15 +56,19 @@
         "outputTail": "TAP version 13\n# (node:2323) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 1.0255\n  ...\n# (node:2324) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.488125\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.506208\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 111.220667\n\n(node:2322) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
       },
       "metrics": {
+        "taskSuccess": null,
+        "testsPassed": null,
         "totalTokens": 95383,
         "filesOpened": 2,
         "repeatedReads": 0,
-        "toolCalls": 11,
+        "toolCalls": 9,
         "contextExpansions": 1,
         "latencyMs": 107289,
         "changedLines": 16,
+        "timeToFirstValidPatchMs": null,
         "unnecessaryChangedLines": null,
-        "reviewerFindings": 0
+        "reviewerFindings": 0,
+        "staleContextMistakes": null
       },
       "review": {
         "status": "passed",
@@ -74,6 +80,12 @@
         "diff": "benchmarks/recorded-results/live/benchmark_19jkde7/diff.patch",
         "tests": "benchmarks/recorded-results/live/benchmark_19jkde7/tests.txt",
         "review": "benchmarks/recorded-results/live/benchmark_19jkde7/review.txt"
+      },
+      "artifactHashes": {
+        "events": null,
+        "diff": null,
+        "tests": null,
+        "review": null
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event."
@@ -107,7 +119,9 @@
         "architecture": "arm64",
         "node": "v22.13.1",
         "codex": "codex-cli 0.145.0-alpha.18",
-        "recordedFrom": "live-app-server"
+        "recordedFrom": "live-app-server",
+        "profileIsolation": "unverified",
+        "profileEvidenceHash": null
       },
       "model": {
         "requested": "gpt-5.6-sol",
@@ -130,15 +144,19 @@
         "outputTail": "TAP version 13\n# (node:35591) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.769917\n  ...\n# (node:35592) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.518667\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.558459\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 106.643958\n\n(node:35590) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
       },
       "metrics": {
+        "taskSuccess": null,
+        "testsPassed": null,
         "totalTokens": 95206,
         "filesOpened": 2,
         "repeatedReads": 0,
-        "toolCalls": 14,
+        "toolCalls": 10,
         "contextExpansions": 1,
         "latencyMs": 95371,
         "changedLines": 16,
+        "timeToFirstValidPatchMs": null,
         "unnecessaryChangedLines": null,
-        "reviewerFindings": 1
+        "reviewerFindings": 1,
+        "staleContextMistakes": null
       },
       "review": {
         "status": "failed",
@@ -150,6 +168,12 @@
         "diff": "benchmarks/recorded-results/live/benchmark_1crq47p/diff.patch",
         "tests": "benchmarks/recorded-results/live/benchmark_1crq47p/tests.txt",
         "review": "benchmarks/recorded-results/live/benchmark_1crq47p/review.txt"
+      },
+      "artifactHashes": {
+        "events": null,
+        "diff": null,
+        "tests": null,
+        "review": null
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event."
@@ -183,7 +207,9 @@
         "architecture": "arm64",
         "node": "v22.13.1",
         "codex": "codex-cli 0.145.0-alpha.18",
-        "recordedFrom": "live-app-server"
+        "recordedFrom": "live-app-server",
+        "profileIsolation": "unverified",
+        "profileEvidenceHash": null
       },
       "model": {
         "requested": "gpt-5.6-sol",
@@ -201,15 +227,19 @@
         "outputTail": "TAP version 13\n# (node:48498) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.805667\n  ...\n# (node:48499) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 1.00975\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.610792\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 115.0085\n\n(node:48497) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
       },
       "metrics": {
+        "taskSuccess": null,
+        "testsPassed": null,
         "totalTokens": 113569,
         "filesOpened": 6,
         "repeatedReads": 2,
-        "toolCalls": 14,
+        "toolCalls": 8,
         "contextExpansions": 0,
         "latencyMs": 89044,
         "changedLines": 17,
+        "timeToFirstValidPatchMs": null,
         "unnecessaryChangedLines": null,
-        "reviewerFindings": 1
+        "reviewerFindings": 1,
+        "staleContextMistakes": null
       },
       "review": {
         "status": "failed",
@@ -221,6 +251,12 @@
         "diff": "benchmarks/recorded-results/live/benchmark_1dbgx40/diff.patch",
         "tests": "benchmarks/recorded-results/live/benchmark_1dbgx40/tests.txt",
         "review": "benchmarks/recorded-results/live/benchmark_1dbgx40/review.txt"
+      },
+      "artifactHashes": {
+        "events": null,
+        "diff": null,
+        "tests": null,
+        "review": null
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event.",
@@ -255,7 +291,9 @@
         "architecture": "arm64",
         "node": "v22.13.1",
         "codex": "codex-cli 0.145.0-alpha.18",
-        "recordedFrom": "live-app-server"
+        "recordedFrom": "live-app-server",
+        "profileIsolation": "unverified",
+        "profileEvidenceHash": null
       },
       "model": {
         "requested": "gpt-5.6-sol",
@@ -273,15 +311,19 @@
         "outputTail": "TAP version 13\n# (node:87499) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.814541\n  ...\n# (node:87500) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.525458\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.567084\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 104.524333\n\n(node:87498) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
       },
       "metrics": {
+        "taskSuccess": null,
+        "testsPassed": null,
         "totalTokens": 93670,
         "filesOpened": 6,
         "repeatedReads": 2,
-        "toolCalls": 12,
+        "toolCalls": 8,
         "contextExpansions": 0,
         "latencyMs": 71922,
         "changedLines": 16,
+        "timeToFirstValidPatchMs": null,
         "unnecessaryChangedLines": null,
-        "reviewerFindings": 0
+        "reviewerFindings": 0,
+        "staleContextMistakes": null
       },
       "review": {
         "status": "passed",
@@ -293,6 +335,12 @@
         "diff": "benchmarks/recorded-results/live/benchmark_1dwiafn/diff.patch",
         "tests": "benchmarks/recorded-results/live/benchmark_1dwiafn/tests.txt",
         "review": "benchmarks/recorded-results/live/benchmark_1dwiafn/review.txt"
+      },
+      "artifactHashes": {
+        "events": null,
+        "diff": null,
+        "tests": null,
+        "review": null
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event.",
@@ -327,7 +375,9 @@
         "architecture": "arm64",
         "node": "v22.13.1",
         "codex": "codex-cli 0.145.0-alpha.18",
-        "recordedFrom": "live-app-server"
+        "recordedFrom": "live-app-server",
+        "profileIsolation": "unverified",
+        "profileEvidenceHash": null
       },
       "model": {
         "requested": "gpt-5.6-sol",
@@ -350,15 +400,19 @@
         "outputTail": "TAP version 13\n# (node:62134) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.968\n  ...\n# (node:62135) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.566459\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.913292\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 150.944667\n\n(node:62133) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
       },
       "metrics": {
+        "taskSuccess": null,
+        "testsPassed": null,
         "totalTokens": 115807,
         "filesOpened": 2,
         "repeatedReads": 0,
-        "toolCalls": 14,
+        "toolCalls": 10,
         "contextExpansions": 1,
         "latencyMs": 127116,
         "changedLines": 16,
+        "timeToFirstValidPatchMs": null,
         "unnecessaryChangedLines": null,
-        "reviewerFindings": 1
+        "reviewerFindings": 1,
+        "staleContextMistakes": null
       },
       "review": {
         "status": "failed",
@@ -370,6 +424,12 @@
         "diff": "benchmarks/recorded-results/live/benchmark_1yh5ycw/diff.patch",
         "tests": "benchmarks/recorded-results/live/benchmark_1yh5ycw/tests.txt",
         "review": "benchmarks/recorded-results/live/benchmark_1yh5ycw/review.txt"
+      },
+      "artifactHashes": {
+        "events": null,
+        "diff": null,
+        "tests": null,
+        "review": null
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event."
@@ -403,7 +463,9 @@
         "architecture": "arm64",
         "node": "v22.13.1",
         "codex": "codex-cli 0.145.0-alpha.18",
-        "recordedFrom": "live-app-server"
+        "recordedFrom": "live-app-server",
+        "profileIsolation": "unverified",
+        "profileEvidenceHash": null
       },
       "model": {
         "requested": "gpt-5.6-sol",
@@ -421,15 +483,19 @@
         "outputTail": "TAP version 13\n# (node:20638) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.82425\n  ...\n# (node:20639) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.713916\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.574\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 114.48675\n\n(node:20637) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
       },
       "metrics": {
+        "taskSuccess": null,
+        "testsPassed": null,
         "totalTokens": 110300,
         "filesOpened": 6,
         "repeatedReads": 2,
-        "toolCalls": 12,
+        "toolCalls": 9,
         "contextExpansions": 0,
         "latencyMs": 107059,
         "changedLines": 16,
+        "timeToFirstValidPatchMs": null,
         "unnecessaryChangedLines": null,
-        "reviewerFindings": 1
+        "reviewerFindings": 1,
+        "staleContextMistakes": null
       },
       "review": {
         "status": "failed",
@@ -441,6 +507,12 @@
         "diff": "benchmarks/recorded-results/live/benchmark_c5vvsi/diff.patch",
         "tests": "benchmarks/recorded-results/live/benchmark_c5vvsi/tests.txt",
         "review": "benchmarks/recorded-results/live/benchmark_c5vvsi/review.txt"
+      },
+      "artifactHashes": {
+        "events": null,
+        "diff": null,
+        "tests": null,
+        "review": null
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event.",
@@ -475,7 +547,9 @@
         "architecture": "arm64",
         "node": "v22.13.1",
         "codex": "codex-cli 0.145.0-alpha.18",
-        "recordedFrom": "live-app-server"
+        "recordedFrom": "live-app-server",
+        "profileIsolation": "unverified",
+        "profileEvidenceHash": null
       },
       "model": {
         "requested": "gpt-5.6-sol",
@@ -498,15 +572,19 @@
         "outputTail": "TAP version 13\n# (node:79176) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and boundary restart\nok 1 - write-ahead state survives a marker timeout and boundary restart\n  ---\n  duration_ms: 0.801125\n  ...\n# (node:79177) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries credit exactly once\nok 2 - concurrent duplicate deliveries credit exactly once\n  ---\n  duration_ms: 0.518\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.628708\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 111.317667\n\n(node:79175) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
       },
       "metrics": {
+        "taskSuccess": null,
+        "testsPassed": null,
         "totalTokens": 134979,
         "filesOpened": 2,
         "repeatedReads": 0,
-        "toolCalls": 18,
+        "toolCalls": 10,
         "contextExpansions": 1,
         "latencyMs": 119785,
         "changedLines": 16,
+        "timeToFirstValidPatchMs": null,
         "unnecessaryChangedLines": null,
-        "reviewerFindings": null
+        "reviewerFindings": null,
+        "staleContextMistakes": null
       },
       "review": {
         "status": "unavailable",
@@ -518,6 +596,12 @@
         "diff": "benchmarks/recorded-results/live/benchmark_jkyxs4/diff.patch",
         "tests": "benchmarks/recorded-results/live/benchmark_jkyxs4/tests.txt",
         "review": "benchmarks/recorded-results/live/benchmark_jkyxs4/review.txt"
+      },
+      "artifactHashes": {
+        "events": null,
+        "diff": null,
+        "tests": null,
+        "review": null
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event."
@@ -551,7 +635,9 @@
         "architecture": "arm64",
         "node": "v22.13.1",
         "codex": "codex-cli 0.145.0-alpha.18",
-        "recordedFrom": "live-app-server"
+        "recordedFrom": "live-app-server",
+        "profileIsolation": "unverified",
+        "profileEvidenceHash": null
       },
       "model": {
         "requested": "gpt-5.6-sol",
@@ -569,15 +655,19 @@
         "outputTail": "TAP version 13\n# (node:59700) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and boundary restart\nok 1 - write-ahead state survives a marker timeout and boundary restart\n  ---\n  duration_ms: 0.895\n  ...\n# (node:59701) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries credit exactly once\nok 2 - concurrent duplicate deliveries credit exactly once\n  ---\n  duration_ms: 0.591834\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.752709\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 105.162083\n\n(node:59699) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
       },
       "metrics": {
+        "taskSuccess": null,
+        "testsPassed": null,
         "totalTokens": 91587,
         "filesOpened": 6,
         "repeatedReads": 2,
-        "toolCalls": 11,
+        "toolCalls": 7,
         "contextExpansions": 0,
         "latencyMs": 77242,
         "changedLines": 16,
+        "timeToFirstValidPatchMs": null,
         "unnecessaryChangedLines": null,
-        "reviewerFindings": 2
+        "reviewerFindings": 2,
+        "staleContextMistakes": null
       },
       "review": {
         "status": "failed",
@@ -589,6 +679,12 @@
         "diff": "benchmarks/recorded-results/live/benchmark_vqexyg/diff.patch",
         "tests": "benchmarks/recorded-results/live/benchmark_vqexyg/tests.txt",
         "review": "benchmarks/recorded-results/live/benchmark_vqexyg/review.txt"
+      },
+      "artifactHashes": {
+        "events": null,
+        "diff": null,
+        "tests": null,
+        "review": null
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event.",
@@ -603,10 +699,38 @@
       "baselineRunId": "benchmark_1dwiafn",
       "kernoRunId": "benchmark_19jkde7",
       "fairness": {
-        "passed": true,
-        "mismatches": []
+        "passed": false,
+        "mismatches": [
+          "profile isolation unverified",
+          "profile evidence missing",
+          "artifact hashes unverified"
+        ]
+      },
+      "outcomes": {
+        "baseline": {
+          "finalStatus": "passed",
+          "testsPassed": true,
+          "testArtifactHash": "757836080830cf8cf5aeb8a83e113e8862fe4d3c2d8a5a83fa00ccc7eadc4416",
+          "reviewStatus": "passed",
+          "reviewerFindings": 0
+        },
+        "kerno": {
+          "finalStatus": "passed",
+          "testsPassed": true,
+          "testArtifactHash": "9c822d55d2081672f1b2fbf992cffa93f8de8f295da5581a59cbbf291036101f",
+          "reviewStatus": "passed",
+          "reviewerFindings": 0
+        }
       },
       "metrics": {
+        "taskSuccess": {
+          "baseline": null,
+          "kerno": null
+        },
+        "testsPassed": {
+          "baseline": null,
+          "kerno": null
+        },
         "totalTokens": {
           "baseline": 93670,
           "kerno": 95383
@@ -620,12 +744,16 @@
           "kerno": 0
         },
         "toolCalls": {
-          "baseline": 12,
-          "kerno": 11
+          "baseline": 8,
+          "kerno": 9
         },
         "contextExpansions": {
           "baseline": 0,
           "kerno": 1
+        },
+        "timeToFirstValidPatchMs": {
+          "baseline": null,
+          "kerno": null
         },
         "latencyMs": {
           "baseline": 71922,
@@ -642,6 +770,10 @@
         "reviewerFindings": {
           "baseline": 0,
           "kerno": 0
+        },
+        "staleContextMistakes": {
+          "baseline": null,
+          "kerno": null
         }
       }
     }
