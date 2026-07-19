@@ -97,13 +97,19 @@ export class AppServerClient {
       : { type: "readOnly", networkAccess: false };
     const result = await this.request("turn/start", { threadId: options.threadId, input: [{ type: "text", text: options.prompt, text_elements: [] }], model: options.model, effort: options.effort, ...(options.cwd ? { cwd: options.cwd } : {}), sandboxPolicy, approvalPolicy: "never" });
     const turnId = result?.turn?.id; if (!turnId) throw new Error("turn/start returned no turn id");
-    const completion: any = await this.waitForTurn(String(turnId));
-    return { turnId, acceptedRequest: { model: options.model, effort: options.effort }, status: String(completion?.turn?.status ?? "unknown"), error: completion?.turn?.error ?? null, raw: result, completion };
+    try {
+      const completion: any = await this.waitForTurn(String(turnId));
+      return { turnId, acceptedRequest: { model: options.model, effort: options.effort }, status: String(completion?.turn?.status ?? "unknown"), error: completion?.turn?.error ?? null, raw: result, completion };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      await this.interrupt(options.threadId, String(turnId)).catch(() => undefined);
+      return { turnId, acceptedRequest: { model: options.model, effort: options.effort }, status: "failed", error: { message }, raw: result, completion: null };
+    }
   }
   private waitForTurn(turnId: string): Promise<unknown> {
     if (this.completedTurns.has(turnId)) return Promise.resolve(this.completedTurns.get(turnId));
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => { this.turnWaiters.delete(turnId); reject(new Error(`Turn ${turnId} did not complete before timeout`)); }, Math.max(this.timeout, 120_000));
+      const timer = setTimeout(() => { this.turnWaiters.delete(turnId); reject(new Error(`Turn ${turnId} did not complete before timeout`)); }, Math.max(this.timeout, 1_000));
       this.turnWaiters.set(turnId, { resolve, reject, timer });
     });
   }
@@ -167,7 +173,7 @@ export function classifyTurnFailure(status: string, error: unknown): PhaseRun["f
   const text = JSON.stringify(error ?? "").toLowerCase();
   if (/usage|credit|rate.?limit|quota/.test(text)) return "usage-limit";
   if (/auth|unauthor|login|credential/.test(text)) return "authentication";
-  if (/unavailable|not found|no compatible model|connection|spawn/.test(text)) return "unavailable";
+  if (/unavailable|not found|no compatible model|connection|spawn|exited with code/.test(text)) return "unavailable";
   if (/timeout|timed out/.test(text)) return "timeout";
   return "turn-failed";
 }

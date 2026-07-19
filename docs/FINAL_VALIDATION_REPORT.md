@@ -13,7 +13,7 @@ Required final entries:
 - Separate fresh macOS clone: pending release URL.
 - Linux clean clone: pending.
 - TypeScript typecheck and ESLint: passed.
-- Vitest: 14 files, 29 tests passed.
+- Vitest: 14 files, 30 tests passed.
 - Playwright dashboard E2E: 1 test passed.
 - Plugin validator: passed for `0.1.0+codex.20260719074757`; `kerno@personal` is installed and enabled from the repository marketplace.
 - Bundled MCP smoke: 12 tools exposed and fixture indexed through the portable persistent store.
@@ -24,7 +24,7 @@ Required final entries:
 - Canonical proof: branch `main`; 5 initial items / 917 estimated tokens; genuine failing concurrency/restart tests; one 501-token transaction-boundary child item; 3 pinned assertions pass after the solution; original capsule becomes stale after the handler hash changes.
 - Live App Server artifact: `benchmarks/recorded-results/app-server-live-smoke.json` proves live catalog discovery and a completed read-only `gpt-5.6-sol` exploration turn with tool and token-usage events. The model remains `requested-unconfirmed` because no effective-model or reroute event was emitted.
 - Live artifact SHA-256: `9b8944c47f92feb36992d498728a4b3a0a1b8860fd7f44d8b4d1318cc4b050c3`.
-- A disposable writable live implementation benchmark reached an accepted turn but exceeded the configured five-minute completion timeout before independent review; no successful live implementation/review artifact is claimed.
+- A disposable writable live implementation benchmark reached an accepted turn but exceeded the configured five-minute completion timeout before independent review; no successful live implementation/review artifact is claimed. The adapter now interrupts timed-out accepted turns and returns structured `timeout` evidence, covered by a hanging-server regression test.
 - Full local type/lint/unit/integration/contract/security/E2E/package/judge gate: passed.
 - Repository/video URLs and signed-out verification: pending.
 - Primary `/feedback` Session ID: pending.
