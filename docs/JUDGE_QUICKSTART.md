@@ -91,4 +91,18 @@ node packages/cli/dist/main.cjs data-delete --root . --data .kerno --yes
 
 ## Clean-room record
 
-The final clean-clone result must be recorded here after a committed clone runs `npm ci`, `npm run doctor`, `npm run judge -- --check`, and the required test/build/audit gates. Until that record is present, clean-room readiness is a blocker.
+**Passed on July 19, 2026** from local commit `42da0212064adda5dd40b1176be5f542395a3b7c` in a fresh, non-hardlinked macOS clone on Node 22.13.1. The clone ran:
+
+```bash
+npm ci
+npm run doctor
+npm run judge -- --check
+npm test
+npm run build
+npm run audit:secrets
+npm run audit:licenses
+npm audit --audit-level=high
+npm run test:e2e
+```
+
+Result: dependency install succeeded; doctor/storage/plugin bundle passed; judge replay built; 16 Vitest files/33 tests passed; all workspaces and dashboard built; secret scan passed; 320 installed packages passed the license policy; npm reported zero vulnerabilities; 2 Playwright desktop/mobile tests passed. Linux remains CI-configured but not locally exercised in this report.

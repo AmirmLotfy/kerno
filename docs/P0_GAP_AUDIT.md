@@ -54,11 +54,11 @@ Updated July 19, 2026 after the complete local gate.
 | Fairness proof | **Partial** | The retained pair passes model/effort/task/commit/permissions fairness. Full matrix is absent. |
 | Live writable phase / review | **Partial / release blocker** | Both real conditions produced passing patches; reviewer evidence failed/unavailable, so runs remain partial. |
 | Root doctor / judge path | **Pass locally** | `npm run doctor`, `npm run judge -- --check`, CLI/plugin/MCP/E2E paths pass. |
-| Actual fresh clone | **Pending** | Must be run after this closure is committed; local equivalent is not substituted. |
+| Actual fresh clone | **Pass on macOS** | Non-hardlinked clone of `42da021` passed `npm ci`, doctor, judge, 33 deterministic tests, builds, secret/license/dependency audits, and 2 browser tests. Linux remains remote-CI pending. |
 | Documentation and submission drafts | **Pass for local content** | README, architecture, benchmark, security, collaboration, quickstart, Devpost draft, and timed demo script are complete and honest. External URLs/Session ID remain required. |
 | Attribution/license/secret/dependency audits | **Pass locally** | 320 installed packages resolved to allowed licenses, secret scan passed, and npm reported zero vulnerabilities. |
 | Dashboard technical audit | **Pass with P1 notes** | 18/20; no P0 finding. Formal screen-reader conformance remains P1. |
 | Demo assets | **Partial / release blocker** | Recording fixture, final screenshot, script, fallback, and checklists exist. Public `<3:00` video has not been recorded/uploaded. |
 | Submission identifiers and eligibility | **Blocked on external/human input** | Repository URL, video URL, primary `/feedback` ID, exact authenticated field labels, and entrant eligibility confirmation remain unavailable. |
 
-Kerno is locally operational and judge-demonstrable, but it is **not submission-ready** while the three-task benchmark matrix, successful structured reviewer evidence, actual clean clone, public video/URLs, Session ID, and human eligibility/form checks remain incomplete.
+Kerno is locally operational and judge-demonstrable, but it is **not submission-ready** while the three-task benchmark matrix, successful structured reviewer evidence, public video/URLs, Session ID, remote Linux result, and human eligibility/form checks remain incomplete.
