@@ -104,7 +104,7 @@ node packages/cli/dist/main.cjs data-delete --root . --data .kerno --yes
 
 ## Clean-room record
 
-**Passed on July 19, 2026** from commit `ccf0ce318c28631b8da0bb22f2aabafa3b3d0756` in a fresh, non-hardlinked macOS clone on Node 22.13.1. The clone ran:
+**Passed on July 19, 2026** from product commit `017b4be98bc0b30f9654a1e5ca5e8132e75667ef` in a fresh, non-hardlinked macOS clone on Node 22.13.1. The clone ran:
 
 ```bash
 npm ci
@@ -123,4 +123,4 @@ npm run plugin:smoke
 npm run demo:preflight
 ```
 
-Result: this historical clean-room record passed at the stated commit. A newer final clean-room record and current test counts are maintained in `docs/FINAL_VALIDATION_REPORT.md`. Linux remains CI-configured but not locally exercised in this report.
+Result: 354 packages installed with zero vulnerabilities; doctor/storage/plugin bundle passed; the judge replay built; 57 tests passed; all workspaces built; five Playwright product/accessibility/responsive checks passed; brand, 20-pair contrast, secret, 320-package license, 30-file local-link, dependency, package, and 13-tool MCP smoke gates passed. Generated replay/report/screenshots changed inside the isolated clone by design and were not copied back. Linux remains CI-configured but not locally exercised in this report.

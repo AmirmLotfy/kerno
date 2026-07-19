@@ -1,6 +1,6 @@
 # Final validation report
 
-Validation candidate completed: **July 19, 2026 at 12:18 PM PDT / 10:18 PM Africa/Cairo / 7:18 PM UTC**. The final isolated-clone commit is recorded after the clean-room run.
+Validation completed: **July 19, 2026 at 12:24 PM PDT / 10:24 PM Africa/Cairo / 7:24 PM UTC**.
 
 ## 1. Executive readiness result
 
@@ -10,10 +10,10 @@ No Devpost project was registered, created, edited, or submitted. Nothing was pu
 
 ## 2. Exact commit tested
 
-- Product candidate commit: `[RECORDED AFTER FINAL LOCAL COMMIT]`.
+- Product candidate commit: `017b4be98bc0b30f9654a1e5ca5e8132e75667ef`.
 - Branch: `main`.
 - Clean-room method: local `git clone --no-hardlinks` into an isolated temporary directory.
-- A documentation-only validation follow-up may succeed the product commit; the report distinguishes the tested product commit from that follow-up.
+- This report is a documentation-only follow-up to that tested product commit; no product code changed after the isolated run.
 
 ## 3. Environment tested
 
@@ -66,7 +66,11 @@ The deterministic replay does not claim live Codex implementation or independent
 
 ## 7. Clean-room validation
 
-**Pending final isolated rerun.** The exact result and tested product commit are filled only after the committed candidate passes the documented judge path.
+**Passed** at product commit `017b4be98bc0b30f9654a1e5ca5e8132e75667ef` in a fresh, non-hardlinked macOS clone.
+
+The clone ran `npm ci`, `npm run doctor`, `npm run judge -- --check`, the complete `npm run clean-room` gate, secret/license/link audits, and `npm audit --audit-level=high`. Results: 354 packages installed with zero vulnerabilities; schema-v2 doctor passed; 57 tests passed; all workspaces built; five Playwright product/accessibility/responsive checks passed; 20 contrast pairs passed; 13-tool MCP smoke passed; brand, secret, 320-package license, and 30-file link audits passed.
+
+The judge and screenshot commands intentionally regenerated timestamped replay/report/image artifacts inside the isolated clone. Those generated changes were not copied back or presented as a clean working-tree claim. The run required no manual repair, source edit, credential, or hidden setup step.
 
 ## 8. Plugin validation
 
@@ -74,6 +78,13 @@ The deterministic replay does not claim live Codex implementation or independent
 - The plugin archive contains the manifest, skill, MCP config/executable, reviewed optional hooks, license, and warm Context Core assets.
 - The bundled STDIO MCP exposes 13 tools and indexes the fixture through portable storage.
 - The current plugin-creator Python validator cannot run because its host Python lacks PyYAML; package inspection, marketplace install/cache comparison, and MCP smoke are the recorded substitutes. No dependency was installed to conceal that tooling limitation.
+
+Tested-clone SHA-256 evidence:
+
+- Plugin archive: `3bef2140f3faad5a1aba30bef715ba36dea79f5066e2c027032221e926806709`.
+- Generated canonical replay: `2e0d374c87c643d3537e158fb4438d9b7b62c300097a2e4774b3f4703d4cf1b4`.
+- Retained live App Server evidence: `77c06e5da18a9bce5d8ce70aba00d62b8cd897bd3be46bf9980188e830327f57`.
+- Generated benchmark report: `2b473f9600bbdbc2393ea2f63ae464c1e7212b65c092761c831bd18472faefb5`.
 
 ## 9. MCP validation
 
