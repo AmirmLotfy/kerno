@@ -91,7 +91,7 @@ node packages/cli/dist/main.cjs data-delete --root . --data .kerno --yes
 
 ## Clean-room record
 
-**Passed on July 19, 2026** from local commit `42da0212064adda5dd40b1176be5f542395a3b7c` in a fresh, non-hardlinked macOS clone on Node 22.13.1. The clone ran:
+**Passed on July 19, 2026** from local commit `1b6955edc68b6092900cb3651c191a907764683c` in a fresh, non-hardlinked macOS clone on Node 22.13.1. The clone ran:
 
 ```bash
 npm ci
