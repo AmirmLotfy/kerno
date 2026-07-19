@@ -1,6 +1,6 @@
 # Final validation report
 
-Validation refreshed: **July 19, 2026 at 3:15 PM PDT / July 20, 2026 at 1:15 AM Africa/Cairo / July 19, 2026 at 10:15 PM UTC**.
+Validation refreshed: **July 19, 2026 at 3:20 PM PDT / July 20, 2026 at 1:20 AM Africa/Cairo / July 19, 2026 at 10:20 PM UTC**.
 
 ## 1. Executive readiness result
 
@@ -10,10 +10,10 @@ No Devpost project was registered, created, edited, or submitted. The user expli
 
 ## 2. Exact commit tested
 
-- Product candidate commit: `[PRODUCT_COMMIT_TO_RECORD_AFTER_COMMIT]`.
+- Product candidate commit: `5909062714b8bc38090571609bf9f9cf725a357f`.
 - Branch: `main`.
 - Clean-room method: local `git clone --no-hardlinks` into an isolated temporary directory.
-- The exact tested product commit will be recorded after the final local commit and isolated-clone run.
+- This report is a documentation-only follow-up to the tested product commit; no product code changed after the isolated run.
 
 ## 3. Environment tested
 
@@ -71,11 +71,11 @@ Blocking functional boundaries: the public plugin/CLI surface cannot yet convert
 
 ## 7. Clean-room validation
 
-The current worktree passed the full clean-room-equivalent local gate. A fresh, non-hardlinked clone of the final product commit is still required and will replace this sentence after the product commit is created.
+**Passed** at product commit `5909062714b8bc38090571609bf9f9cf725a357f` in a fresh, non-hardlinked macOS clone under an isolated temporary directory.
 
-The current worktree ran the complete `npm run clean-room` gate plus secret/license/link and dependency audits. Results: schema-v2 doctor passed; 63 tests passed; all workspaces built; five Playwright product/accessibility/responsive checks passed; three dedicated accessibility checks and 20 contrast pairs passed; 13-tool MCP smoke passed; brand, secret, 320-package license, and 30-file link audits passed; `npm audit --omit=dev --audit-level=high` found zero vulnerabilities.
+The clone ran `npm ci`, `npm run doctor`, `npm run judge -- --check`, the complete `npm run clean-room` gate, secret/license/link audits, and `npm audit --omit=dev --audit-level=high`. Results: 354 packages installed; schema-v2 doctor passed; 63 tests passed; all workspaces built; five Playwright product/accessibility/responsive checks passed; 20 contrast pairs passed; 13-tool MCP smoke passed; brand, secret, 320-package license, and 30-file link audits passed; the dependency audit found zero vulnerabilities.
 
-The judge and screenshot commands intentionally regenerate timestamped replay/report/image artifacts. The final isolated clone must complete without manual repair, source edit, credential, or hidden setup step.
+The judge and screenshot commands intentionally regenerated timestamped replay/report/image artifacts inside the isolated clone. The run completed without manual repair, source edit, credential, or hidden setup step. Generated timestamp differences are expected and were not copied back as product-source changes.
 
 ## 8. Plugin validation
 
@@ -86,12 +86,12 @@ The judge and screenshot commands intentionally regenerate timestamped replay/re
 - Plugin portable state is process-scoped for concurrency safety; durable cross-task state uses the daemon SQLite store.
 - The current plugin-creator Python validator cannot run because its host Python lacks PyYAML; package inspection, marketplace install/cache comparison, and MCP smoke are the recorded substitutes. No dependency was installed to conceal that tooling limitation.
 
-Current artifact SHA-256 evidence will be regenerated from the final product commit:
+Generated artifact SHA-256 evidence from the isolated clone:
 
-- Plugin archive: `[REGENERATE_AFTER_PRODUCT_COMMIT]`.
-- Generated canonical replay: `[REGENERATE_AFTER_PRODUCT_COMMIT]`.
-- Retained live App Server evidence: `[REGENERATE_AFTER_PRODUCT_COMMIT]`.
-- Generated benchmark report: `[REGENERATE_AFTER_PRODUCT_COMMIT]`.
+- Plugin archive: `d56acd0d7e246d9013303dcd8327c5d77f8dc31514432af8b340682e65f7a1d1`.
+- Generated canonical replay: `0fa1ad44e3514769373b3ae0e24cfc41260ebc049e1c0889992bc925f01d78e0`.
+- Retained live App Server evidence: `cc89066822745684006a05464a9b8e16f75725e4da1f46f5af2da029910a17bb`.
+- Generated benchmark report: `c0481448a0101537d423a2a57dbbb29505be66a427b323d90367299368bdf432`.
 
 ## 9. MCP validation
 
