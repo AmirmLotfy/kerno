@@ -167,6 +167,7 @@ export class KernoService {
 export type HttpServerHandle = { server: Server; url: string; token: string; close: () => Promise<void> };
 export async function startHttpServer(service: KernoService, options: { port?: number; host?: string } = {}): Promise<HttpServerHandle> {
   const token = randomBytes(24).toString("base64url"); const host = options.host ?? "127.0.0.1";
+  if (!["127.0.0.1", "localhost", "::1"].includes(host)) throw new KernoError("INVALID_INPUT", "Kerno HTTP may bind only to a loopback address");
   const server = createServer((request, response) => {
     const origin = request.headers.origin;
     if (origin && !/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(origin)) { response.writeHead(403).end("Forbidden origin"); return; }
@@ -190,7 +191,8 @@ export async function startHttpServer(service: KernoService, options: { port?: n
   });
   await new Promise<void>((resolve, reject) => { server.once("error", reject); server.listen(options.port ?? 0, host, resolve); });
   const address = server.address(); if (!address || typeof address === "string") throw new Error("Failed to bind HTTP server");
-  return { server, url: `http://${host}:${address.port}`, token, close: () => new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve())) };
+  const urlHost = host === "::1" ? "[::1]" : host;
+  return { server, url: `http://${urlHost}:${address.port}`, token, close: () => new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve())) };
 }
 
 export function defaultDatabaseFor(root: string): string { return join(root, ".kerno", "kerno.db"); }

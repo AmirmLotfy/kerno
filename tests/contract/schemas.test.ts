@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { analyzeTaskInputSchema, indexRepositoryInputSchema } from "@kerno/contracts";
+import { analyzeTaskInputSchema, expansionEvidenceSchema, indexRepositoryInputSchema } from "@kerno/contracts";
 
 describe("strict tool schemas", () => {
   it("rejects unknown input fields", () => {
@@ -7,5 +7,8 @@ describe("strict tool schemas", () => {
   });
   it("applies safe index defaults", () => {
     expect(indexRepositoryInputSchema.parse({ root: "." }).mode).toBe("incremental");
+  });
+  it("never treats omitted expansion verification as trusted", () => {
+    expect(expansionEvidenceSchema.parse({ kind: "runtime", text: "missing contract" }).verified).toBe(false);
   });
 });
