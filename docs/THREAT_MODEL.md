@@ -21,22 +21,24 @@ Boundaries: repository enrollment; filesystem discovery; parsers; Git subprocess
 | Threat | Control | Verification |
 |---|---|---|
 | Path traversal / outside root | `realpath`, `lstat`, containment recheck, NUL/absolute rejection | security path suite |
-| Symlink / TOCTOU | symlinks skipped by default; resolved paths checked before read | symlink escape tests |
+| Symlink / TOCTOU | indexed symlinks are skipped; resolved source paths are rechecked; state directories, ownership markers, database/portable files, and backups reject symbolic links before access | indexer, CLI, MCP, and storage symlink tests |
 | Ignored/generated/binary/large input | `.gitignore`, `.kernoignore`, fixed built-ins, binary detection, 1 MiB cap | indexer/security fixtures |
 | Repository prompt injection | source delimited and labeled untrusted; content cannot set policy | malicious-content tests |
 | Command injection | Git via fixed `execFile` arguments; MCP has no command fields; indexing executes no scripts | contract and hostile-input tests |
-| Secret leakage | pattern redaction before persistence/output/export; checked artifacts sanitized; local path scan | redaction, secret scan |
+| Secret leakage | one recursive key/value sanitizer is applied at persistence, runtime-event, evidence, export, and recorded-artifact boundaries; `.env*`, private-key, package-auth, cloud-credential, and similar files have built-in index exclusions | redaction, direct-index exclusion, artifact sanitization, secret scan |
+| Resource exhaustion | MCP requests are capped at 64 KiB before execution and caller-controlled strings, arrays, graph depth, and response excerpts have explicit bounds | contract and MCP boundary tests |
 | Forged evidence | only trusted internal execution may mark an artifact verified; caller annotations, exit codes, and unknown IDs cannot prove outcomes | evidence/outcome tests |
 | Cross-branch stale memory | repository/worktree/branch/commit/file/symbol keys; conservative stale state | invalidation tests |
 | Loopback access | `127.0.0.1`, ephemeral bearer token, strict origin/CORS, no token logs | HTTP security tests |
 | Hook abuse | allowlisted metadata, short timeout, fail open, opt-in, no source mutation | hook tests and documented disable path |
 | App Server privilege widening | local STDIO and caller-provided sandbox only; Kerno never widens approvals | adapter tests |
 | Misleading model/metric UI | separate recommended/requested/effective, reroute overrides, null stays unavailable | contract/UI tests |
-| Dangerous deletion | only Kerno-owned verified directory, explicit `--yes`, root/home refusal | CLI security tests |
+| Local state disclosure | state directories are forced to `0700`; SQLite, WAL/SHM, portable state/backups, recorded logs, and exports are forced to `0600` | storage, CLI, and artifact-mode tests |
+| Dangerous deletion/export | deletion requires a verified Kerno-owned directory plus `--yes`; export requires an explicit path, uses exclusive creation, refuses existing/symlink targets, omits source excerpts, and redacts local paths | CLI security tests |
 
 ## Data lifecycle
 
-No source upload or telemetry is enabled. State remains under the selected local data directory. `data-export` emits redacted JSON. `data-delete --yes` deletes only a verified Kerno-owned directory; plugin uninstall preserves data. Recorded benchmark exports are sanitized of home/workspace/temp paths and retain limitations.
+No source upload or telemetry is enabled. State remains under the selected local data directory. `data-export --out PATH` exclusively creates owner-only redacted JSON and will not overwrite an existing target. `data-delete --yes` deletes only a verified Kerno-owned directory; plugin uninstall preserves data. Recorded benchmark exports are sanitized of home/workspace/temp paths and retain limitations.
 
 ## Residual risk
 

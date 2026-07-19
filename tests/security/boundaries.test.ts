@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { assertWithinRepository, redactSecrets } from "@kerno/indexer";
 import { KernoService, startHttpServer } from "@kerno/daemon";
-import { recordOutcomeInputSchema } from "@kerno/contracts";
-import { cp, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { explainContextInputSchema, indexRepositoryInputSchema, invalidateContextInputSchema, recordOutcomeInputSchema } from "@kerno/contracts";
+import { cp, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -30,6 +30,15 @@ describe("repository security boundaries", () => {
       expect(memory.status).toBe("candidate");
     } finally { service.close(); await rm(root, { recursive: true, force: true }); }
   });
+  it("refuses expansion after a tracked path is added to the repository", async () => {
+    const root = await mkdtemp(join(tmpdir(), "kerno-expansion-freshness-")); await cp(fileURLToPath(new URL("../../fixtures/relaycart-ts/seed", import.meta.url)), root, { recursive: true });
+    const service = new KernoService();
+    try {
+      const snapshot = await service.index({ root, mode: "incremental" }); const task = service.analyze({ repositoryId: snapshot.repository.id, taskText: "Fix TransactionBoundary behavior" }); const capsule = await service.buildCapsule({ taskAnalysisId: task.id });
+      const artifact = service.recordArtifact({ kind: "test", source: "command", output: "TransactionBoundary failed", exitCode: 1, trusted: true }); await writeFile(join(root, "new-tracked-file.ts"), "export const added = true;\n");
+      await expect(service.expand({ capsuleId: capsule.id, evidence: { kind: "test_failure", artifactId: artifact.id, text: "TransactionBoundary failed" } })).rejects.toThrow("re-index before expanding");
+    } finally { service.close(); await rm(root, { recursive: true, force: true }); }
+  });
   it("redacts secrets in commands, evidence events, and nested sensitive keys", () => {
     const service = new KernoService();
     try {
@@ -41,9 +50,28 @@ describe("repository security boundaries", () => {
       expect(JSON.stringify(event.redactedPayload)).not.toContain("plain-secret");
     } finally { service.close(); }
   });
+  it("preserves token-usage metrics while redacting actual token credentials", () => {
+    const service = new KernoService();
+    try {
+      const event = service.emit("run_usage", "app-server", "thread/tokenUsage/updated", {
+        tokenUsage: { total: { totalTokens: 1234 } },
+        accessToken: "synthetic-access-value"
+      });
+      expect(event.redactedPayload).toEqual({
+        tokenUsage: { total: { totalTokens: 1234 } },
+        accessToken: "[REDACTED_SECRET]"
+      });
+    } finally { service.close(); }
+  });
   it("excludes common secret files even without kerno init", async () => {
     const root = await mkdtemp(join(tmpdir(), "kerno-secret-files-"));
-    await writeFile(join(root, ".env"), "UNRECOGNIZED_CREDENTIAL=do-not-index-this\n"); await writeFile(join(root, "main.ts"), "export const safe = true;\n");
+    await writeFile(join(root, ".env"), "UNRECOGNIZED_CREDENTIAL=do-not-index-this\n");
+    await writeFile(join(root, ".npmrc"), "//registry.npmjs.org/:_authToken=do-not-index-this\n");
+    await writeFile(join(root, "id_ed25519"), "synthetic-private-key\n");
+    await writeFile(join(root, "credentials.json"), "{\"credential\":\"do-not-index-this\"}\n");
+    await mkdir(join(root, "packages", "nested", ".docker"), { recursive: true }); await writeFile(join(root, "packages", "nested", ".docker", "config.json"), "{\"auth\":\"base64-secret-value\"}\n");
+    await mkdir(join(root, "packages", "nested", ".aws"), { recursive: true }); await writeFile(join(root, "packages", "nested", ".aws", "credentials"), "aws_secret_access_key=do-not-index-this\n");
+    await writeFile(join(root, "main.ts"), "export const safe = true;\n");
     const service = new KernoService();
     try { const snapshot = await service.index({ root, mode: "incremental" }); expect(snapshot.files.map((file) => file.path)).toEqual(["main.ts"]); }
     finally { service.close(); await rm(root, { recursive: true, force: true }); }
@@ -55,8 +83,27 @@ describe("repository security boundaries", () => {
     expect(code).not.toBe(0); expect(error).toContain("symlink"); await expect(readFile(join(outside, ".kerno-owned"), "utf8")).rejects.toThrow();
     await rm(temp, { recursive: true, force: true });
   });
+  it("rejects a state directory reached through a symlinked parent", async () => {
+    const temp = await mkdtemp(join(tmpdir(), "kerno-data-parent-link-")); const root = join(temp, "repo"); const outside = join(temp, "outside");
+    await import("node:fs/promises").then(({ mkdir }) => Promise.all([mkdir(root), mkdir(outside)])); await symlink(outside, join(root, "linked-parent"));
+    let error = ""; const code = await runCli(["init", "--root", root, "--data", join(root, "linked-parent", "state")], { out: () => undefined, err: (value) => { error += value; } });
+    expect(code).not.toBe(0); expect(error).toContain("symlinked Kerno data ancestor"); await expect(readFile(join(outside, "state", ".kerno-owned"), "utf8")).rejects.toThrow();
+    await rm(temp, { recursive: true, force: true });
+  });
+  it("rejects a state directory reached through a deeper symlinked ancestor", async () => {
+    const temp = await mkdtemp(join(tmpdir(), "kerno-data-deep-link-")); const root = join(temp, "repo"); const outside = join(temp, "outside");
+    await Promise.all([mkdir(root), mkdir(join(outside, "regular-parent"), { recursive: true })]); await symlink(outside, join(root, "linked-ancestor"));
+    let error = ""; const code = await runCli(["init", "--root", root, "--data", join(root, "linked-ancestor", "regular-parent", "state")], { out: () => undefined, err: (value) => { error += value; } });
+    expect(code).not.toBe(0); expect(error).toContain("symlinked Kerno data ancestor"); await expect(readFile(join(outside, "regular-parent", "state", ".kerno-owned"), "utf8")).rejects.toThrow();
+    await rm(temp, { recursive: true, force: true });
+  });
   it("rejects aggregate outcome payloads above 64 KiB", () => {
     expect(() => recordOutcomeInputSchema.parse({ runId: "run_large", status: "failed", tests: [], review: [], changedFiles: [], artifacts: [{ kind: "runtime", source: "hook", output: "x".repeat(40_000) }, { kind: "runtime", source: "hook", output: "y".repeat(40_000) }] })).toThrow("64 KiB");
+  });
+  it("caps every caller-controlled MCP array", () => {
+    expect(() => indexRepositoryInputSchema.parse({ root: ".", languages: Array(33).fill("typescript") })).toThrow();
+    expect(() => explainContextInputSchema.parse({ capsuleId: "capsule_1", itemIds: Array(257).fill("item_1") })).toThrow();
+    expect(() => invalidateContextInputSchema.parse({ repositoryId: "repo_1", trigger: { kind: "manual" }, memoryIds: Array(257).fill("memory_1") })).toThrow();
   });
   it("rejects non-loopback dashboard binds", async () => {
     const service = new KernoService();

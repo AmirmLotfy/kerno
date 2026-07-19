@@ -12,7 +12,7 @@ Target: **2:48** (hard stop 2:55), public YouTube, English narration. Setup, loa
 | 0:54–1:08 | “Every item shows its source, confidence, freshness, estimated cost, evidence chain, inclusion reason, and invalidation keys.” | Open Why included; move between handler and test. | Score breakdown and provenance. |
 | 1:08–1:18 | “It also shows what it deliberately excluded—including the transaction contract.” | Hold excluded candidates. | Transparent initial omission. |
 | 1:18–1:30 | “Routing stays honest. The policy recommends from a live catalog; this validation requested GPT-5.6, low effort.” | Open Routing and retained runtime panel. | `RECORDED REAL APP SERVER RUN`; requested route. |
-| 1:30–1:39 | “The request was accepted, then the account hit its usage limit. Kerno shows failed and requested-unconfirmed—not a simulated switch.” | Highlight truth labels and failure. | Real capacity failure; no effective-model claim. |
+| 1:30–1:39 | “The request completed and reported usage, but no effective-model event arrived. Kerno says requested-unconfirmed—not a simulated switch.” | Highlight completion, usage, and truth labels. | Real completed App Server turn; no effective-model claim. |
 | 1:39–1:49 | “The deterministic fixture test fails. That is evidence the capsule is incomplete.” | Open Timeline at `test.failed`. | Real artifact and timestamp. |
 | 1:49–1:58 | “Kerno adds only the missing transaction contract as a bounded child capsule.” | Advance to expansion and child-capsule diff. | One 327-token addition. |
 | 1:58–2:09 | “The pinned solution applies the atomic boundary. All three assertions pass without changing the public event shape.” | Advance to pass and outcome. | Passing test artifact. |
@@ -48,7 +48,7 @@ Cut all terminal startup, page loading, cursor hunting, long scrolling, empty wa
 
 ## Backup recording path
 
-If live capacity, authentication, or latency is unreliable, use only the deterministic fixture replay plus the retained sanitized App Server evidence panel. Both remain persistently labeled. Never call the combined screen a live run, never imply the replay includes Codex execution, and never replace requested-unconfirmed with an effective model. If the dashboard fails, use the latest checked screenshot and terminal acceptance output, while explicitly describing the interface as a captured fallback.
+If live capacity, authentication, or latency is unreliable, use only the deterministic fixture replay plus the retained sanitized App Server evidence panel. Both remain persistently labeled. Never call the combined screen a single live workflow, never imply the replay includes Codex execution, and never replace `requested-unconfirmed` with an effective model. If the dashboard fails, use the latest checked screenshot and terminal acceptance output, while explicitly describing the interface as a captured fallback.
 
 ## Assets checklist
 

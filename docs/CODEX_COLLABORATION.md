@@ -8,7 +8,7 @@ Codex accelerated repetitive but reviewable work: strict schemas, storage reposi
 
 ## GPT-5.6 contribution
 
-GPT-5.6 powered the main Codex implementation and review reasoning in this root task. Retained App Server artifacts also discovered and requested `gpt-5.6-sol` with `low` reasoning effort. The final live validation reached an accepted request but failed with `usageLimitExceeded`; no runtime artifact independently confirmed the effective model. Kerno therefore says requested-unconfirmed and treats live execution as unavailable in the current account state.
+GPT-5.6 powered the main Codex implementation and review reasoning in this root task. Retained App Server artifacts also discovered and requested `gpt-5.6-sol` with `low` reasoning effort. The final live validation completed the accepted request and recorded token usage, but no runtime artifact independently confirmed the effective model. Kerno therefore says `requested-unconfirmed` and does not turn successful completion into an effective-model claim.
 
 Kerno never hard-codes GPT-5.6 availability. Live routing selects from `model/list`, validates efforts, records fallbacks, and degrades to a transparent recommendation when actual orchestration is unavailable.
 
@@ -35,7 +35,7 @@ Codex output was not accepted on authorship alone. It was corrected when:
 - independent review proved process-local transaction state and an authoritative cache marker were not durable correctness, causing both designs to be rejected;
 - dashboard tests asserted old labels after the evidence-first redesign.
 
-Validation uses strict type checking, deterministic unit/integration/security tests, MCP/plugin/CLI smoke tests, a real App Server probe including its usage-limit failure, production dashboard build, Playwright, dependency/license/secret audits, fixture acceptance commands, and clean-clone testing.
+Validation uses strict type checking, deterministic unit/integration/security tests, MCP/plugin/CLI smoke tests, a completed real App Server probe with conservative model labeling, production dashboard build, Playwright, dependency/license/secret audits, fixture acceptance commands, and clean-clone testing.
 
 ## Submission placeholders
 

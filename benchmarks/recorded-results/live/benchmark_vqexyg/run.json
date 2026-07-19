@@ -68,5 +68,11 @@
   "limitations": [
     "Requested model was not independently confirmed by an effective-model or reroute event.",
     "Baseline validity requires the Kerno plugin to be absent from the App Server profile; verify the run preflight."
-  ]
+  ],
+  "artifactHashes": {
+    "events": "ec972e7bdd61c119a75cd2bd7852ba1a68c549a0e64194083de1bd337ae49c39",
+    "diff": "0c4cd66d69fc9010a2aebc90f4143b384117e4f023cd372a13d6cf9cda9e9729",
+    "tests": "88daea9127c663f1edc9f51d7efdd6fc65aaf6b19501ccfe245252dfdd2bbf14",
+    "review": "2d158e24ddbc965de8a506104f16fea72bd57649cba1a1554ee6dbd4c5fccf89"
+  }
 }

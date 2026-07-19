@@ -13,7 +13,13 @@ import { KernoError, redactSensitiveString, stableId } from "@kerno/contracts";
 const execFile = promisify(execFileCallback);
 const MAX_FILE_SIZE = 1024 * 1024;
 const ENGINE_VERSION = "0.1.0";
-const ALWAYS_IGNORE = [".git/", ".kerno/", ".kerno-cache/", "node_modules/", "dist/", "coverage/", "build/", ".next/", "__pycache__/", ".env", ".env.*", "*.pem", "*.key", "*.p12", "*.pfx", "*.min.js", "*.map"];
+const ALWAYS_IGNORE = [
+  ".git/", ".kerno/", ".kerno-cache/", "node_modules/", "dist/", "coverage/", "build/", ".next/", "__pycache__/",
+  ".env", ".env.*", ".envrc", ".npmrc", ".pypirc", ".netrc", ".git-credentials", ".dockercfg", "**/.docker/config.json",
+  "**/.aws/credentials", "**/.config/gcloud/application_default_credentials.json", "credentials.json", "service-account*.json",
+  "id_rsa", "id_dsa", "id_ecdsa", "id_ed25519", "*.pem", "*.key", "*.p12", "*.pfx", "*.jks", "*.keystore", "*.kdbx",
+  "*.tfstate", "*.tfstate.*", "*.min.js", "*.map"
+];
 
 export type PreviousFile = Pick<FileSnapshot, "path" | "contentHash"> & { snapshot: FileSnapshot };
 

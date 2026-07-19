@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { benchmarkCsv, benchmarkMarkdown, buildBenchmarkReport } from "@kerno/eval";
+import { benchmarkCsv, benchmarkMarkdown, buildBenchmarkReport, countObservableToolCalls } from "@kerno/eval";
 
 function run(condition: "plain-codex" | "codex-with-kerno-capsule", overrides: Record<string, unknown> = {}) {
   return {
@@ -8,7 +8,7 @@ function run(condition: "plain-codex" | "codex-with-kerno-capsule", overrides: R
     environment: { platform: "test", architecture: "test", node: "v22", codex: "codex-test", recordedFrom: "recorded-real-run", profileIsolation: "verified-clean", profileEvidenceHash: "profile-hash" },
     model: { requested: "model-live", reasoningEffort: "low", effective: null, truthLabel: "requested-unconfirmed" }, permissions: "workspace-write:no-network:never-approve",
     kernoConfiguration: condition === "codex-with-kerno-capsule" ? { capsuleBudget: 2500, initialCapsuleId: "capsule_one", childCapsuleId: null, routingPolicy: "pinned" } : null,
-    finalStatus: "passed", tests: { passed: true, exitCode: 0, artifactHash: "hash", outputTail: "ok" }, metrics: { taskSuccess: 1, testsPassed: 1, totalTokens: 100, filesOpened: 3, repeatedReads: 0, toolCalls: 4, contextExpansions: condition === "codex-with-kerno-capsule" ? 1 : 0, timeToFirstValidPatchMs: null, latencyMs: 1000, changedLines: 4, unnecessaryChangedLines: 0, reviewerFindings: 0, staleContextMistakes: 0 }, review: { status: "passed", artifactHash: "review-hash", summary: "no findings" }, artifacts: { events: "events.json", diff: "diff.patch", tests: "tests.txt", review: "review.txt" }, artifactHashes: { events: "events-hash", diff: "diff-hash", tests: "tests-hash", review: "review-hash" }, limitations: [], ...overrides
+    finalStatus: "passed", tests: { passed: true, exitCode: 0, artifactHash: "tests-hash", outputTail: "ok" }, metrics: { taskSuccess: 1, testsPassed: 1, totalTokens: 100, filesOpened: 3, repeatedReads: 0, toolCalls: 4, contextExpansions: condition === "codex-with-kerno-capsule" ? 1 : 0, timeToFirstValidPatchMs: null, latencyMs: 1000, changedLines: 4, unnecessaryChangedLines: 0, reviewerFindings: 0, staleContextMistakes: 0 }, review: { status: "passed", artifactHash: "review-hash", summary: "no findings" }, artifacts: { events: "events.json", diff: "diff.patch", tests: "tests.txt", review: "review.txt" }, artifactHashes: { events: "events-hash", diff: "diff-hash", tests: "tests-hash", review: "review-hash" }, limitations: [], ...overrides
   };
 }
 
@@ -23,5 +23,29 @@ describe("benchmark reporting", () => {
     const report = buildBenchmarkReport([run("plain-codex")]);
     expect(report.comparisons[0]?.fairness).toEqual({ passed: false, mismatches: ["missing condition"] });
     expect(report.comparisons[0]!.metrics.totalTokens!.kerno).toBeNull();
+  });
+
+  it("rejects profile-provenance mismatches even when both profiles are clean", () => {
+    const report = buildBenchmarkReport([
+      run("plain-codex"),
+      run("codex-with-kerno-capsule", { environment: { platform: "test", architecture: "test", node: "v22", codex: "codex-test", recordedFrom: "recorded-real-run", profileIsolation: "verified-clean", profileEvidenceHash: "different-profile-hash" } })
+    ]);
+    expect(report.comparisons[0]?.fairness).toEqual({ passed: false, mismatches: ["profile evidence"] });
+  });
+
+  it("rejects inconsistent result and artifact hashes", () => {
+    const report = buildBenchmarkReport([
+      run("plain-codex"),
+      run("codex-with-kerno-capsule", { tests: { passed: true, exitCode: 0, artifactHash: "fabricated", outputTail: "ok" } })
+    ]);
+    expect(report.comparisons[0]?.fairness).toEqual({ passed: false, mismatches: ["artifact result hashes inconsistent"] });
+  });
+
+  it("counts completed tool calls without treating file-change events as calls", () => {
+    const event = (sequence: number, type: string, itemType: string) => ({ runId: "run_test", sequence, occurredAt: "2026-07-19T00:00:00.000Z", source: "app-server" as const, type, redactedPayload: { item: { type: itemType } } });
+    expect(countObservableToolCalls([
+      event(0, "item/completed", "commandExecution"), event(1, "item/completed", "fileChange"),
+      event(2, "item/completed", "agentMessage"), event(3, "item/started", "mcpToolCall"), event(4, "turn/completed", "commandExecution")
+    ])).toBe(1);
   });
 });

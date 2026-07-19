@@ -211,6 +211,10 @@ dd { margin: 5px 0 0; font: 12px ui-monospace, SFMono-Regular, Menlo, monospace;
 .comparison-table > div strong:last-child { border-left: 3px solid var(--chart-kerno); padding-left: 9px; }
 .disclosure { max-width: 760px; margin-top: 20px; color: var(--color-text-muted); font-size: 14px; line-height: 1.5; }
 .comparison-outcomes { margin-bottom: 18px; padding: 20px; display: grid; grid-template-columns: minmax(180px, .7fr) minmax(320px, 1.3fr); gap: 24px; }
+.matrix-status { margin-bottom: 18px; padding: 20px; display: grid; grid-template-columns: minmax(220px, .7fr) minmax(320px, 1.3fr); gap: 24px; align-items: center; }
+.matrix-status h2, .matrix-status p { margin: 0; }
+.matrix-status > p { color: var(--color-text-secondary); line-height: 1.5; }
+.fairness-warning { border: 1px solid var(--color-warning); background: var(--color-warning-soft); padding: 14px 18px; margin-bottom: 18px; font-size: 13px; line-height: 1.5; }
 
 .limit-ledger { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--color-border-strong); background: var(--color-surface); }
 .limit-ledger section { padding: 22px; }
@@ -271,7 +275,7 @@ footer { border-top: 1px solid var(--color-border-strong); display: flex; justif
   .page-intro .eyebrow, .page-intro h1, .page-intro > p:last-child { grid-column: 1; grid-row: auto; }
   .repository-ledger { grid-template-columns: 1fr 1fr; }
   .identity { grid-template-columns: 1fr; }
-  .routing-grid, .route-detail, .runtime-proof, .comparison-outcomes { grid-template-columns: 1fr; }
+  .routing-grid, .route-detail, .runtime-proof, .comparison-outcomes, .matrix-status { grid-template-columns: 1fr; }
   .routing-grid > section + section, .route-detail > section + section, .route-detail > section:nth-child(3), .route-detail > section:nth-child(4) { border-left: 0; border-top: 1px solid var(--color-border-strong); }
   .route-track { grid-template-columns: 1fr; gap: 10px; }
   .route-track > span { transform: rotate(90deg); }

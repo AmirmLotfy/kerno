@@ -72,5 +72,11 @@
   },
   "limitations": [
     "Requested model was not independently confirmed by an effective-model or reroute event."
-  ]
+  ],
+  "artifactHashes": {
+    "events": "8ed57141766738908218df0e8c57b26029d9bed9f9ff3b28b50a4ce1ab407330",
+    "diff": "e3ac7d9b1d5adc532d602a319d88f3b5ec488f45e2b248b0dc94852ebd69e28b",
+    "tests": "7d3a82e341399da636d7cf94541623740f5d6c7edd24f26a2113adfde5cd24b2",
+    "review": "bbb45e1d242d8b9339226ce38da88914d389c01a86a4193b04a17815f7917ea2"
+  }
 }

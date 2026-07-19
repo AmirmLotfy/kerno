@@ -133,7 +133,7 @@ export function buildContextCapsule(task: TaskAnalysis, snapshot: IndexSnapshot,
     if (duplicate) { excluded.push({ path: candidate.file.path, score: candidate.item.score, reason: "deduplicated" }); continue; }
     items.push(candidate.item); used += candidate.item.estimatedTokens;
   }
-  const memoryItems = (options.memories ?? []).filter((memory) => memory.status === "verified" && (!memory.worktreeId || memory.worktreeId === snapshot.worktree.id) && (!memory.branch || memory.branch === snapshot.worktree.branch)).map((memory) => {
+  const memoryItems = (options.memories ?? []).filter((memory) => memory.status === "verified" && invalidateMemory(memory, snapshot, snapshot).status === "verified" && (!memory.worktreeId || memory.worktreeId === snapshot.worktree.id) && (!memory.branch || memory.branch === snapshot.worktree.branch)).map((memory) => {
     const matches = augmented.terms.filter((term) => memory.summary.toLowerCase().includes(term)).length;
     const relevance = clamp((matches / Math.max(4, augmented.terms.length)) * 2.5);
     const estimatedTokens = Math.max(1, Math.ceil(memory.summary.length / 4));
@@ -148,7 +148,7 @@ export function buildContextCapsule(task: TaskAnalysis, snapshot: IndexSnapshot,
       scoreBreakdown: { taskRelevance: 0.30 * relevance, graphProximity: 0, freshness: 0.10, confidence: 0.10 * memory.confidence, riskImportance: 0, testEvidence: memory.creationSource === "test" ? 0.12 : 0, priorUsefulness: 0.055, tokenPenalty },
       reason: `verified ${memory.type.replaceAll("-", " ")} matching task vocabulary`, excerpt: memory.summary,
       provenance: memory.evidence,
-      invalidationKeys: [{ kind: "repository", key: snapshot.repository.id }, ...(memory.worktreeId ? [{ kind: "worktree" as const, key: memory.worktreeId }] : []), ...(memory.branch ? [{ kind: "branch" as const, key: memory.branch, expected: memory.headCommit ?? undefined }] : []), ...memory.invalidationConditions],
+      invalidationKeys: [{ kind: "repository", key: snapshot.repository.id }, { kind: "manual", key: `memory:${memory.id}`, expected: contentHash }, ...(memory.worktreeId ? [{ kind: "worktree" as const, key: memory.worktreeId }] : []), ...(memory.branch ? [{ kind: "branch" as const, key: memory.branch, expected: memory.headCommit ?? undefined }] : []), ...memory.invalidationConditions],
       trust: "verified-memory"
     };
     return { memory, item, relevance };
@@ -214,31 +214,35 @@ export function invalidateMemory(memory: DurableMemory, previous: IndexSnapshot,
   if (memory.worktreeId && memory.worktreeId !== current.worktree.id) return { ...memory, status: "stale" };
   if (memory.branch && memory.branch !== current.worktree.branch) return { ...memory, status: "stale" };
   for (const key of memory.invalidationConditions) {
-    if (key.kind === "repository" && key.key !== current.repository.id) return { ...memory, status: "stale" };
-    if (key.kind === "worktree" && key.key !== current.worktree.id) return { ...memory, status: "stale" };
+    if (key.kind === "repository" && (key.expected ?? key.key) !== current.repository.id) return { ...memory, status: "stale" };
+    if (key.kind === "worktree" && (key.expected ?? key.key) !== current.worktree.id) return { ...memory, status: "stale" };
     if (key.kind === "branch" && key.key !== (current.worktree.branch ?? "detached")) return { ...memory, status: "stale" };
-    if (key.kind === "commit" && key.expected && key.expected !== current.worktree.headCommit) return { ...memory, status: "stale" };
+    if (key.kind === "commit" && (key.expected ?? previous.worktree.headCommit ?? "unborn") !== (current.worktree.headCommit ?? "unborn")) return { ...memory, status: "stale" };
     if (key.kind === "file") {
+      const before = previous.files.find((candidate) => candidate.path === key.key);
       const file = current.files.find((candidate) => candidate.path === key.key);
-      if (!file || (key.expected && file.contentHash !== key.expected)) return { ...memory, status: "stale" };
+      if (!file || file.contentHash !== (key.expected ?? before?.contentHash)) return { ...memory, status: "stale" };
     }
     if (key.kind === "symbol-signature" || key.kind === "symbol-body") {
+      const before = previous.files.flatMap((file) => file.symbols).find((candidate) => candidate.id === key.key || `${candidate.path}:${candidate.name}` === key.key);
       const symbol = current.files.flatMap((file) => file.symbols).find((candidate) => candidate.id === key.key || `${candidate.path}:${candidate.name}` === key.key);
+      const expected = key.expected ?? (key.kind === "symbol-signature" ? before?.signatureHash : before?.bodyHash);
       const actual = key.kind === "symbol-signature" ? symbol?.signatureHash : symbol?.bodyHash;
-      if (!actual || (key.expected && actual !== key.expected)) return { ...memory, status: "stale" };
+      if (!actual || actual !== expected) return { ...memory, status: "stale" };
     }
-    if (key.kind === "engine" && key.key !== current.engineVersion && key.expected !== current.engineVersion) return { ...memory, status: "stale" };
+    if (key.kind === "engine" && (key.expected ?? key.key) !== current.engineVersion) return { ...memory, status: "stale" };
     if (key.kind === "graph") {
       const actual = hashArtifact(current.edges);
-      if (!key.expected || key.expected !== actual) return { ...memory, status: "stale" };
+      if ((key.expected ?? hashArtifact(previous.edges)) !== actual) return { ...memory, status: "stale" };
     }
     if (key.kind === "config") {
+      const before = previous.files.find((candidate) => candidate.path === key.key);
       const file = current.files.find((candidate) => candidate.path === key.key);
-      if (!file || (key.expected && file.contentHash !== key.expected)) return { ...memory, status: "stale" };
+      if (!file || file.contentHash !== (key.expected ?? before?.contentHash)) return { ...memory, status: "stale" };
     }
-    if (key.kind === "test-artifact" || key.kind === "manual") return { ...memory, status: "stale" };
+    // Artifact existence/hash is checked by the service against its trusted registry.
+    // Manual keys change only through an explicit invalidation request.
   }
-  void previous;
   return memory;
 }
 

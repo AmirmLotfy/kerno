@@ -14,6 +14,17 @@ No registration, project creation, submission edit, or submission action is auth
 - **3:2 thumbnail asset:** `docs/assets/brand/kerno-devpost-thumbnail.png` (900×600, original Kerno artwork, no metrics)
 - **Open Graph asset:** `docs/assets/brand/kerno-open-graph.png` (1200×630, original Kerno artwork, no metrics)
 
+## Screenshot gallery and recommended order
+
+Use the images in this order so the deterministic proof loop is established before the separately retained runtime evidence:
+
+1. `docs/assets/submission/kerno-real-home.png` — deterministic fixture replay overview and evidence-backed lifecycle; no live Codex turn is claimed.
+2. `docs/assets/submission/kerno-real-context-capsule.png` — deterministic initial capsule, estimated token budget, provenance, and ranked evidence.
+3. `docs/assets/submission/kerno-real-expansion-invalidation.png` — deterministic failing-test expansion and later source-hash invalidation.
+4. `docs/assets/submission/kerno-real-evidence-timeline.png` — chronological deterministic evidence chain, including unavailable review/orchestration states.
+5. `docs/assets/submission/kerno-real-routing-evidence.png` — policy recommendation from replay beside a **separate real App Server evidence** panel; requested and effective model states remain distinct.
+The `*-full.png` variants are long-form inspection captures, not the preferred gallery thumbnails. Never caption the routing screenshot as though the real App Server event applied the deterministic fixture solution.
+
 ## Short pitch
 
 Kerno gives Codex the smallest fresh, verified repository context for each task, expands it only from evidence, invalidates stale beliefs, and makes phase-level model routing observable.

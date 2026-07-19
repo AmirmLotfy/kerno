@@ -1,12 +1,12 @@
 # Kerno benchmark report
 
-Generated: 2026-07-19T17:34:34.435Z
+Generated: 2026-07-19T19:18:17.696Z
 
 Recorded real runs: **8**. Missing values are unavailable, never zero.
 
 | Task | Experiment | Baseline | Kerno | Fair |
 |---|---|---:|---:|---|
-| refund-debug | context-controlled | benchmark_1dwiafn | benchmark_19jkde7 | No — profile isolation unverified, profile evidence missing, artifact hashes unverified |
+| refund-debug | context-controlled | benchmark_1dwiafn | benchmark_19jkde7 | No — profile isolation unverified, profile evidence missing |
 
 ## Runs
 

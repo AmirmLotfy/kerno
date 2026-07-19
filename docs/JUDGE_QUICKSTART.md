@@ -19,7 +19,7 @@ npm run doctor
 npm run judge
 ```
 
-Open `http://127.0.0.1:4173`. The default is an immutable `DETERMINISTIC FIXTURE REPLAY`, generated from real local indexing, a real pinned test failure, targeted expansion, passing pinned tests, and hash invalidation. It is not a recording of Codex model usage.
+Open `http://127.0.0.1:4173`. The default is a reproducibly generated, read-only `DETERMINISTIC FIXTURE REPLAY`, created from real local indexing, a real pinned test failure, targeted expansion, passing pinned tests, and hash invalidation. It is not a recording of Codex model usage.
 
 The dashboard follows the operating-system theme on first launch and offers a persistent Light/Dark control in the header. Both modes render the same evidence; theme changes never alter run or benchmark data.
 
@@ -79,7 +79,7 @@ npm run judge:live
 
 This calls live `model/list`, requests only supported effort values, consumes real capacity, and writes sanitized evidence. “Requested” is not presented as “Effective” without a runtime event. Authentication, capacity, or App Server unavailability produces an actionable failure and leaves replay available.
 
-Final validation discovered four catalog entries and reached an accepted `gpt-5.6-sol`/`low` request, but the turn failed with `usageLimitExceeded`. This is retained as a real failed run; live mode is not currently considered ready on the validated account.
+Final validation discovered four catalog entries, accepted a `gpt-5.6-sol`/`low` request, completed the turn, and recorded usage. No effective-model or reroute event was emitted, so Kerno truthfully retains the route as `requested-unconfirmed` rather than claiming which model executed it.
 
 ## Troubleshooting
 
@@ -123,4 +123,4 @@ npm run plugin:smoke
 npm run demo:preflight
 ```
 
-Result: dependency install succeeded; doctor/storage/plugin bundle passed; judge replay built; 17 Vitest files/44 tests passed; all workspaces and dashboard built; secret, brand, contrast, local-link, license, and dependency audits passed; npm reported zero vulnerabilities; four Playwright product/responsive tests and two focused accessibility tests passed; 13-tool MCP smoke passed; redacted export and guarded deletion passed. Linux remains CI-configured but not locally exercised in this report.
+Result: this historical clean-room record passed at the stated commit. A newer final clean-room record and current test counts are maintained in `docs/FINAL_VALIDATION_REPORT.md`. Linux remains CI-configured but not locally exercised in this report.

@@ -5,7 +5,7 @@ export const idSchema = z.string().min(3).max(160);
 export const isoDateSchema = z.string().datetime();
 export const relativePathSchema = z.string().min(1).max(4096).refine((value) => !value.startsWith("/") && !value.includes("\0") && !value.split("/").includes(".."), "expected a safe repository-relative path");
 
-const SENSITIVE_KEY = /(?:authorization|credential|password|secret|token|api[_-]?key|database[_-]?url|private[_-]?key)/i;
+const SENSITIVE_KEY = /(?:authorization|credential|password|passwd|secret|api[_-]?key|database[_-]?url|private[_-]?key|auth$|token$)/i;
 const SENSITIVE_VALUES = [
   /\b(?:OPENAI_API_KEY|ANTHROPIC_API_KEY|AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|GITHUB_TOKEN|NPM_TOKEN|DATABASE_URL)\b\s*[:=]\s*["']?[^\s"',}\\]{8,}["']?/gi,
   /\b(?:api[_-]?key|secret|token|password|database[_-]?url)\b\s*[:=]\s*["']?[^\s"',}\\]{8,}["']?/gi,
@@ -26,10 +26,10 @@ export function redactSensitiveString(value: string): { text: string; redacted: 
 }
 
 export function redactSensitiveValue(value: unknown, depth = 0): unknown {
-  if (depth > 8) return "[TRUNCATED_DEPTH]";
+  if (depth > 32) return "[TRUNCATED_DEPTH]";
   if (typeof value === "string") return redactSensitiveString(value).text;
-  if (Array.isArray(value)) return value.slice(0, 512).map((item) => redactSensitiveValue(item, depth + 1));
-  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value as Record<string, unknown>).slice(0, 512).map(([key, item]) => [key, SENSITIVE_KEY.test(key) ? "[REDACTED_SECRET]" : redactSensitiveValue(item, depth + 1)]));
+  if (Array.isArray(value)) return value.map((item) => redactSensitiveValue(item, depth + 1));
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, item]) => [key, SENSITIVE_KEY.test(key) ? "[REDACTED_SECRET]" : redactSensitiveValue(item, depth + 1)]));
   return value;
 }
 
@@ -305,13 +305,13 @@ export const toolResultSchema = <T extends z.ZodTypeAny>(data: T) => z.object({
   warnings: z.array(z.object({ code: z.string(), message: z.string() }).strict())
 }).strict();
 
-export const indexRepositoryInputSchema = z.object({ root: z.string().min(1).max(4096), mode: z.enum(["incremental", "full"]).default("incremental"), languages: z.array(z.string()).optional() }).strict();
+export const indexRepositoryInputSchema = z.object({ root: z.string().min(1).max(4096), mode: z.enum(["incremental", "full"]).default("incremental"), languages: z.array(z.string().min(1).max(64)).max(32).optional() }).strict();
 export const repositoryStatusInputSchema = z.object({ repositoryId: idSchema, worktreeId: idSchema.optional() }).strict();
 export const analyzeTaskInputSchema = z.object({ repositoryId: idSchema, worktreeId: idSchema.optional(), taskText: z.string().min(1).max(64_000) }).strict();
 export const buildCapsuleInputSchema = z.object({ taskAnalysisId: idSchema, phase: taskPhaseSchema.optional(), budgetTokens: z.number().int().min(128).max(64_000).optional() }).strict();
 export const expansionEvidenceSchema = z.object({ kind: z.enum(["test_failure", "runtime", "unresolved_dependency", "review"]), artifactId: idSchema, text: z.string().min(1).max(64_000), paths: z.array(relativePathSchema).max(64).optional(), symbols: z.array(z.string().max(512)).max(64).optional() }).strict();
 export const expandContextInputSchema = z.object({ capsuleId: idSchema, evidence: expansionEvidenceSchema, additionalBudgetTokens: z.number().int().min(128).max(3000).optional() }).strict();
-export const explainContextInputSchema = z.object({ capsuleId: idSchema, itemIds: z.array(idSchema).optional() }).strict();
+export const explainContextInputSchema = z.object({ capsuleId: idSchema, itemIds: z.array(idSchema).max(256).optional() }).strict();
 export const impactAnalysisInputSchema = z.object({ repositoryId: idSchema, targets: z.array(z.object({ path: relativePathSchema.optional(), symbol: z.string().max(512).optional() }).strict()).min(1).max(128), depth: z.number().int().min(1).max(4).default(2) }).strict();
 export const recordDecisionInputSchema = z.object({
   repositoryId: idSchema,
@@ -327,8 +327,8 @@ export const recordOutcomeInputSchema = z.object({
   runId: idSchema, status: z.enum(["passed", "failed", "partial"]), tests: z.array(evidenceRefSchema).max(128), review: z.array(evidenceRefSchema).max(128), changedFiles: z.array(relativePathSchema).max(512),
   artifacts: z.array(z.object({ kind: z.enum(["test", "runtime", "review"]), source: z.enum(["command", "app-server", "hook", "user-confirmed"]), output: z.string().max(64_000), exitCode: z.number().int().nullable().optional(), command: z.array(z.string().max(4096)).max(64).optional() }).strict()).max(32).optional()
 }).strict().refine((value) => Buffer.byteLength(JSON.stringify(value), "utf8") <= 64 * 1024, "record outcome input exceeds 64 KiB");
-export const invalidateContextInputSchema = z.object({ repositoryId: idSchema, trigger: z.object({ kind: z.enum(["branch_change", "file_change", "symbol_change", "manual"]), key: z.string().optional() }).strict(), memoryIds: z.array(idSchema).optional(), dryRun: z.boolean().default(true) }).strict();
-export const routeTaskInputSchema = z.object({ taskAnalysisId: idSchema, phase: taskPhaseSchema, catalogSnapshotId: idSchema, preferences: z.object({ latency: z.enum(["fast", "balanced", "depth"]).optional(), efficiencyModel: z.string().optional(), depthModel: z.string().optional() }).strict().optional() }).strict();
+export const invalidateContextInputSchema = z.object({ repositoryId: idSchema, trigger: z.object({ kind: z.enum(["branch_change", "file_change", "symbol_change", "manual"]), key: z.string().max(4096).optional() }).strict(), memoryIds: z.array(idSchema).max(256).optional(), dryRun: z.boolean().default(true) }).strict();
+export const routeTaskInputSchema = z.object({ taskAnalysisId: idSchema, phase: taskPhaseSchema, catalogSnapshotId: idSchema, preferences: z.object({ latency: z.enum(["fast", "balanced", "depth"]).optional(), efficiencyModel: z.string().min(1).max(160).optional(), depthModel: z.string().min(1).max(160).optional() }).strict().optional() }).strict();
 export const compareRunsInputSchema = z.object({ baselineRunId: idSchema, kernoRunId: idSchema }).strict();
 
 export type KernoErrorCode = "INVALID_INPUT" | "OUTSIDE_REPOSITORY" | "SYMLINK_ESCAPE" | "REPOSITORY_NOT_ENROLLED" | "INDEX_BUSY" | "STALE_SNAPSHOT" | "UNKNOWN_ID" | "BUDGET_EXCEEDED" | "NO_COMPATIBLE_MODEL" | "UNVERIFIED_EVIDENCE" | "FAIRNESS_MISMATCH" | "INTERNAL_ERROR";

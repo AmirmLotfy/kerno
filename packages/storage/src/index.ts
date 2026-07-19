@@ -1,6 +1,7 @@
 import Database from "better-sqlite3";
-import { chmodSync, closeSync, copyFileSync, existsSync, fsyncSync, mkdirSync, openSync, readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { chmodSync, closeSync, constants, existsSync, fsyncSync, lstatSync, mkdirSync, openSync, readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
+import { dirname, join, parse, resolve, sep } from "node:path";
+import { KernoError, redactSensitiveValue } from "@kerno/contracts";
 import type { ContextCapsule, DurableMemory, IndexSnapshot, RouteDecision, RunEvent, TaskAnalysis } from "@kerno/contracts";
 
 export type EntityKind = "snapshot" | "task" | "capsule" | "memory" | "evidence" | "invalidation" | "route" | "outcome" | "run" | "benchmark" | "comparison" | "catalog" | "artifact";
@@ -35,17 +36,53 @@ export interface StateStore {
   search(repositoryId: string, snapshotId: string, query: string, limit?: number): string[];
 }
 
+const OWNER_DIRECTORY_MODE = 0o700;
+const OWNER_FILE_MODE = 0o600;
+
+function safePersistedValue<T>(value: T): T { return redactSensitiveValue(value) as T; }
+function isCurrentOwner(uid: number): boolean { return typeof process.getuid !== "function" || uid === process.getuid(); }
+function assertNoNestedSymlinks(path: string): void {
+  const absolute = resolve(path); const root = parse(absolute).root; let current = root;
+  for (const [index, component] of absolute.slice(root.length).split(sep).filter(Boolean).entries()) {
+    current = join(current, component);
+    if (index === 0 || !existsSync(current)) continue; // Permit OS-managed root aliases such as macOS /var -> /private/var.
+    if (lstatSync(current).isSymbolicLink()) throw new KernoError("SYMLINK_ESCAPE", `Refusing symlinked Kerno state ancestor: ${current}`);
+  }
+}
+function assertSafeStatePath(path: string): void {
+  const parent = dirname(path);
+  assertNoNestedSymlinks(parent);
+  mkdirSync(parent, { recursive: true, mode: OWNER_DIRECTORY_MODE });
+  assertNoNestedSymlinks(parent);
+  const parentStat = lstatSync(parent);
+  if (!parentStat.isDirectory() || parentStat.isSymbolicLink() || !isCurrentOwner(parentStat.uid)) throw new KernoError("SYMLINK_ESCAPE", `Refusing non-owner-controlled Kerno state directory: ${parent}`);
+  chmodSync(parent, OWNER_DIRECTORY_MODE);
+  if (!existsSync(path)) return;
+  const stateStat = lstatSync(path);
+  if (!stateStat.isFile() || stateStat.isSymbolicLink() || stateStat.nlink !== 1 || !isCurrentOwner(stateStat.uid)) throw new KernoError("SYMLINK_ESCAPE", `Refusing symlinked Kerno state file or non-owner-controlled path: ${path}`);
+  chmodSync(path, OWNER_FILE_MODE);
+}
+function hardenSqliteFiles(path: string): void {
+  for (const candidate of [path, `${path}-wal`, `${path}-shm`]) if (existsSync(candidate)) {
+    const stat = lstatSync(candidate);
+    if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1 || !isCurrentOwner(stat.uid)) throw new KernoError("SYMLINK_ESCAPE", `Refusing unsafe SQLite state file: ${candidate}`);
+    chmodSync(candidate, OWNER_FILE_MODE);
+  }
+}
+
 export class SqliteStateStore {
   readonly db: Database.Database;
+  private readonly path: string;
   constructor(path = ":memory:") {
-    if (path !== ":memory:") { mkdirSync(dirname(path), { recursive: true, mode: 0o700 }); chmodSync(dirname(path), 0o700); }
+    this.path = path;
+    if (path !== ":memory:") assertSafeStatePath(path);
     try { this.db = new Database(path); }
     catch (error) { throw new Error(`Kerno storage could not open ${path}: ${error instanceof Error ? error.message : String(error)}`); }
     this.db.pragma("journal_mode = WAL");
     this.db.pragma("foreign_keys = ON");
     this.db.pragma("busy_timeout = 5000");
-    if (path !== ":memory:") chmodSync(path, 0o600);
     this.migrate();
+    if (path !== ":memory:") hardenSqliteFiles(path);
     const integrity = this.db.pragma("quick_check", { simple: true });
     if (integrity !== "ok") { this.db.close(); throw new Error(`Kerno storage integrity check failed: ${String(integrity)}`); }
   }
@@ -127,7 +164,7 @@ export class SqliteStateStore {
     this.db.prepare("INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES (2, ?)").run(new Date().toISOString());
   }
 
-  close(): void { this.db.close(); }
+  close(): void { this.db.close(); if (this.path !== ":memory:") hardenSqliteFiles(this.path); }
   transaction<T>(operation: () => T): T { return this.db.transaction(operation)(); }
 
   acquireLease(repositoryId: string, owner: string, ttlMs = 30_000): boolean {
@@ -141,9 +178,10 @@ export class SqliteStateStore {
   releaseLease(repositoryId: string, owner: string): void { this.db.prepare("DELETE FROM leases WHERE repository_id = ? AND owner = ?").run(repositoryId, owner); }
 
   put(kind: EntityKind, id: string, value: unknown, repositoryId?: string, status?: string): void {
-    const record = value as { createdAt?: string; indexedAt?: string };
+    const safeValue = safePersistedValue(value);
+    const record = safeValue as { createdAt?: string; indexedAt?: string };
     const createdAt = record.createdAt ?? record.indexedAt ?? new Date().toISOString();
-    const json = JSON.stringify(value);
+    const json = JSON.stringify(safeValue);
     this.db.prepare(`INSERT INTO entities(kind,id,repository_id,created_at,status,json) VALUES (?,?,?,?,?,?)
       ON CONFLICT(kind,id) DO UPDATE SET repository_id=excluded.repository_id,status=excluded.status,json=excluded.json`)
       .run(kind, id, repositoryId ?? null, createdAt, status ?? null, json);
@@ -184,28 +222,29 @@ export class SqliteStateStore {
   }
 
   saveSnapshot(snapshot: IndexSnapshot): void {
+    const safeSnapshot = safePersistedValue(snapshot);
     this.db.transaction(() => {
-      this.put("snapshot", snapshot.id, snapshot, snapshot.repository.id);
+      this.put("snapshot", safeSnapshot.id, safeSnapshot, safeSnapshot.repository.id);
       this.db.prepare(`INSERT INTO repositories(id,canonical_root,git_common_dir,remote_fingerprint,initial_commit_fingerprint,ignore_digest,updated_at)
         VALUES (?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET canonical_root=excluded.canonical_root,git_common_dir=excluded.git_common_dir,
         remote_fingerprint=excluded.remote_fingerprint,initial_commit_fingerprint=excluded.initial_commit_fingerprint,ignore_digest=excluded.ignore_digest,updated_at=excluded.updated_at`)
-        .run(snapshot.repository.id, snapshot.repository.canonicalRoot, snapshot.repository.gitCommonDir ?? null, snapshot.repository.remoteFingerprint ?? null, snapshot.repository.initialCommitFingerprint ?? null, snapshot.repository.ignoreDigest, snapshot.indexedAt);
+        .run(safeSnapshot.repository.id, safeSnapshot.repository.canonicalRoot, safeSnapshot.repository.gitCommonDir ?? null, safeSnapshot.repository.remoteFingerprint ?? null, safeSnapshot.repository.initialCommitFingerprint ?? null, safeSnapshot.repository.ignoreDigest, safeSnapshot.indexedAt);
       this.db.prepare(`INSERT INTO worktrees(id,repository_id,canonical_path,branch,head_commit,dirty_digest,dirty,updated_at)
         VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET branch=excluded.branch,head_commit=excluded.head_commit,dirty_digest=excluded.dirty_digest,dirty=excluded.dirty,updated_at=excluded.updated_at`)
-        .run(snapshot.worktree.id, snapshot.repository.id, snapshot.worktree.canonicalPath, snapshot.worktree.branch, snapshot.worktree.headCommit, snapshot.worktree.dirtyDigest, snapshot.worktree.dirty ? 1 : 0, snapshot.indexedAt);
+        .run(safeSnapshot.worktree.id, safeSnapshot.repository.id, safeSnapshot.worktree.canonicalPath, safeSnapshot.worktree.branch, safeSnapshot.worktree.headCommit, safeSnapshot.worktree.dirtyDigest, safeSnapshot.worktree.dirty ? 1 : 0, safeSnapshot.indexedAt);
       const insertFile = this.db.prepare("INSERT OR REPLACE INTO file_snapshots(snapshot_id,repository_id,path,content_hash,json) VALUES (?,?,?,?,?)");
       const insertSearch = this.db.prepare("INSERT INTO file_search(repository_id,snapshot_id,path,symbols,excerpt) VALUES (?,?,?,?,?)");
       const insertSymbol = this.db.prepare("INSERT OR REPLACE INTO symbols(snapshot_id,id,repository_id,path,name,kind,signature_hash,body_hash,confidence,json) VALUES (?,?,?,?,?,?,?,?,?,?)");
       const insertEdge = this.db.prepare("INSERT OR REPLACE INTO edges(snapshot_id,repository_id,source,target,type,confidence) VALUES (?,?,?,?,?,?)");
-      this.db.prepare("DELETE FROM file_search WHERE repository_id = ? AND snapshot_id = ?").run(snapshot.repository.id, snapshot.id);
-      this.db.prepare("DELETE FROM symbols WHERE snapshot_id = ?").run(snapshot.id);
-      this.db.prepare("DELETE FROM edges WHERE snapshot_id = ?").run(snapshot.id);
-      for (const file of snapshot.files) {
-        insertFile.run(snapshot.id, snapshot.repository.id, file.path, file.contentHash, JSON.stringify(file));
-        insertSearch.run(snapshot.repository.id, snapshot.id, file.path, file.symbols.map((symbol) => symbol.name).join(" "), file.excerpt);
-        for (const symbol of file.symbols) insertSymbol.run(snapshot.id, symbol.id, snapshot.repository.id, symbol.path, symbol.name, symbol.kind, symbol.signatureHash, symbol.bodyHash, symbol.confidence, JSON.stringify(symbol));
+      this.db.prepare("DELETE FROM file_search WHERE repository_id = ? AND snapshot_id = ?").run(safeSnapshot.repository.id, safeSnapshot.id);
+      this.db.prepare("DELETE FROM symbols WHERE snapshot_id = ?").run(safeSnapshot.id);
+      this.db.prepare("DELETE FROM edges WHERE snapshot_id = ?").run(safeSnapshot.id);
+      for (const file of safeSnapshot.files) {
+        insertFile.run(safeSnapshot.id, safeSnapshot.repository.id, file.path, file.contentHash, JSON.stringify(file));
+        insertSearch.run(safeSnapshot.repository.id, safeSnapshot.id, file.path, file.symbols.map((symbol) => symbol.name).join(" "), file.excerpt);
+        for (const symbol of file.symbols) insertSymbol.run(safeSnapshot.id, symbol.id, safeSnapshot.repository.id, symbol.path, symbol.name, symbol.kind, symbol.signatureHash, symbol.bodyHash, symbol.confidence, JSON.stringify(symbol));
       }
-      for (const edge of snapshot.edges) insertEdge.run(snapshot.id, snapshot.repository.id, edge.from, edge.to, edge.type, edge.confidence);
+      for (const edge of safeSnapshot.edges) insertEdge.run(safeSnapshot.id, safeSnapshot.repository.id, edge.from, edge.to, edge.type, edge.confidence);
     })();
   }
   latestSnapshot(repositoryId: string, worktreeId?: string): IndexSnapshot | undefined { return this.list<IndexSnapshot>("snapshot", repositoryId).find((snapshot) => !worktreeId || snapshot.worktree.id === worktreeId); }
@@ -216,16 +255,17 @@ export class SqliteStateStore {
   capsule(id: string): ContextCapsule | undefined { return this.get("capsule", id); }
   capsules(repositoryId: string): ContextCapsule[] { return this.list("capsule", repositoryId); }
   saveMemory(memory: DurableMemory): void {
+    const safeMemory = safePersistedValue(memory);
     this.db.transaction(() => {
-      this.put("memory", memory.id, memory, memory.repositoryId, memory.status);
+      this.put("memory", safeMemory.id, safeMemory, safeMemory.repositoryId, safeMemory.status);
       this.db.prepare("INSERT OR REPLACE INTO memories(id,repository_id,status,branch,head_commit,type,confidence,json) VALUES (?,?,?,?,?,?,?,?)")
-        .run(memory.id, memory.repositoryId, memory.status, memory.branch, memory.headCommit, memory.type, memory.confidence, JSON.stringify(memory));
-      this.db.prepare("DELETE FROM evidence WHERE memory_id = ?").run(memory.id);
-      this.db.prepare("DELETE FROM invalidations WHERE memory_id = ?").run(memory.id);
+        .run(safeMemory.id, safeMemory.repositoryId, safeMemory.status, safeMemory.branch, safeMemory.headCommit, safeMemory.type, safeMemory.confidence, JSON.stringify(safeMemory));
+      this.db.prepare("DELETE FROM evidence WHERE memory_id = ?").run(safeMemory.id);
+      this.db.prepare("DELETE FROM invalidations WHERE memory_id = ?").run(safeMemory.id);
       const evidence = this.db.prepare("INSERT INTO evidence(memory_id,evidence_id,kind,path,content_hash,artifact_id,json) VALUES (?,?,?,?,?,?,?)");
-      for (const item of memory.evidence) evidence.run(memory.id, item.id, item.kind, item.path ?? null, item.contentHash ?? null, item.artifactId ?? null, JSON.stringify(item));
+      for (const item of safeMemory.evidence) evidence.run(safeMemory.id, item.id, item.kind, item.path ?? null, item.contentHash ?? null, item.artifactId ?? null, JSON.stringify(item));
       const invalidation = this.db.prepare("INSERT INTO invalidations(memory_id,kind,key,expected) VALUES (?,?,?,?)");
-      for (const key of memory.invalidationConditions) invalidation.run(memory.id, key.kind, key.key, key.expected ?? null);
+      for (const key of safeMemory.invalidationConditions) invalidation.run(safeMemory.id, key.kind, key.key, key.expected ?? null);
     })();
   }
   memories(repositoryId: string): DurableMemory[] { return this.list("memory", repositoryId); }
@@ -234,8 +274,9 @@ export class SqliteStateStore {
   catalog<T>(id: string): T | undefined { return this.get("catalog", id); }
 
   appendEvent(event: RunEvent): void {
+    const safeEvent = safePersistedValue(event);
     this.db.prepare("INSERT OR REPLACE INTO events(run_id,sequence,occurred_at,source,type,json) VALUES (?,?,?,?,?,?)")
-      .run(event.runId, event.sequence, event.occurredAt, event.source, event.type, JSON.stringify(event));
+      .run(safeEvent.runId, safeEvent.sequence, safeEvent.occurredAt, safeEvent.source, safeEvent.type, JSON.stringify(safeEvent));
   }
   events(runId: string): RunEvent[] {
     const rows = this.db.prepare("SELECT json FROM events WHERE run_id = ? ORDER BY sequence").all(runId) as Array<{ json: string }>;
@@ -262,25 +303,41 @@ export class JsonStateStore implements StateStore {
   private leases = new Map<string, { owner: string; expiresAt: number }>();
   private transactionDepth = 0;
   constructor(private path: string) {
-    mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
-    chmodSync(dirname(path), 0o700);
+    assertSafeStatePath(path);
+    const backup = `${path}.bak`;
+    if (existsSync(backup)) {
+      const backupStat = lstatSync(backup);
+      if (!backupStat.isFile() || backupStat.isSymbolicLink() || backupStat.nlink !== 1 || !isCurrentOwner(backupStat.uid)) throw new KernoError("SYMLINK_ESCAPE", `Refusing unsafe Kerno state backup: ${backup}`);
+      chmodSync(backup, OWNER_FILE_MODE);
+    }
     try { this.state = existsSync(path) ? JSON.parse(readFileSync(path, "utf8")) as JsonState : { schemaVersion: 1, entities: [], events: [] }; }
     catch (error) {
-      const backup = `${path}.bak`;
       try { this.state = JSON.parse(readFileSync(backup, "utf8")) as JsonState; }
       catch { throw new Error(`Kerno portable storage is corrupt at ${path}: ${error instanceof Error ? error.message : String(error)}`); }
     }
     if (this.state.schemaVersion !== 1 || !Array.isArray(this.state.entities) || !Array.isArray(this.state.events)) throw new Error(`Kerno portable storage has an unsupported or corrupt schema at ${path}`);
+    this.state = safePersistedValue(this.state);
   }
   private persist(): void {
     if (this.transactionDepth > 0) return;
+    assertSafeStatePath(this.path);
     const temp = `${this.path}.${process.pid}.tmp`; const backup = `${this.path}.bak`;
-    if (existsSync(this.path)) { copyFileSync(this.path, backup); chmodSync(backup, 0o600); }
-    const descriptor = openSync(temp, "w", 0o600);
+    if (existsSync(backup)) {
+      const backupStat = lstatSync(backup);
+      if (!backupStat.isFile() || backupStat.isSymbolicLink() || backupStat.nlink !== 1 || !isCurrentOwner(backupStat.uid)) throw new KernoError("SYMLINK_ESCAPE", `Refusing unsafe Kerno state backup: ${backup}`);
+    }
+    if (existsSync(this.path)) {
+      const current = readFileSync(this.path);
+      const backupDescriptor = openSync(backup, constants.O_WRONLY | constants.O_CREAT | constants.O_TRUNC | (constants.O_NOFOLLOW ?? 0), OWNER_FILE_MODE);
+      try { writeFileSync(backupDescriptor, current); fsyncSync(backupDescriptor); }
+      finally { closeSync(backupDescriptor); }
+      chmodSync(backup, OWNER_FILE_MODE);
+    }
+    const descriptor = openSync(temp, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | (constants.O_NOFOLLOW ?? 0), OWNER_FILE_MODE);
     try { writeFileSync(descriptor, `${JSON.stringify(this.state)}\n`); fsyncSync(descriptor); }
     finally { closeSync(descriptor); }
     renameSync(temp, this.path);
-    chmodSync(this.path, 0o600);
+    chmodSync(this.path, OWNER_FILE_MODE);
     if (existsSync(temp)) unlinkSync(temp);
   }
   transaction<T>(operation: () => T): T {
@@ -292,8 +349,9 @@ export class JsonStateStore implements StateStore {
   acquireLease(repositoryId: string, owner: string, ttlMs = 30_000): boolean { const current = this.leases.get(repositoryId); if (current && current.expiresAt >= Date.now()) return false; this.leases.set(repositoryId, { owner, expiresAt: Date.now() + ttlMs }); return true; }
   releaseLease(repositoryId: string, owner: string): void { if (this.leases.get(repositoryId)?.owner === owner) this.leases.delete(repositoryId); }
   put(kind: EntityKind, id: string, value: unknown, repositoryId?: string, status?: string): void {
-    const record = value as { createdAt?: string; indexedAt?: string }; const index = this.state.entities.findIndex((entity) => entity.kind === kind && entity.id === id);
-    const next: JsonEntity = { kind, id, createdAt: record.createdAt ?? record.indexedAt ?? new Date().toISOString(), value, ...(repositoryId ? { repositoryId } : {}), ...(status ? { status } : {}) };
+    const safeValue = safePersistedValue(value);
+    const record = safeValue as { createdAt?: string; indexedAt?: string }; const index = this.state.entities.findIndex((entity) => entity.kind === kind && entity.id === id);
+    const next: JsonEntity = { kind, id, createdAt: record.createdAt ?? record.indexedAt ?? new Date().toISOString(), value: safeValue, ...(repositoryId ? { repositoryId } : {}), ...(status ? { status } : {}) };
     if (index >= 0) this.state.entities[index] = next; else this.state.entities.push(next); this.persist();
   }
   get<T>(kind: EntityKind, id: string): T | undefined { return this.state.entities.find((entity) => entity.kind === kind && entity.id === id)?.value as T | undefined; }
@@ -314,7 +372,7 @@ export class JsonStateStore implements StateStore {
   saveRoute(route: RouteDecision, repositoryId: string): void { this.put("route", route.id, route, repositoryId); }
   saveCatalog(id: string, catalog: unknown): void { this.put("catalog", id, { id, createdAt: new Date().toISOString(), ...(catalog as Record<string, unknown>) }); }
   catalog<T>(id: string): T | undefined { return this.get("catalog", id); }
-  appendEvent(event: RunEvent): void { const index = this.state.events.findIndex((item) => item.runId === event.runId && item.sequence === event.sequence); if (index >= 0) this.state.events[index] = event; else this.state.events.push(event); this.persist(); }
+  appendEvent(event: RunEvent): void { const safeEvent = safePersistedValue(event); const index = this.state.events.findIndex((item) => item.runId === safeEvent.runId && item.sequence === safeEvent.sequence); if (index >= 0) this.state.events[index] = safeEvent; else this.state.events.push(safeEvent); this.persist(); }
   events(runId: string): RunEvent[] { return this.state.events.filter((event) => event.runId === runId).sort((a, b) => a.sequence - b.sequence); }
   nextEventSequence(runId: string): number { return this.events(runId).reduce((max, event) => Math.max(max, event.sequence), -1) + 1; }
   search(repositoryId: string, snapshotId: string, query: string, limit = 30): string[] {

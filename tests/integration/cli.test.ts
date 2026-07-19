@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, stat, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -28,10 +28,25 @@ describe("Kerno CLI", () => {
     const previousStorage = process.env.KERNO_STORAGE; process.env.KERNO_STORAGE = "json";
     try {
       expect(await runCli(["init", "--root", root, "--data", data, "--json"], { out: () => {}, err: () => {} })).toBe(0);
+      await writeFile(join(data, "kerno-state.json"), `${JSON.stringify({ schemaVersion: 1, entities: [{ kind: "task", id: "task_export", createdAt: new Date().toISOString(), value: { id: "task_export", canonicalPath: root, absolutePath: join(root, "secret.ts"), excerpt: "private source", accessToken: "plain-access-value" } }], events: [] })}\n`, { mode: 0o600 });
       expect(await runCli(["data-export", "--root", root, "--data", data, "--out", output, "--json"], { out: () => {}, err: () => {} })).toBe(0);
-      const exported = await readFile(output, "utf8"); expect(exported).not.toContain(root); expect(exported).not.toContain("OMITTED_FROM_SAFE_EXPORT\"\n");
+      const exported = await readFile(output, "utf8"); expect(exported).not.toContain(root); expect(exported).not.toContain("plain-access-value"); expect(exported).toContain("[OMITTED_FROM_SAFE_EXPORT]");
+      expect((await stat(output)).mode & 0o777).toBe(0o600);
       expect(await runCli(["data-export", "--root", root, "--data", data, "--out", output, "--json"], { out: () => {}, err: () => {} })).toBe(2);
+      const outside = join(root, "outside.json"); const linkedOutput = join(root, "linked-export.json"); await writeFile(outside, "sentinel\n"); await symlink(outside, linkedOutput);
+      expect(await runCli(["data-export", "--root", root, "--data", data, "--out", linkedOutput, "--json"], { out: () => {}, err: () => {} })).toBe(2); expect(await readFile(outside, "utf8")).toBe("sentinel\n");
       expect(await runCli(["data-delete", "--root", root, "--data", data, "--yes", "--json"], { out: () => {}, err: () => {} })).toBe(0);
+    } finally { if (previousStorage === undefined) delete process.env.KERNO_STORAGE; else process.env.KERNO_STORAGE = previousStorage; }
+  });
+  it("refuses a symlinked portable state file without reading or writing its target", async () => {
+    const root = await mkdtemp(join(tmpdir(), "kerno-state-link-")); cleanup.push(root); const data = join(root, "plugin-data"); const outside = join(root, "outside-state.json");
+    const previousStorage = process.env.KERNO_STORAGE; process.env.KERNO_STORAGE = "json";
+    try {
+      expect(await runCli(["init", "--root", root, "--data", data], { out: () => {}, err: () => {} })).toBe(0);
+      const original = "{\"schemaVersion\":1,\"entities\":[],\"events\":[]}\n"; await writeFile(outside, original); await symlink(outside, join(data, "kerno-state.json"));
+      const errors: string[] = [];
+      expect(await runCli(["data-export", "--root", root, "--data", data, "--out", join(root, "export.json")], { out: () => {}, err: (value) => errors.push(value) })).not.toBe(0);
+      expect(errors.join("")).toContain("symlinked Kerno state file"); expect(await readFile(outside, "utf8")).toBe(original);
     } finally { if (previousStorage === undefined) delete process.env.KERNO_STORAGE; else process.env.KERNO_STORAGE = previousStorage; }
   });
 });

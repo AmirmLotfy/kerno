@@ -7,7 +7,13 @@
 
 Kerno asks one question before a coding agent acts: _what is the smallest, freshest, verified set of repository knowledge needed to complete this task correctly?_ It builds a bounded evidence capsule, explains every inclusion, expands only when tests or runtime evidence expose a gap, invalidates stale beliefs, and keeps model-routing claims tied to observable Codex events.
 
-![Kerno capsule and evidence dashboard in the warm ivory theme](docs/assets/screenshots/dashboard-context-light.png)
+![Kerno deterministic replay home showing the evidence-backed lifecycle](docs/assets/submission/kerno-real-home.png)
+
+_Deterministic fixture replay:_ the Home view is generated from the local index → failing test → child capsule → passing test → invalidation evidence loop. It does not depict a live Codex implementation turn.
+
+![Kerno routing view separating replay recommendation from retained App Server evidence](docs/assets/submission/kerno-real-routing-evidence.png)
+
+_Separate real App Server evidence:_ the routing evidence panel retains an authenticated App Server request and its runtime truth label. It is not merged with, or presented as part of, the deterministic replay.
 
 The Context Core identity uses nested repository, selected-context, and verified-core layers with an extracted oxide segment. See the [brand system](docs/BRAND_SYSTEM.md) and [repository-wide migration audit](docs/BRAND_AUDIT.md).
 
@@ -36,7 +42,7 @@ Every capsule item exposes its source, file or symbol, freshness, confidence, es
 - Thirteen strict MCP tools and an installable local Codex plugin with a Kerno context skill.
 - App Server model discovery, explicit phase requests, event capture, timeout/auth/unavailability handling, and a fresh review thread.
 - Read-only dashboard with repository, capsule, routing, context, comparison, and limitations views.
-- Immutable deterministic replay plus a live, paired App Server benchmark format.
+- Reproducibly generated deterministic replay plus a live, paired App Server benchmark format.
 
 ## Judge quickstart
 
@@ -114,7 +120,7 @@ Codex plugin ─┐
 Kerno CLI ────┼─> KernoService ─> safe indexer + context/memory/router ─> SQLite/WAL
 MCP STDIO ────┘          │
 App Server orchestrator ─┴─> phase threads + normalized runtime events
-Dashboard <──────── loopback read-only HTTP/SSE or immutable replay
+Dashboard <──────── loopback read-only HTTP/SSE or generated read-only replay
 ```
 
 Kerno is a strict TypeScript/npm-workspaces monorepo using Zod, `better-sqlite3`, the TypeScript compiler API, Lezer Python, MCP SDK, React, Vite, and Vitest. [Architecture](docs/ARCHITECTURE.md) records package boundaries and data flow; [Decisions](docs/DECISIONS.md) records the tradeoffs.
@@ -130,7 +136,7 @@ Raw observations in that unverified pair:
 | Total observed thread tokens | 93,670 | 95,383 |
 | Unique files observed | 6 | 2 |
 | Repeated observable reads | 2 | 0 |
-| Tool calls | 8 | 9 |
+| Tool calls | 7 | 8 |
 | Latency | 71,922 ms | 107,289 ms |
 | Changed lines | 16 | 16 |
 

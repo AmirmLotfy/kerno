@@ -61,7 +61,7 @@
   },
   "review": {
     "status": "unavailable",
-    "artifactHash": null,
+    "artifactHash": "b476b4bbd44a2ea62e0ebca748736b895ba02438b65bb908192a4f0f23bb4a1e",
     "summary": "Review timeout: {\"message\":\"Turn 019f7974-7369-7092-8ba5-96ad13283908 did not complete before timeout\"}"
   },
   "artifacts": {
@@ -72,5 +72,11 @@
   },
   "limitations": [
     "Requested model was not independently confirmed by an effective-model or reroute event."
-  ]
+  ],
+  "artifactHashes": {
+    "events": "97befa7f11ae67c2e435c2adbe27764f0cb98d2eecd9661fbfa7c980cb1d98f2",
+    "diff": "0c4cd66d69fc9010a2aebc90f4143b384117e4f023cd372a13d6cf9cda9e9729",
+    "tests": "ffa18b053509c9531880559bb277022cde985162ee9f642919a05bf1fa22124c",
+    "review": "b476b4bbd44a2ea62e0ebca748736b895ba02438b65bb908192a4f0f23bb4a1e"
+  }
 }

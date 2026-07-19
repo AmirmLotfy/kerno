@@ -36,13 +36,22 @@ export async function recordCanonicalReplay(options: { fixtureRoot: string; solu
     const firstIndex = await service.index({ root: worktree, mode: "incremental" });
     const secondIndex = await service.index({ root: worktree, mode: "incremental" });
     const taskText = "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.";
-    const task = service.analyze({ repositoryId: firstIndex.repository.id, taskText });
+    // The second incremental index is the current snapshot. Binding the task to
+    // firstIndex would make an otherwise identical snapshot stale as soon as the
+    // second index commits.
+    const task = service.analyze({ repositoryId: secondIndex.repository.id, worktreeId: secondIndex.worktree.id, taskText });
     const initial = await service.buildCapsule({ taskAnalysisId: task.id, budgetTokens: 2500 });
+    const models = [
+      { id: "catalog-default", displayName: "Catalog default", isDefault: true, hidden: false, supportedReasoningEfforts: ["low", "medium", "high"], defaultReasoningEffort: "medium" },
+      { id: "catalog-depth", displayName: "Catalog depth role", isDefault: false, hidden: false, supportedReasoningEfforts: ["high", "xhigh"], defaultReasoningEffort: "high" }
+    ];
+    const route = routeTask(task, "implementation", "catalog_replay_policy_example", models);
+    const routeAt = new Date().toISOString();
     const failing = await testFixture(worktree);
     const failedAt = new Date().toISOString();
     if (failing.passed) throw new Error("Canonical fixture must fail before the solution is applied");
     const failingArtifact = service.recordArtifact({ kind: "test", source: "command", output: failing.output, exitCode: failing.exitCode, command: [process.execPath, "--test", "--experimental-strip-types", "tests/refund.integration.test.ts", "tests/atomicity.integration.test.ts"], trusted: true });
-    const child = service.expand({ capsuleId: initial.id, evidence: { kind: "test_failure", artifactId: failingArtifact.id, text: "TransactionBoundary is required to atomically couple the ledger credit and idempotency marker", symbols: ["TransactionBoundary"] } });
+    const child = await service.expand({ capsuleId: initial.id, evidence: { kind: "test_failure", artifactId: failingArtifact.id, text: "TransactionBoundary is required to atomically couple the ledger credit and idempotency marker", symbols: ["TransactionBoundary"] } });
     const solution = await readFile(options.solutionPath, "utf8");
     await writeFile(join(worktree, "src/webhooks/refund-handler.ts"), solution, { mode: 0o600 });
     const passing = await testFixture(worktree);
@@ -51,25 +60,23 @@ export async function recordCanonicalReplay(options: { fixtureRoot: string; solu
     const reviewUnavailableAt = new Date().toISOString();
     const changedIndex = await service.index({ root: worktree, mode: "incremental" });
     const storedInitial = service.store.capsule(initial.id);
-    const models = [
-      { id: "catalog-default", displayName: "Catalog default", isDefault: true, hidden: false, supportedReasoningEfforts: ["low", "medium", "high"], defaultReasoningEffort: "medium" },
-      { id: "catalog-depth", displayName: "Catalog depth role", isDefault: false, hidden: false, supportedReasoningEfforts: ["high", "xhigh"], defaultReasoningEffort: "high" }
-    ];
-    const route = routeTask(task, "implementation", "catalog_replay_policy_example", models);
+    const recordedAt = new Date().toISOString();
     const timeline = [
       { type: "index.completed", at: firstIndex.indexedAt, detail: `${firstIndex.stats.parsed} files parsed` },
       { type: "index.incremental", at: secondIndex.indexedAt, detail: `${secondIndex.stats.reused} unchanged files reused; ${secondIndex.stats.parsed} reparsed` },
+      { type: "task.analyzed", at: task.createdAt, detail: `${task.intent} task bound to current snapshot ${secondIndex.id}` },
       { type: "capsule.created", at: initial.createdAt, detail: `${initial.items.length} items · ${initial.estimatedTokens} estimated tokens` },
-      { type: "route.recommended", at: initial.createdAt, detail: `${route.recommended.model} · ${route.recommended.reasoningEffort}; no runtime request in replay` },
+      { type: "route.recommended", at: routeAt, detail: `${route.recommended.model} · ${route.recommended.reasoningEffort}; no runtime request in replay` },
       { type: "test.failed", at: failedAt, detail: "TransactionBoundary evidence missing" },
       { type: "capsule.expanded", at: child.createdAt, detail: child.items.map((item) => item.locator.path).join(", ") },
       { type: "test.passed", at: passedAt, detail: "3/3 pinned integration assertions passed" },
       { type: "review.unavailable", at: reviewUnavailableAt, detail: "No independent Codex review ran in deterministic replay" },
-      { type: "context.invalidated", at: changedIndex.indexedAt, detail: `Initial capsule is ${storedInitial?.status ?? "unknown"} after handler hash changed` }
-    ];
+      { type: "context.invalidated", at: changedIndex.indexedAt, detail: `Initial capsule is ${storedInitial?.status ?? "unknown"} after handler hash changed` },
+      { type: "replay.recorded", at: recordedAt, detail: "Deterministic evidence replay completed; no Codex orchestration or independent review was run" }
+    ].map((event, index) => ({ ...event, index })).sort((left, right) => Date.parse(left.at) - Date.parse(right.at) || left.index - right.index).map(({ index: _index, ...event }) => event);
     const resultWithoutHash = {
-      schemaVersion: "1" as const, label: "DETERMINISTIC FIXTURE REPLAY" as const, recordedAt: new Date().toISOString(), source: { fixture: "relaycart-ts", task: "refund-debug" },
-      repository: { id: changedIndex.repository.id, name: "relaycart-ts", branch: changedIndex.worktree.branch, head: changedIndex.worktree.headCommit, dirty: changedIndex.worktree.dirty, startingCommit: firstIndex.worktree.headCommit, files: changedIndex.files.length, symbols: changedIndex.files.reduce((sum, file) => sum + file.symbols.length, 0), indexFreshness: changedIndex.indexedAt, unchangedReparsed: secondIndex.stats.parsed, languageBreakdown: Object.fromEntries([...new Set(changedIndex.files.map((file) => file.language))].map((language) => [language, changedIndex.files.filter((file) => file.language === language).length])), memoryCount: service.store.memories(changedIndex.repository.id).length, invalidationCount: storedInitial?.status === "stale" ? 1 : 0 },
+      schemaVersion: "1" as const, label: "DETERMINISTIC FIXTURE REPLAY" as const, recordedAt, source: { fixture: "relaycart-ts", task: "refund-debug" },
+      repository: { id: changedIndex.repository.id, currentSnapshotId: changedIndex.id, taskSnapshotId: secondIndex.id, snapshotStatus: "current", name: "relaycart-ts", branch: changedIndex.worktree.branch, head: changedIndex.worktree.headCommit, dirty: changedIndex.worktree.dirty, startingCommit: firstIndex.worktree.headCommit, files: changedIndex.files.length, symbols: changedIndex.files.reduce((sum, file) => sum + file.symbols.length, 0), indexFreshness: changedIndex.indexedAt, unchangedReparsed: secondIndex.stats.parsed, languageBreakdown: Object.fromEntries([...new Set(changedIndex.files.map((file) => file.language))].map((language) => [language, changedIndex.files.filter((file) => file.language === language).length])), memoryCount: service.store.memories(changedIndex.repository.id).length, invalidationCount: storedInitial?.status === "stale" ? 1 : 0 },
       task, initialCapsule: initial, childCapsule: child,
       route: { ...route, requested: null, effective: null, availableModels: models, runtimeEvents: [], tokenUsage: null, latencyMs: null, result: "not-observed", truthLabel: "RECOMMENDED ONLY — no App Server turn in deterministic replay" },
       tests: { before: { passed: failing.passed, durationMs: failing.durationMs, artifactHash: failing.artifactHash }, after: { passed: passing.passed, durationMs: passing.durationMs, artifactHash: passing.artifactHash } },
@@ -83,7 +90,7 @@ export async function recordCanonicalReplay(options: { fixtureRoot: string; solu
 
 const comparableMetrics = ["taskSuccess", "testsPassed", "totalTokens", "filesOpened", "repeatedReads", "toolCalls", "contextExpansions", "timeToFirstValidPatchMs", "latencyMs", "changedLines", "unnecessaryChangedLines", "reviewerFindings", "staleContextMistakes"] as const;
 
-const observableToolItemTypes = new Set(["commandExecution", "fileChange", "mcpToolCall", "collaborationToolCall", "dynamicToolCall", "webSearch"]);
+const observableToolItemTypes = new Set(["commandExecution", "mcpToolCall", "collaborationToolCall", "dynamicToolCall", "webSearch"]);
 export function countObservableToolCalls(events: RunEvent[]): number {
   return events.filter((event) => event.type === "item/completed" && observableToolItemTypes.has(String((event.redactedPayload as any)?.item?.type ?? ""))).length;
 }
@@ -110,12 +117,14 @@ export function buildBenchmarkReport(rawRuns: unknown[]): BenchmarkReport {
       ["test commands", JSON.stringify(baseline.task.testCommands), JSON.stringify(kerno.task.testCommands)], ["permissions", baseline.permissions, kerno.permissions],
       ["platform", baseline.environment.platform, kerno.environment.platform], ["architecture", baseline.environment.architecture, kerno.environment.architecture],
       ["Node runtime", baseline.environment.node, kerno.environment.node], ["Codex runtime", baseline.environment.codex, kerno.environment.codex],
+      ["recording source", baseline.environment.recordedFrom, kerno.environment.recordedFrom], ["profile evidence", baseline.environment.profileEvidenceHash, kerno.environment.profileEvidenceHash],
       ...(experiment === "context-controlled" ? [["model", baseline.model.requested, kerno.model.requested], ["reasoning effort", baseline.model.reasoningEffort, kerno.model.reasoningEffort]] as Array<[string, unknown, unknown]> : [])
     ] : [];
     const mismatches = fairnessFields.filter(([, left, right]) => left !== right).map(([field]) => field);
     if (baseline && kerno && (baseline.environment.profileIsolation !== "verified-clean" || kerno.environment.profileIsolation !== "verified-clean")) mismatches.push("profile isolation unverified");
     if (baseline && kerno && (!baseline.environment.profileEvidenceHash || !kerno.environment.profileEvidenceHash)) mismatches.push("profile evidence missing");
     if (baseline && kerno && ([baseline, kerno].some((run) => !run.artifactHashes.events || !run.artifactHashes.diff || !run.artifactHashes.tests || !run.artifactHashes.review))) mismatches.push("artifact hashes unverified");
+    if (baseline && kerno && ([baseline, kerno].some((run) => run.tests.artifactHash !== run.artifactHashes.tests || run.review.artifactHash !== run.artifactHashes.review))) mismatches.push("artifact result hashes inconsistent");
     const outcome = (run: BenchmarkRun | undefined) => run ? { finalStatus: run.finalStatus, testsPassed: run.tests.passed, testArtifactHash: run.tests.artifactHash, reviewStatus: run.review.status, reviewerFindings: run.metrics.reviewerFindings } : null;
     return {
       taskId, experiment, baselineRunId: baseline?.id ?? null, kernoRunId: kerno?.id ?? null,

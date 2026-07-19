@@ -1,13 +1,13 @@
 {
   "available": true,
   "label": "RECORDED REAL APP SERVER RUN",
-  "recordedAt": "2026-07-19T17:28:59.430Z",
+  "recordedAt": "2026-07-19T19:11:49.820Z",
   "catalogSize": 4,
   "requested": {
     "model": "gpt-5.6-sol",
     "reasoningEffort": "low"
   },
   "modelState": "requested-unconfirmed",
-  "outcome": "failed",
-  "totalTokens": null
+  "outcome": "completed",
+  "totalTokens": 33781
 }

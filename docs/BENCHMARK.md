@@ -35,7 +35,7 @@ All attempts, failures, timeouts, and unfavorable results remain. Missing events
 | Total observed thread tokens | 93,670 | 95,383 | Kerno slightly worse in this pair |
 | Unique observable files | 6 | 2 | Kerno narrower |
 | Repeated observable reads | 2 | 0 | Kerno fewer |
-| Tool calls | 8 | 9 | raw observation only; no causal comparison |
+| Tool calls | 7 | 8 | raw observation only; no causal comparison |
 | Context expansions | 0 | 1 | expected proof loop |
 | Latency | 71,922 ms | 107,289 ms | Kerno worse |
 | Changed lines | 16 | 16 | equal |
@@ -48,7 +48,7 @@ This pair is operational evidence, not a performance or context-effect claim. Fi
 
 - Tokens: `thread/tokenUsage/updated` only.
 - Files/repeated reads: canonical paths observed in completed command/tool items; coverage disclosed.
-- Tool calls: completed command-execution, file-change, MCP, collaboration, dynamic-tool, or web-search item events; protocol notifications are excluded.
+- Tool calls: completed command-execution, MCP, collaboration, dynamic-tool, or web-search item events; file-change events and protocol notifications are excluded.
 - Expansion: immutable child-capsule events.
 - Latency: monotonic process time from run start to terminal recording.
 - Changed lines: Git numstat.

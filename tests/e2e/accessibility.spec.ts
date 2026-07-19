@@ -47,3 +47,17 @@ test("truth states and comparison series never rely on color alone", async ({ pa
   await page.getByRole("button", { name: "Limits" }).click();
   for (const label of ["Measured", "Estimated", "Experimental", "Unavailable"]) await expect(page.getByText(label, { exact: true }).first()).toBeVisible();
 });
+
+test("loading, error, and navigation states expose explicit semantics", async ({ page }) => {
+  await page.goto("/?state=indexing");
+  await expect(page.getByRole("status")).toHaveAttribute("aria-busy", "true");
+
+  await page.goto("/?state=unrecoverable-error");
+  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Retry loading/ })).toBeVisible();
+
+  await page.goto("/");
+  const home = page.getByRole("button", { name: "Home" });
+  await expect(home).toHaveAttribute("aria-current", "page");
+  await expect(home).toHaveAttribute("aria-controls", "panel-home");
+});

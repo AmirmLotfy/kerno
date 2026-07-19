@@ -2,7 +2,7 @@
 
 ## Truth brief
 
-Latest refresh: **July 19, 2026 at 10:27 AM PDT / 8:27 PM Africa/Cairo / 5:27 PM UTC**. Approximately 54.5 hours remained. No substantive requirement changed from the prior grounding.
+Latest refresh: **July 19, 2026 at 11:48 AM PDT / 9:48 PM Africa/Cairo / 6:48 PM UTC**. Approximately 53 hours remained. No substantive requirement changed from the prior grounding.
 
 The requested Devpost Hackathons plugin was checked first and was not callable: no Devpost/Hackathons capability existed in the active tool catalog. The refresh therefore used the authoritative official pages directly. The public pages continued to expose the same deadline, required-tool language, and participation guidance. No Devpost write was performed.
 
@@ -58,7 +58,7 @@ No Devpost write has been performed. The exact authenticated form labels remain 
 | Rules require less than three minutes; FAQ says three minutes or under | Keep it below 3:00. |
 | Overview presents the Devpost plugin as a participation step; Rules call it optional | Optional; Kerno does not depend on it. |
 | A pre-existing-project clause says Codex “and/or” GPT-5.6; principal requirements and FAQ require both | Evidence meaningful use of both. |
-| Overview advertised a credit request period; Resources say event credits are exhausted | Assume no event credits. Final live validation failed with `usageLimitExceeded`; Kerno’s deterministic judge replay remains independent of hackathon credits. |
+| Overview advertised a credit request period; Resources say event credits are exhausted | Assume no event credits. The latest live App Server smoke completed using current account access, while Kerno’s deterministic judge replay remains independent of event credits. |
 | Rules require all authenticated fields; logged-out access does not reveal their exact labels | Open the authenticated draft early, record every label, and invent none. |
 
 ## Final submission checklist

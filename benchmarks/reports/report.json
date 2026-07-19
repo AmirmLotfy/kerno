@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1",
-  "generatedAt": "2026-07-19T17:34:34.435Z",
+  "generatedAt": "2026-07-19T19:18:17.696Z",
   "runCount": 8,
   "runs": [
     {
@@ -61,7 +61,7 @@
         "totalTokens": 95383,
         "filesOpened": 2,
         "repeatedReads": 0,
-        "toolCalls": 9,
+        "toolCalls": 8,
         "contextExpansions": 1,
         "latencyMs": 107289,
         "changedLines": 16,
@@ -82,10 +82,10 @@
         "review": "benchmarks/recorded-results/live/benchmark_19jkde7/review.txt"
       },
       "artifactHashes": {
-        "events": null,
-        "diff": null,
-        "tests": null,
-        "review": null
+        "events": "72ac8ca603d71c99f68a6b602acbe4264098c1da7daedff6a4d7561a5bc8a636",
+        "diff": "1ab9f390f1e4528065bada6fddccdb706f776778c204513fdeec0d3dc1b71225",
+        "tests": "9c822d55d2081672f1b2fbf992cffa93f8de8f295da5581a59cbbf291036101f",
+        "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b"
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event."
@@ -149,7 +149,7 @@
         "totalTokens": 95206,
         "filesOpened": 2,
         "repeatedReads": 0,
-        "toolCalls": 10,
+        "toolCalls": 9,
         "contextExpansions": 1,
         "latencyMs": 95371,
         "changedLines": 16,
@@ -170,10 +170,10 @@
         "review": "benchmarks/recorded-results/live/benchmark_1crq47p/review.txt"
       },
       "artifactHashes": {
-        "events": null,
-        "diff": null,
-        "tests": null,
-        "review": null
+        "events": "2d5bb97a5f1eb8515d1e9edafd533193cd0f252e49d1e121fcd97c6b5faa6bed",
+        "diff": "e3ac7d9b1d5adc532d602a319d88f3b5ec488f45e2b248b0dc94852ebd69e28b",
+        "tests": "2652a5f8893005e6f22af43ae754ebd45d0ce956c1f0d32f7ee191fd68c881f6",
+        "review": "b97d884c5d0bebb2fdf895273a7099c3a753fe34d1cbc63e682be7631bd891e4"
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event."
@@ -232,7 +232,7 @@
         "totalTokens": 113569,
         "filesOpened": 6,
         "repeatedReads": 2,
-        "toolCalls": 8,
+        "toolCalls": 7,
         "contextExpansions": 0,
         "latencyMs": 89044,
         "changedLines": 17,
@@ -253,10 +253,10 @@
         "review": "benchmarks/recorded-results/live/benchmark_1dbgx40/review.txt"
       },
       "artifactHashes": {
-        "events": null,
-        "diff": null,
-        "tests": null,
-        "review": null
+        "events": "97a5a92fbc77af55293f1964ccbc1fb07e61d0a1a8ccd99b119a381e718d0b92",
+        "diff": "86e170d72a10f21deb7bd81c7505e2fef6259c894fb2fe9bfb9dafd09e693591",
+        "tests": "6b28145f3d6459e1dd35c653a0aa614b6f40eef6b614b2f0bfbabdbfc4f7b8d0",
+        "review": "885388d9554ad56a50c327eae24f7a8b5d664a2170bed6bad317cacac7ff745a"
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event.",
@@ -316,7 +316,7 @@
         "totalTokens": 93670,
         "filesOpened": 6,
         "repeatedReads": 2,
-        "toolCalls": 8,
+        "toolCalls": 7,
         "contextExpansions": 0,
         "latencyMs": 71922,
         "changedLines": 16,
@@ -337,10 +337,10 @@
         "review": "benchmarks/recorded-results/live/benchmark_1dwiafn/review.txt"
       },
       "artifactHashes": {
-        "events": null,
-        "diff": null,
-        "tests": null,
-        "review": null
+        "events": "b21b47e4b841a8e18ad4d82d3a3bd261f3b22dc199069b374b1157f9874bb417",
+        "diff": "1ab9f390f1e4528065bada6fddccdb706f776778c204513fdeec0d3dc1b71225",
+        "tests": "757836080830cf8cf5aeb8a83e113e8862fe4d3c2d8a5a83fa00ccc7eadc4416",
+        "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b"
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event.",
@@ -405,7 +405,7 @@
         "totalTokens": 115807,
         "filesOpened": 2,
         "repeatedReads": 0,
-        "toolCalls": 10,
+        "toolCalls": 9,
         "contextExpansions": 1,
         "latencyMs": 127116,
         "changedLines": 16,
@@ -426,10 +426,10 @@
         "review": "benchmarks/recorded-results/live/benchmark_1yh5ycw/review.txt"
       },
       "artifactHashes": {
-        "events": null,
-        "diff": null,
-        "tests": null,
-        "review": null
+        "events": "8ed57141766738908218df0e8c57b26029d9bed9f9ff3b28b50a4ce1ab407330",
+        "diff": "e3ac7d9b1d5adc532d602a319d88f3b5ec488f45e2b248b0dc94852ebd69e28b",
+        "tests": "7d3a82e341399da636d7cf94541623740f5d6c7edd24f26a2113adfde5cd24b2",
+        "review": "bbb45e1d242d8b9339226ce38da88914d389c01a86a4193b04a17815f7917ea2"
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event."
@@ -488,7 +488,7 @@
         "totalTokens": 110300,
         "filesOpened": 6,
         "repeatedReads": 2,
-        "toolCalls": 9,
+        "toolCalls": 8,
         "contextExpansions": 0,
         "latencyMs": 107059,
         "changedLines": 16,
@@ -509,10 +509,10 @@
         "review": "benchmarks/recorded-results/live/benchmark_c5vvsi/review.txt"
       },
       "artifactHashes": {
-        "events": null,
-        "diff": null,
-        "tests": null,
-        "review": null
+        "events": "46f2419d1820ee9b9ad5367cbb714f8bb305b9ccf89dfa0706f84e506bd4790a",
+        "diff": "e3ac7d9b1d5adc532d602a319d88f3b5ec488f45e2b248b0dc94852ebd69e28b",
+        "tests": "3927e08e9b16227556a5ba8ae130c3ddee93e111c57f8f5c4ed15f9571219532",
+        "review": "ba01b7875183e9dd1a3d7afc636b3d891c042e46a4c70d25519cd8aedceb356b"
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event.",
@@ -577,7 +577,7 @@
         "totalTokens": 134979,
         "filesOpened": 2,
         "repeatedReads": 0,
-        "toolCalls": 10,
+        "toolCalls": 9,
         "contextExpansions": 1,
         "latencyMs": 119785,
         "changedLines": 16,
@@ -588,7 +588,7 @@
       },
       "review": {
         "status": "unavailable",
-        "artifactHash": null,
+        "artifactHash": "b476b4bbd44a2ea62e0ebca748736b895ba02438b65bb908192a4f0f23bb4a1e",
         "summary": "Review timeout: {\"message\":\"Turn 019f7974-7369-7092-8ba5-96ad13283908 did not complete before timeout\"}"
       },
       "artifacts": {
@@ -598,10 +598,10 @@
         "review": "benchmarks/recorded-results/live/benchmark_jkyxs4/review.txt"
       },
       "artifactHashes": {
-        "events": null,
-        "diff": null,
-        "tests": null,
-        "review": null
+        "events": "97befa7f11ae67c2e435c2adbe27764f0cb98d2eecd9661fbfa7c980cb1d98f2",
+        "diff": "0c4cd66d69fc9010a2aebc90f4143b384117e4f023cd372a13d6cf9cda9e9729",
+        "tests": "ffa18b053509c9531880559bb277022cde985162ee9f642919a05bf1fa22124c",
+        "review": "b476b4bbd44a2ea62e0ebca748736b895ba02438b65bb908192a4f0f23bb4a1e"
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event."
@@ -660,7 +660,7 @@
         "totalTokens": 91587,
         "filesOpened": 6,
         "repeatedReads": 2,
-        "toolCalls": 7,
+        "toolCalls": 6,
         "contextExpansions": 0,
         "latencyMs": 77242,
         "changedLines": 16,
@@ -681,10 +681,10 @@
         "review": "benchmarks/recorded-results/live/benchmark_vqexyg/review.txt"
       },
       "artifactHashes": {
-        "events": null,
-        "diff": null,
-        "tests": null,
-        "review": null
+        "events": "ec972e7bdd61c119a75cd2bd7852ba1a68c549a0e64194083de1bd337ae49c39",
+        "diff": "0c4cd66d69fc9010a2aebc90f4143b384117e4f023cd372a13d6cf9cda9e9729",
+        "tests": "88daea9127c663f1edc9f51d7efdd6fc65aaf6b19501ccfe245252dfdd2bbf14",
+        "review": "2d158e24ddbc965de8a506104f16fea72bd57649cba1a1554ee6dbd4c5fccf89"
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event.",
@@ -702,8 +702,7 @@
         "passed": false,
         "mismatches": [
           "profile isolation unverified",
-          "profile evidence missing",
-          "artifact hashes unverified"
+          "profile evidence missing"
         ]
       },
       "outcomes": {
@@ -744,8 +743,8 @@
           "kerno": 0
         },
         "toolCalls": {
-          "baseline": 8,
-          "kerno": 9
+          "baseline": 7,
+          "kerno": 8
         },
         "contextExpansions": {
           "baseline": 0,

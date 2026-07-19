@@ -1,4 +1,4 @@
-import { chmod, mkdtemp, rm, stat, writeFile } from "node:fs/promises";
+import { chmod, link, mkdtemp, readFile, rm, stat, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -17,6 +17,7 @@ describe("storage migrations and integrity", () => {
     const store = new SqliteStateStore(join(root, "kerno.db"));
     try {
       expect((await stat(root)).mode & 0o777).toBe(0o700); expect((await stat(join(root, "kerno.db"))).mode & 0o777).toBe(0o600);
+      expect((await stat(join(root, "kerno.db-wal"))).mode & 0o777).toBe(0o600); expect((await stat(join(root, "kerno.db-shm"))).mode & 0o777).toBe(0o600);
       expect(store.health()).toEqual({ ok: true, backend: "sqlite", schemaVersion: 2, integrity: "ok" });
       const snapshot = await indexRepository(fixture); store.saveSnapshot(snapshot);
       const names = (store.db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as Array<{ name: string }>).map((row) => row.name);
@@ -33,5 +34,26 @@ describe("storage migrations and integrity", () => {
     const root = await mkdtemp(join(tmpdir(), "kerno-corrupt-")); cleanup.push(root); const path = join(root, "state.json");
     await writeFile(path, "{truncated", "utf8");
     expect(() => new JsonStateStore(path)).toThrow("portable storage is corrupt");
+  });
+  it("recursively redacts values at the persistence boundary", async () => {
+    const root = await mkdtemp(join(tmpdir(), "kerno-storage-redaction-")); cleanup.push(root);
+    const sqlitePath = join(root, "kerno.db"); const sqlite = new SqliteStateStore(sqlitePath);
+    try {
+      const syntheticApiKey = `${["OPENAI", "API", "KEY"].join("_")}=${["sk", "proj", "abcdefghijklmnopqrstuvwxyz"].join("-")}`;
+      sqlite.put("artifact", "artifact_secret", { id: "artifact_secret", nested: { accessToken: "plain-access-value", note: syntheticApiKey } });
+      expect(sqlite.get<any>("artifact", "artifact_secret")).toEqual({ id: "artifact_secret", nested: { accessToken: "[REDACTED_SECRET]", note: "[REDACTED_SECRET]" } });
+      expect((sqlite.db.prepare("SELECT json FROM entities WHERE kind = 'artifact' AND id = 'artifact_secret'").get() as { json: string }).json).not.toContain("plain-access-value");
+    } finally { sqlite.close(); }
+    const jsonPath = join(root, "state.json"); const portable = new JsonStateStore(jsonPath);
+    portable.put("artifact", "artifact_secret", { id: "artifact_secret", credential: "plain-credential-value" }); portable.put("run", "run_safe", { id: "run_safe" }); portable.close();
+    const persisted = await readFile(jsonPath, "utf8"); expect(persisted).not.toContain("plain-credential-value"); expect(persisted).toContain("[REDACTED_SECRET]");
+    expect((await stat(jsonPath)).mode & 0o777).toBe(0o600); expect((await stat(`${jsonPath}.bak`)).mode & 0o777).toBe(0o600);
+  });
+  it("rejects symlinked SQLite, portable state, and backup files", async () => {
+    const root = await mkdtemp(join(tmpdir(), "kerno-storage-links-")); cleanup.push(root); const outside = join(root, "outside"); await writeFile(outside, "{}");
+    const sqlitePath = join(root, "linked.db"); await symlink(outside, sqlitePath); expect(() => new SqliteStateStore(sqlitePath)).toThrow("symlinked Kerno state file");
+    const jsonPath = join(root, "linked.json"); await symlink(outside, jsonPath); expect(() => new JsonStateStore(jsonPath)).toThrow("symlinked Kerno state file");
+    const safeJsonPath = join(root, "safe.json"); await symlink(outside, `${safeJsonPath}.bak`); expect(() => new JsonStateStore(safeJsonPath)).toThrow("unsafe Kerno state backup");
+    const hardlinkedPath = join(root, "hardlinked.json"); await link(outside, hardlinkedPath); expect(() => new JsonStateStore(hardlinkedPath)).toThrow("non-owner-controlled path");
   });
 });

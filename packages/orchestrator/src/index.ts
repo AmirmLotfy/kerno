@@ -184,7 +184,10 @@ function sanitizeRuntimePayload(value: unknown, depth = 0): unknown {
   if (typeof value === "string") {
     const redacted = String(redactSensitiveValue(value));
     const home = process.env.HOME; const workspace = process.cwd();
-    const safe = redacted.replaceAll(workspace, "[WORKSPACE]").replaceAll(home ?? "\0", "[HOME]");
+    const safe = redacted.replaceAll(workspace, "[WORKSPACE]").replaceAll(home ?? "\0", "[HOME]")
+      .replace(/(?:file:\/\/)?\/?private\/var\/folders\/[^\s"']+\/T\/[^\s"']+/g, "[TEMP]")
+      .replace(/(?:file:\/\/)?\/var\/folders\/[^\s"']+\/T\/[^\s"']+/g, "[TEMP]")
+      .replace(/(?:file:\/\/)?\/tmp\/[^\s"']+/g, "[TEMP]");
     return safe.length > 16_000 ? `${safe.slice(0, 16_000)}…[truncated]` : safe;
   }
   if (Array.isArray(value)) return value.slice(0, 200).map((item) => sanitizeRuntimePayload(item, depth + 1));

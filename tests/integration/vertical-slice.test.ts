@@ -28,7 +28,7 @@ describe("first vertical slice", () => {
     catch (error: any) { output = `${error.stdout ?? ""}\n${error.stderr ?? error.message ?? ""}`; exitCode = typeof error.code === "number" ? error.code : 1; }
     expect(exitCode).not.toBe(0);
     const artifact = service.recordArtifact({ kind: "test", source: "command", output, exitCode, command: [process.execPath, "--test", "tests/refund.integration.test.ts"], trusted: true });
-    const child = service.expand({
+    const child = await service.expand({
       capsuleId: capsule.id,
       evidence: {
         kind: "test_failure",
@@ -40,6 +40,6 @@ describe("first vertical slice", () => {
     expect(child.parentCapsuleId).toBe(capsule.id);
     expect(child.items.map((item) => item.locator.path)).toContain("src/transactions/transaction-boundary.ts");
     expect(child.estimatedTokens).toBeLessThanOrEqual(1250);
-    expect(() => service.expand({ capsuleId: capsule.id, evidence: { kind: "test_failure", artifactId: "artifact_unknown", text: "TransactionBoundary" } })).toThrow("Unknown evidence artifact");
+    await expect(service.expand({ capsuleId: capsule.id, evidence: { kind: "test_failure", artifactId: "artifact_unknown", text: "TransactionBoundary" } })).rejects.toThrow("Unknown evidence artifact");
   });
 });

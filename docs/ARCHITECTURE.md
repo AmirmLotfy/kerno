@@ -15,7 +15,7 @@ MCP STDIO ───┘       │                   └─ append-only normalized
                      └─ route policy/catalog snapshots
 
 App Server STDIO <─ orchestrator ─> implementation/debug/review threads
-dashboard <──────── loopback HTTP/SSE or sanitized immutable replay
+dashboard <──────── loopback HTTP/SSE or sanitized generated replay
 ```
 
 ## Package ownership
