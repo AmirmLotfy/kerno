@@ -79,6 +79,8 @@ npm run judge:live
 
 This calls live `model/list`, requests only supported effort values, consumes real capacity, and writes sanitized evidence. “Requested” is not presented as “Effective” without a runtime event. Authentication, capacity, or App Server unavailability produces an actionable failure and leaves replay available.
 
+Final validation discovered four catalog entries and reached an accepted `gpt-5.6-sol`/`low` request, but the turn failed with `usageLimitExceeded`. This is retained as a real failed run; live mode is not currently considered ready on the validated account.
+
 ## Troubleshooting
 
 - Unsupported Node/native SQLite error: use Node 22.13+ or 24 LTS and rerun `npm install`.
@@ -102,7 +104,7 @@ node packages/cli/dist/main.cjs data-delete --root . --data .kerno --yes
 
 ## Clean-room record
 
-**Passed on July 19, 2026** from local commit `1b6955edc68b6092900cb3651c191a907764683c` in a fresh, non-hardlinked macOS clone on Node 22.13.1. The clone ran:
+**Passed on July 19, 2026** from commit `ccf0ce318c28631b8da0bb22f2aabafa3b3d0756` in a fresh, non-hardlinked macOS clone on Node 22.13.1. The clone ran:
 
 ```bash
 npm ci
@@ -112,8 +114,13 @@ npm test
 npm run build
 npm run audit:secrets
 npm run audit:licenses
+npm run audit:links
 npm audit --audit-level=high
 npm run test:e2e
+npm run test:a11y
+npm run package:plugin
+npm run plugin:smoke
+npm run demo:preflight
 ```
 
-Result: dependency install succeeded; doctor/storage/plugin bundle passed; judge replay built; 16 Vitest files/33 tests passed; all workspaces and dashboard built; secret scan passed; 320 installed packages passed the license policy; npm reported zero vulnerabilities; 2 Playwright desktop/mobile tests passed. Linux remains CI-configured but not locally exercised in this report.
+Result: dependency install succeeded; doctor/storage/plugin bundle passed; judge replay built; 17 Vitest files/44 tests passed; all workspaces and dashboard built; secret, brand, contrast, local-link, license, and dependency audits passed; npm reported zero vulnerabilities; four Playwright product/responsive tests and two focused accessibility tests passed; 13-tool MCP smoke passed; redacted export and guarded deletion passed. Linux remains CI-configured but not locally exercised in this report.
