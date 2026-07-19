@@ -17,7 +17,10 @@ type ToolSpec = {
 };
 
 export const KERNO_TOOL_SPECS: ToolSpec[] = [
-  { name: "kerno_index_repository", title: "Index repository", description: "Safely enroll or incrementally index a local repository. Reads source and writes only Kerno local state.", schema: indexRepositoryInputSchema, readOnly: false, run: (service, input) => service.index(input) },
+  { name: "kerno_index_repository", title: "Index repository", description: "Safely enroll or incrementally index a local repository. Reads source and writes only Kerno local state. Returns counts and identity, never repository excerpts.", schema: indexRepositoryInputSchema, readOnly: false, run: async (service, input) => {
+    const snapshot = await service.index(input);
+    return { snapshotId: snapshot.id, repository: snapshot.repository, worktree: snapshot.worktree, stats: snapshot.stats, warnings: snapshot.files.some((file) => file.secretRedacted) ? ["Secret-like values were redacted"] : [] };
+  } },
   { name: "kerno_repository_status", title: "Repository status", description: "Report branch, commit, dirty state, index freshness, and counts.", schema: repositoryStatusInputSchema, readOnly: true, run: (service, input) => service.status(input) },
   { name: "kerno_analyze_task", title: "Analyze task", description: "Classify a task and derive deterministic complexity, blast-radius, uncertainty, and risk signals.", schema: analyzeTaskInputSchema, readOnly: false, run: (service, input) => service.analyze(input) },
   { name: "kerno_build_context_capsule", title: "Build context capsule", description: "Build a bounded, task-conditioned capsule with provenance and score explanations.", schema: buildCapsuleInputSchema, readOnly: false, run: (service, input) => service.buildCapsule(input) },
@@ -27,7 +30,7 @@ export const KERNO_TOOL_SPECS: ToolSpec[] = [
   { name: "kerno_record_decision", title: "Record evidence-backed decision", description: "Record a local memory. Agent prose remains a candidate unless test evidence or explicit user confirmation verifies it.", schema: recordDecisionInputSchema, readOnly: false, run: (service, input) => service.recordDecision(input) },
   { name: "kerno_record_outcome", title: "Record outcome", description: "Record a run outcome only when linked test/review artifacts support the claimed state.", schema: recordOutcomeInputSchema, readOnly: false, run: (service, input) => service.recordOutcome(input) },
   { name: "kerno_invalidate_context", title: "Invalidate context", description: "Preview invalidation by default. Applying invalidation changes only Kerno local state and requires an explicit non-dry-run call.", schema: invalidateContextInputSchema, readOnly: false, destructive: true, run: (service, input) => service.invalidate(input) },
-  { name: "kerno_route_task", title: "Recommend route", description: "Choose a model and reasoning effort from the supplied live catalog. This recommendation does not switch a Plugin Mode parent task.", schema: routeTaskInputSchema, readOnly: false, run: (service, input) => service.route(input) },
+  { name: "kerno_route_task", title: "Recommend route", description: "Choose a model and reasoning effort from a catalog previously captured from App Server model/list. Caller-invented catalogs are rejected. This recommendation does not switch a Plugin Mode parent task.", schema: routeTaskInputSchema, readOnly: false, run: (service, input) => service.route(input) },
   { name: "kerno_compare_runs", title: "Compare runs", description: "Compare immutable baseline and Kerno runs after enforcing fairness fields; unavailable metrics remain null.", schema: compareRunsInputSchema, readOnly: false, run: (service, input) => service.compare(input) }
 ];
 

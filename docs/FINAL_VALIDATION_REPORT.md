@@ -13,17 +13,18 @@ Required final entries:
 - Separate fresh macOS clone: pending release URL.
 - Linux clean clone: pending.
 - TypeScript typecheck and ESLint: passed.
-- Vitest: 10 files, 19 tests passed.
+- Vitest: 14 files, 29 tests passed.
 - Playwright dashboard E2E: 1 test passed.
-- Plugin validator: passed for `0.1.0+codex.20260719022604`.
+- Plugin validator: passed for `0.1.0+codex.20260719074757`; `kerno@personal` is installed and enabled from the repository marketplace.
 - Bundled MCP smoke: 12 tools exposed and fixture indexed through the portable persistent store.
-- Plugin archive SHA-256: `173558c2a102d57b55afc618c6ff3c3a0ecc3614f3f10500fa224cc822981837`.
-- Canonical replay file SHA-256: `f7700b04e318e02c676ffa83ee1973976c598e42a866afc1be68d734d28d2803`.
-- Canonical replay internal artifact hash: `35dffd4f98bccaaa3a3c8a7756b2820923f8302791255df464d6eee0e8735ab3`.
-- Plugin screenshot SHA-256: `5a507f815c1785d505cb2aeec76a65c2e59a2b109ca0c8192b6355a6bcd1dacc`.
-- Canonical proof: branch `main` at fixture commit `63a9eb695127797e707dbcd0bcc8fadab262fb2b`; 4 initial items / 623 estimated tokens; failing test; transaction-only child capsule; passing test; original capsule stale after handler change.
-- Live App Server artifact: `benchmarks/recorded-results/app-server-live-smoke.json` proves live catalog discovery and an accepted `gpt-5.6-sol` request. Model execution failed with the observed `usageLimitExceeded` / out-of-credits error; no successful model outcome, token usage, or effective model is claimed.
-- Live artifact SHA-256: `cb9bf17ac7fa2ba5fe28e22ccbdfc13691255219cee4253101ea1a8bcf4189d4`.
+- Plugin archive SHA-256: `16ec46f773df518c6ffa2c4367c1542fb2b992e8afc2873496c51e120e8cb69a`.
+- Canonical replay file SHA-256: `4c73af4275f2972d27d810143aeb968d47c2880bd9c9fdbabe86b552c16ea7f9`.
+- Canonical replay internal artifact hash: `b722f8a59aea8dfa12a5346f07692533a7b43ab7b12652d9ad766a054cc0f466`.
+- Plugin screenshot SHA-256: `222c1413d0619f2a0176118f49f8f4ad1fc738d351f65b65549e993dc185abf0`.
+- Canonical proof: branch `main`; 5 initial items / 917 estimated tokens; genuine failing concurrency/restart tests; one 501-token transaction-boundary child item; 3 pinned assertions pass after the solution; original capsule becomes stale after the handler hash changes.
+- Live App Server artifact: `benchmarks/recorded-results/app-server-live-smoke.json` proves live catalog discovery and a completed read-only `gpt-5.6-sol` exploration turn with tool and token-usage events. The model remains `requested-unconfirmed` because no effective-model or reroute event was emitted.
+- Live artifact SHA-256: `9b8944c47f92feb36992d498728a4b3a0a1b8860fd7f44d8b4d1318cc4b050c3`.
+- A disposable writable live implementation benchmark reached an accepted turn but exceeded the configured five-minute completion timeout before independent review; no successful live implementation/review artifact is claimed.
 - Full local type/lint/unit/integration/contract/security/E2E/package/judge gate: passed.
 - Repository/video URLs and signed-out verification: pending.
 - Primary `/feedback` Session ID: pending.

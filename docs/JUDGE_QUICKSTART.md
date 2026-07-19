@@ -12,7 +12,7 @@ Open `http://127.0.0.1:4173`. Inspect the capsule, select an item for “Why inc
 
 ## Plugin
 
-Add this repository’s `.agents/plugins/marketplace.json` as a local marketplace in Codex desktop or CLI, install Kerno, review/trust `plugins/kerno/hooks/hooks.json`, refresh Codex, and begin a new task. The plugin bundle expects `plugins/kerno/dist/kerno-mcp.cjs`; `npm run package:plugin` creates it. If cache-relative execution is unavailable, run `npm run setup:judge` and use the generated absolute-path fallback.
+Add this repository’s `.agents/plugins/marketplace.json` as a local marketplace in Codex desktop or CLI, install Kerno, refresh Codex, and begin a new task. The plugin bundle expects `plugins/kerno/dist/kerno-mcp.cjs`; `npm run package:plugin` creates it. The skill/MCP path does not require hooks. `plugins/kerno/hooks/hooks.json` is an optional, reviewable advisory configuration because current plugin validation rejects an explicit manifest `hooks` field. If cache-relative execution is unavailable, run `npm run setup:judge` and use the generated absolute-path fallback.
 
 Plugin Mode can build capsules and recommend `/model` and `/reasoning` choices. It cannot silently switch the parent task model.
 

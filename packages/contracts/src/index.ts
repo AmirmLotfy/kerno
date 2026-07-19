@@ -16,6 +16,19 @@ export const evidenceRefSchema = z.object({
 }).strict();
 export type EvidenceRef = z.infer<typeof evidenceRefSchema>;
 
+export const evidenceArtifactSchema = z.object({
+  id: idSchema,
+  kind: z.enum(["test", "runtime", "review"]),
+  source: z.enum(["command", "app-server", "hook", "user-confirmed"]),
+  contentHash: z.string().length(64),
+  createdAt: isoDateSchema,
+  exitCode: z.number().int().nullable().optional(),
+  command: z.array(z.string().max(4096)).max(64).optional(),
+  redactedOutput: z.string().max(64_000),
+  verified: z.literal(true)
+}).strict();
+export type EvidenceArtifact = z.infer<typeof evidenceArtifactSchema>;
+
 export const invalidationKeySchema = z.object({
   kind: z.enum(["repository", "worktree", "branch", "commit", "file", "symbol-signature", "symbol-body", "graph", "config", "test-artifact", "engine", "manual"]),
   key: z.string().min(1).max(4096),
@@ -60,7 +73,7 @@ export type SymbolRecord = z.infer<typeof symbolSchema>;
 export const graphEdgeSchema = z.object({
   from: z.string().min(1),
   to: z.string().min(1),
-  type: z.enum(["imports", "calls", "tests", "defines", "configures"]),
+  type: z.enum(["imports", "exports", "calls", "tests", "defines", "configures"]),
   confidence: z.number().min(0).max(1)
 }).strict();
 export type GraphEdge = z.infer<typeof graphEdgeSchema>;
@@ -77,6 +90,8 @@ export const fileSnapshotSchema = z.object({
   excerpt: z.string(),
   symbols: z.array(symbolSchema),
   imports: z.array(z.string()),
+  exports: z.array(z.string()),
+  calls: z.array(z.string()),
   isTest: z.boolean(),
   secretRedacted: z.boolean()
 }).strict();
@@ -216,17 +231,29 @@ export const toolResultSchema = <T extends z.ZodTypeAny>(data: T) => z.object({
 }).strict();
 
 export const indexRepositoryInputSchema = z.object({ root: z.string().min(1).max(4096), mode: z.enum(["incremental", "full"]).default("incremental"), languages: z.array(z.string()).optional() }).strict();
-export const repositoryStatusInputSchema = z.object({ repositoryId: idSchema }).strict();
-export const analyzeTaskInputSchema = z.object({ repositoryId: idSchema, taskText: z.string().min(1).max(64_000) }).strict();
+export const repositoryStatusInputSchema = z.object({ repositoryId: idSchema, worktreeId: idSchema.optional() }).strict();
+export const analyzeTaskInputSchema = z.object({ repositoryId: idSchema, worktreeId: idSchema.optional(), taskText: z.string().min(1).max(64_000) }).strict();
 export const buildCapsuleInputSchema = z.object({ taskAnalysisId: idSchema, phase: taskPhaseSchema.optional(), budgetTokens: z.number().int().min(128).max(64_000).optional() }).strict();
-export const expansionEvidenceSchema = z.object({ kind: z.enum(["test_failure", "runtime", "unresolved_dependency", "review"]), artifactId: idSchema.optional(), text: z.string().min(1).max(64_000), paths: z.array(relativePathSchema).optional(), symbols: z.array(z.string()).optional(), verified: z.boolean().default(false) }).strict();
+export const expansionEvidenceSchema = z.object({ kind: z.enum(["test_failure", "runtime", "unresolved_dependency", "review"]), artifactId: idSchema, text: z.string().min(1).max(64_000), paths: z.array(relativePathSchema).max(64).optional(), symbols: z.array(z.string().max(512)).max(64).optional() }).strict();
 export const expandContextInputSchema = z.object({ capsuleId: idSchema, evidence: expansionEvidenceSchema, additionalBudgetTokens: z.number().int().min(128).max(3000).optional() }).strict();
 export const explainContextInputSchema = z.object({ capsuleId: idSchema, itemIds: z.array(idSchema).optional() }).strict();
 export const impactAnalysisInputSchema = z.object({ repositoryId: idSchema, targets: z.array(z.object({ path: relativePathSchema.optional(), symbol: z.string().optional() }).strict()).min(1), depth: z.number().int().min(1).max(4).default(2) }).strict();
-export const recordDecisionInputSchema = z.object({ repositoryId: idSchema, type: durableMemorySchema.shape.type, summary: durableMemorySchema.shape.summary, scope: z.enum(["repository", "branch", "worktree"]), evidence: z.array(evidenceRefSchema), invalidationConditions: z.array(invalidationKeySchema), userConfirmed: z.boolean().optional() }).strict();
-export const recordOutcomeInputSchema = z.object({ runId: idSchema, status: z.enum(["passed", "failed", "partial"]), tests: z.array(evidenceRefSchema), review: z.array(evidenceRefSchema), changedFiles: z.array(relativePathSchema) }).strict();
+export const recordDecisionInputSchema = z.object({
+  repositoryId: idSchema,
+  type: durableMemorySchema.shape.type,
+  summary: durableMemorySchema.shape.summary,
+  scope: z.enum(["repository", "branch", "worktree"]),
+  evidence: z.array(evidenceRefSchema).max(256),
+  invalidationConditions: z.array(invalidationKeySchema).max(256),
+  userConfirmed: z.boolean().optional(),
+  supersedes: z.array(idSchema).max(64).optional()
+}).strict();
+export const recordOutcomeInputSchema = z.object({
+  runId: idSchema, status: z.enum(["passed", "failed", "partial"]), tests: z.array(evidenceRefSchema).max(256), review: z.array(evidenceRefSchema).max(256), changedFiles: z.array(relativePathSchema).max(4096),
+  artifacts: z.array(z.object({ kind: z.enum(["test", "runtime", "review"]), source: z.enum(["command", "app-server", "hook", "user-confirmed"]), output: z.string().max(64_000), exitCode: z.number().int().nullable().optional(), command: z.array(z.string().max(4096)).max(64).optional() }).strict()).max(32).optional()
+}).strict();
 export const invalidateContextInputSchema = z.object({ repositoryId: idSchema, trigger: z.object({ kind: z.enum(["branch_change", "file_change", "symbol_change", "manual"]), key: z.string().optional() }).strict(), memoryIds: z.array(idSchema).optional(), dryRun: z.boolean().default(true) }).strict();
-export const routeTaskInputSchema = z.object({ taskAnalysisId: idSchema, phase: taskPhaseSchema, catalogSnapshotId: idSchema, models: z.array(catalogModelSchema).min(1), preferences: z.object({ latency: z.enum(["fast", "balanced", "depth"]).optional(), efficiencyModel: z.string().optional(), depthModel: z.string().optional() }).strict().optional() }).strict();
+export const routeTaskInputSchema = z.object({ taskAnalysisId: idSchema, phase: taskPhaseSchema, catalogSnapshotId: idSchema, preferences: z.object({ latency: z.enum(["fast", "balanced", "depth"]).optional(), efficiencyModel: z.string().optional(), depthModel: z.string().optional() }).strict().optional() }).strict();
 export const compareRunsInputSchema = z.object({ baselineRunId: idSchema, kernoRunId: idSchema }).strict();
 
 export type KernoErrorCode = "INVALID_INPUT" | "OUTSIDE_REPOSITORY" | "SYMLINK_ESCAPE" | "REPOSITORY_NOT_ENROLLED" | "INDEX_BUSY" | "STALE_SNAPSHOT" | "UNKNOWN_ID" | "BUDGET_EXCEEDED" | "NO_COMPATIBLE_MODEL" | "UNVERIFIED_EVIDENCE" | "FAIRNESS_MISMATCH" | "INTERNAL_ERROR";

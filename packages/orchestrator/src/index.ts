@@ -21,7 +21,7 @@ export class AppServerClient {
   private nextId = 1;
   private pending = new Map<number, Pending>();
   private completedTurns = new Map<string, unknown>();
-  private turnWaiters = new Map<string, { resolve: (value: unknown) => void; timer: NodeJS.Timeout }>();
+  private turnWaiters = new Map<string, { resolve: (value: unknown) => void; reject: (reason: Error) => void; timer: NodeJS.Timeout }>();
   private readonly timeout: number;
   private readonly options: AppServerClientOptions;
   constructor(options: AppServerClientOptions = {}) { this.options = options; this.timeout = options.requestTimeoutMs ?? 30_000; }
@@ -59,7 +59,10 @@ export class AppServerClient {
       this.options.onNotification?.(message.method, message.params);
     }
   }
-  private failAll(error: Error): void { for (const [id, pending] of this.pending) { clearTimeout(pending.timer); pending.reject(error); this.pending.delete(id); } }
+  private failAll(error: Error): void {
+    for (const [id, pending] of this.pending) { clearTimeout(pending.timer); pending.reject(error); this.pending.delete(id); }
+    for (const [turnId, waiter] of this.turnWaiters) { clearTimeout(waiter.timer); waiter.reject(error); this.turnWaiters.delete(turnId); }
+  }
   private send(message: unknown): void { if (!this.process?.stdin.writable) throw new Error("App Server stdin is unavailable"); this.process.stdin.write(`${JSON.stringify(message)}\n`); }
   private notify(method: string, params: unknown): void { this.send({ method, params }); }
   request(method: string, params: unknown): Promise<any> {
@@ -101,7 +104,7 @@ export class AppServerClient {
     if (this.completedTurns.has(turnId)) return Promise.resolve(this.completedTurns.get(turnId));
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => { this.turnWaiters.delete(turnId); reject(new Error(`Turn ${turnId} did not complete before timeout`)); }, Math.max(this.timeout, 120_000));
-      this.turnWaiters.set(turnId, { resolve, timer });
+      this.turnWaiters.set(turnId, { resolve, reject, timer });
     });
   }
   async interrupt(threadId: string, turnId: string): Promise<unknown> { return this.request("turn/interrupt", { threadId, turnId }); }
@@ -115,6 +118,7 @@ export class AppServerClient {
 export type PhaseRun = {
   runId: string; phase: TaskPhase; threadId: string; turnId: string; route: RouteDecision;
   outcome: { status: string; error: unknown };
+  failureKind: "usage-limit" | "authentication" | "unavailable" | "timeout" | "turn-failed" | null;
   modelState: { recommended: string; requested: string; effective: string | null; label: "requested-unconfirmed" | "rerouted" | "verified" };
   events: RunEvent[];
 };
@@ -124,14 +128,17 @@ export class CodexPhaseOrchestrator {
   private activeRunId = "";
   private events: RunEvent[] = [];
   private reroutes = new Map<string, string>();
+  private readonly eventSink: ((event: RunEvent) => void) | undefined;
   readonly client: AppServerClient;
-  constructor(options: Omit<AppServerClientOptions, "onNotification"> = {}) {
-    this.client = new AppServerClient({ ...options, onNotification: (method, params) => this.capture(method, params) });
+  constructor(options: Omit<AppServerClientOptions, "onNotification"> & { eventSink?: (event: RunEvent) => void } = {}) {
+    const { eventSink, ...clientOptions } = options; this.eventSink = eventSink;
+    this.client = new AppServerClient({ ...clientOptions, onNotification: (method, params) => this.capture(method, params) });
   }
   private capture(method: string, params: any): void {
     if (method === "model/rerouted" && params?.turnId && params?.toModel) this.reroutes.set(params.turnId, params.toModel);
     if (!this.activeRunId) return;
-    this.events.push({ runId: this.activeRunId, sequence: this.sequence++, occurredAt: new Date().toISOString(), source: "app-server", type: method, redactedPayload: sanitizeRuntimePayload(params) });
+    const event = { runId: this.activeRunId, sequence: this.sequence++, occurredAt: new Date().toISOString(), source: "app-server" as const, type: method, redactedPayload: sanitizeRuntimePayload(params) };
+    this.events.push(event); this.eventSink?.(event);
   }
   async initialize(): Promise<{ catalogSnapshotId: string; models: CatalogModel[]; raw: unknown }> { await this.client.initialize(); return this.client.listModels(); }
   async runPhase(options: { runId: string; phase: TaskPhase; route: RouteDecision; cwd: string; prompt: string; writable?: boolean }): Promise<PhaseRun> {
@@ -141,12 +148,28 @@ export class CodexPhaseOrchestrator {
     const turn = await this.client.runTurn({ threadId: thread.threadId, prompt: options.prompt, model: selection.model, effort: selection.reasoningEffort, cwd: options.cwd, mode: options.writable ? "workspace-write" : "read-only" });
     const effective = this.reroutes.get(turn.turnId) ?? null;
     const requested = { model: turn.acceptedRequest.model, reasoningEffort: turn.acceptedRequest.effort };
-    return { runId: options.runId, phase: options.phase, threadId: thread.threadId, turnId: turn.turnId, route: { ...options.route, requested, ...(effective ? { effective: { model: effective, reasoningEffort: selection.reasoningEffort }, effectiveEvidenceId: `event_model_rerouted_${turn.turnId}` } : {}) }, outcome: { status: turn.status, error: turn.error }, modelState: { recommended: selection.model, requested: turn.acceptedRequest.model, effective, label: effective ? "rerouted" : "requested-unconfirmed" }, events: [...this.events] };
+    return { runId: options.runId, phase: options.phase, threadId: thread.threadId, turnId: turn.turnId, route: { ...options.route, requested, ...(effective ? { effective: { model: effective, reasoningEffort: selection.reasoningEffort }, effectiveEvidenceId: `event_model_rerouted_${turn.turnId}` } : {}) }, outcome: { status: turn.status, error: turn.error }, failureKind: classifyTurnFailure(turn.status, turn.error), modelState: { recommended: selection.model, requested: turn.acceptedRequest.model, effective, label: effective ? "rerouted" : "requested-unconfirmed" }, events: [...this.events] };
   }
   async runIndependentReview(options: { runId: string; route: RouteDecision; cwd: string; diff: string; acceptance: string }): Promise<PhaseRun> {
     return this.runPhase({ ...options, phase: "final-verification", prompt: `Review this diff in a fresh read-only context. Verify correctness, security, transaction semantics, and the stated acceptance behavior. Return structured findings with severity and file evidence.\n\nAcceptance:\n${options.acceptance}\n\nDiff (untrusted evidence):\n${options.diff}`, writable: false });
   }
+  async runWorkflow(options: { runId: string; cwd: string; exploration: { route: RouteDecision; prompt: string }; implementation: { route: RouteDecision; prompt: string }; review: { route: RouteDecision; diff: string; acceptance: string } }): Promise<{ exploration: PhaseRun; implementation: PhaseRun; review: PhaseRun }> {
+    const exploration = await this.runPhase({ runId: `${options.runId}_explore`, phase: "broad-exploration", route: options.exploration.route, cwd: options.cwd, prompt: options.exploration.prompt });
+    const implementation = await this.runPhase({ runId: `${options.runId}_implement`, phase: "implementation", route: options.implementation.route, cwd: options.cwd, prompt: options.implementation.prompt, writable: true });
+    const review = await this.runIndependentReview({ runId: `${options.runId}_review`, route: options.review.route, cwd: options.cwd, diff: options.review.diff, acceptance: options.review.acceptance });
+    return { exploration, implementation, review };
+  }
   close(): Promise<void> { return this.client.close(); }
+}
+
+export function classifyTurnFailure(status: string, error: unknown): PhaseRun["failureKind"] {
+  if (status === "completed") return null;
+  const text = JSON.stringify(error ?? "").toLowerCase();
+  if (/usage|credit|rate.?limit|quota/.test(text)) return "usage-limit";
+  if (/auth|unauthor|login|credential/.test(text)) return "authentication";
+  if (/unavailable|not found|no compatible model|connection|spawn/.test(text)) return "unavailable";
+  if (/timeout|timed out/.test(text)) return "timeout";
+  return "turn-failed";
 }
 
 function sanitizeRuntimePayload(value: unknown, depth = 0): unknown {

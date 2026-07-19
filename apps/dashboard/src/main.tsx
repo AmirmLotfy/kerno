@@ -25,7 +25,7 @@ function App() {
       <section className="task-hero">
         <div><p className="eyebrow">Run 01 / debugging / high transaction risk</p><h1>Exactly-once refunds,<br/><em>proved from evidence.</em></h1></div>
         <p className="task-copy">{task.taskText}</p>
-        <div className="outcome"><span>Outcome</span><strong>{data.tests.after.passed ? "Verified" : "Failed"}</strong><small>Target test {data.tests.after.passed ? "passes" : "fails"}; {data.review.findings.length} reviewer findings</small></div>
+        <div className="outcome"><span>Outcome</span><strong>{data.tests.after.passed ? "Test passed" : "Failed"}</strong><small>Independent review {data.review.passed === null ? "not observed" : data.review.passed ? "passed" : "failed"}</small></div>
       </section>
       <section className="run-grid">
         <div className="capsule-panel panel">

@@ -48,14 +48,20 @@ function termRelevance(task: TaskAnalysis, file: FileSnapshot): number {
   const symbolMatches = task.symbols.filter((symbol) => pathAndSymbols.includes(symbol.toLowerCase())).length;
   return clamp(Math.max(exact, (matches / Math.max(5, task.terms.length)) * 2.2 + symbolMatches * 0.25));
 }
-function graphDistances(snapshot: IndexSnapshot, seeds: Set<string>): Map<string, number> {
+function graphDistances(snapshot: IndexSnapshot, seeds: Set<string>, maxDepth: number): Map<string, number> {
+  const symbolPath = new Map(snapshot.files.flatMap((file) => file.symbols.map((symbol) => [symbol.id, file.path] as const)));
+  const asPath = (locator: string) => snapshot.files.some((file) => file.path === locator) ? locator : symbolPath.get(locator);
   const result = new Map<string, number>();
   const queue = [...seeds].map((path) => ({ path, distance: 0 }));
   while (queue.length) {
     const next = queue.shift()!;
-    if (result.has(next.path) || next.distance > 3) continue;
+    if (result.has(next.path) || next.distance > maxDepth) continue;
     result.set(next.path, next.distance);
-    for (const edge of snapshot.edges) if (edge.from === next.path && snapshot.files.some((file) => file.path === edge.to)) queue.push({ path: edge.to, distance: next.distance + 1 });
+    for (const edge of snapshot.edges) {
+      const from = asPath(edge.from); const to = asPath(edge.to);
+      if (from === next.path && to) queue.push({ path: to, distance: next.distance + 1 });
+      if (to === next.path && from) queue.push({ path: from, distance: next.distance + 1 });
+    }
   }
   return result;
 }
@@ -78,7 +84,7 @@ function candidateFor(task: TaskAnalysis, snapshot: IndexSnapshot, file: FileSna
   const freshness = 1;
   const confidence = file.confidence;
   const risk = riskImportance(task, file);
-  const testEvidence = file.isTest ? 0.9 : snapshot.edges.some((edge) => edge.type === "tests" && edge.to === file.path) ? 0.75 : 0;
+  const testEvidence = file.isTest && distance !== undefined ? 0.9 : snapshot.edges.some((edge) => edge.type === "tests" && edge.to === file.path && distance !== undefined) ? 0.75 : 0;
   const priorUsefulness = 0.5;
   const estimatedTokens = Math.min(file.tokenEstimate, Math.ceil(file.excerpt.length / 4));
   const benefit = 0.30 * taskRelevance + 0.15 * graphProximity + 0.10 * freshness + 0.10 * confidence + 0.12 * risk + 0.12 * testEvidence + 0.11 * priorUsefulness;
@@ -108,11 +114,14 @@ export function buildContextCapsule(task: TaskAnalysis, snapshot: IndexSnapshot,
   const augmented: TaskAnalysis = options.extraTerms?.length ? { ...task, terms: [...new Set([...task.terms, ...options.extraTerms.flatMap(tokenize)])] } : task;
   const isEvidenceGatedContract = (file: FileSnapshot) => !options.triggerEvidence && /(^|\/)(transactions?|architecture)\//i.test(file.path) && !task.terms.includes("transaction") && !task.explicitPaths.includes(file.path);
   const direct = new Set(snapshot.files.filter((file) => !isEvidenceGatedContract(file) && (termRelevance(augmented, file) >= 0.3 || task.explicitPaths.includes(file.path))).map((file) => file.path));
-  const distances = graphDistances(snapshot, direct);
+  const distances = graphDistances(snapshot, direct, options.triggerEvidence ? 3 : 1);
   const candidates = snapshot.files.map((file) => {
     const candidate = candidateFor(augmented, snapshot, file, distances.get(file.path), budget);
     return isEvidenceGatedContract(file) ? { ...candidate, eligible: false } : candidate;
-  }).sort((a, b) => b.item.score - a.item.score || a.file.path.localeCompare(b.file.path));
+  }).sort((a, b) => {
+    const triggerMatch = (candidate: Candidate) => options.triggerEvidence && ((options.triggerEvidence.path && candidate.file.path === options.triggerEvidence.path) || (options.triggerEvidence.symbol && candidate.file.symbols.some((symbol) => symbol.name.toLowerCase() === options.triggerEvidence!.symbol!.toLowerCase())));
+    return Number(Boolean(triggerMatch(b))) - Number(Boolean(triggerMatch(a))) || b.item.score - a.item.score || a.file.path.localeCompare(b.file.path);
+  });
   const items: CapsuleItem[] = [];
   const excluded: ContextCapsule["excluded"] = [];
   let used = 0;
@@ -158,7 +167,7 @@ export function explainCapsule(capsule: ContextCapsule, itemIds?: string[]): Arr
 export function createMemory(input: {
   repositoryId: string; worktreeId?: string; branch: string | null; headCommit: string | null;
   type: DurableMemory["type"]; summary: string; evidence: EvidenceRef[]; invalidationConditions: DurableMemory["invalidationConditions"];
-  creationSource: DurableMemory["creationSource"]; userConfirmed?: boolean;
+  creationSource: DurableMemory["creationSource"]; userConfirmed?: boolean; supersedes?: string[];
 }): DurableMemory {
   const verifiedByTest = input.creationSource === "test" && input.evidence.some((evidence) => evidence.kind === "test" && evidence.artifactId);
   const userVerified = input.creationSource === "user" && input.userConfirmed === true;
@@ -169,7 +178,8 @@ export function createMemory(input: {
     ...(input.worktreeId ? { worktreeId: input.worktreeId } : {}), branch: input.branch, headCommit: input.headCommit,
     type: input.type, summary: input.summary, evidence: input.evidence, creationSource: input.creationSource,
     confidence: status === "verified" ? 0.9 : 0.5, lastVerifiedAt: status === "verified" ? now : null,
-    invalidationConditions: input.invalidationConditions, status
+    invalidationConditions: input.invalidationConditions, status,
+    ...(input.supersedes?.length ? { supersedes: input.supersedes } : {})
   };
 }
 

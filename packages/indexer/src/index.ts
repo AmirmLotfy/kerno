@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
+import { constants } from "node:fs";
 import { execFile as execFileCallback } from "node:child_process";
-import { lstat, readFile, realpath, readdir } from "node:fs/promises";
+import { lstat, open, readFile, realpath, readdir } from "node:fs/promises";
 import { extname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { promisify } from "node:util";
 import ignore from "ignore";
@@ -15,8 +16,12 @@ const ENGINE_VERSION = "0.1.0";
 const ALWAYS_IGNORE = [".git/", ".kerno/", ".kerno-cache/", "node_modules/", "dist/", "coverage/", "build/", ".next/", "__pycache__/", "*.min.js", "*.map"];
 const SECRET_PATTERNS = [
   /(api[_-]?key|secret|token|password)\s*[:=]\s*["'][^"']{8,}["']/gi,
+  /\b(OPENAI_API_KEY|ANTHROPIC_API_KEY|AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|GITHUB_TOKEN|NPM_TOKEN|DATABASE_URL)\s*[:=]\s*["']?[^\s"',}]{8,}["']?/gi,
+  /\bAuthorization\s*:\s*Bearer\s+[A-Za-z0-9._~+/=-]{12,}/gi,
+  /\bAKIA[0-9A-Z]{16}\b/g,
+  /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g,
   /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g,
-  /\b(?:sk|ghp|github_pat)_[A-Za-z0-9_-]{16,}\b/g
+  /\b(?:sk(?:-proj)?|ghp|github_pat)[_-][A-Za-z0-9_-]{16,}\b/g
 ];
 
 export type PreviousFile = Pick<FileSnapshot, "path" | "contentHash"> & { snapshot: FileSnapshot };
@@ -115,17 +120,20 @@ export async function inspectRepository(inputRoot: string): Promise<{ repository
 function nodeLines(source: ts.SourceFile, node: ts.Node): [number, number] {
   return [source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1, source.getLineAndCharacterOfPosition(node.getEnd()).line + 1];
 }
-function parseTs(path: string, content: string, language: "typescript" | "javascript"): { symbols: SymbolRecord[]; imports: string[] } {
+function parseTs(path: string, content: string, language: "typescript" | "javascript"): { symbols: SymbolRecord[]; imports: string[]; exports: string[]; calls: string[] } {
   const kind = language === "typescript" ? ts.ScriptKind.TS : ts.ScriptKind.JS;
   const source = ts.createSourceFile(path, content, ts.ScriptTarget.Latest, true, kind);
   const symbols: SymbolRecord[] = [];
   const imports: string[] = [];
+  const exports: string[] = [];
+  const calls: string[] = [];
   const add = (node: ts.Node, name: string, symbolKind: SymbolRecord["kind"], signature = "") => {
     const [startLine, endLine] = nodeLines(source, node);
     symbols.push({ id: stableId("sym", `${path}:${name}:${startLine}`), path, name, kind: symbolKind, startLine, endLine, signatureHash: sha256(signature || name), bodyHash: sha256(node.getText(source)), confidence: 0.95 });
   };
   const visit = (node: ts.Node): void => {
     if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) { imports.push(node.moduleSpecifier.text); add(node, node.moduleSpecifier.text, "import"); }
+    else if (ts.isExportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) exports.push(node.moduleSpecifier.text);
     else if (ts.isClassDeclaration(node) && node.name) add(node, node.name.text, "class", node.members.map((m) => m.name?.getText(source) ?? "").join(","));
     else if (ts.isInterfaceDeclaration(node)) add(node, node.name.text, "interface", node.members.map((m) => m.getText(source).split("{")[0]).join(";"));
     else if (ts.isTypeAliasDeclaration(node)) add(node, node.name.text, "type", node.type.getText(source));
@@ -135,22 +143,24 @@ function parseTs(path: string, content: string, language: "typescript" | "javasc
     else if (ts.isCallExpression(node) && ["test", "it", "describe"].includes(node.expression.getText(source))) {
       const first = node.arguments[0];
       if (first && ts.isStringLiteralLike(first)) add(node, first.text, "test");
-    }
+    } else if (ts.isCallExpression(node)) calls.push(node.expression.getText(source).split(".").at(-1) ?? node.expression.getText(source));
     ts.forEachChild(node, visit);
   };
   visit(source);
-  return { symbols, imports };
+  return { symbols, imports: [...new Set(imports)], exports: [...new Set(exports)], calls: [...new Set(calls)] };
 }
 
-function parsePython(path: string, content: string): { symbols: SymbolRecord[]; imports: string[] } {
+function parsePython(path: string, content: string): { symbols: SymbolRecord[]; imports: string[]; exports: string[]; calls: string[]; recovered: boolean } {
   const tree = pythonParser.parse(content);
   const symbols: SymbolRecord[] = [];
   const imports: string[] = [];
+  let recovered = false;
   const lines = content.split("\n");
   const lineOf = (position: number) => content.slice(0, position).split("\n").length;
   const cursor = tree.cursor();
   do {
     const type = cursor.type.name;
+    if (cursor.type.isError) recovered = true;
     if (["FunctionDefinition", "ClassDefinition"].includes(type)) {
       const text = content.slice(cursor.from, cursor.to);
       const name = /^(?:async\s+)?(?:def|class)\s+([A-Za-z_][A-Za-z0-9_]*)/.exec(text)?.[1];
@@ -165,13 +175,14 @@ function parsePython(path: string, content: string): { symbols: SymbolRecord[]; 
       if (match?.[1] || match?.[2]) imports.push(match[1] ?? match[2] ?? "");
     }
   } while (cursor.next());
-  return { symbols, imports };
+  const calls = [...content.matchAll(/\b([A-Za-z_][A-Za-z0-9_.]*)\s*\(/g)].map((match) => match[1]!.split(".").at(-1)!).filter((name) => !["def", "class", "if", "for", "while"].includes(name));
+  return { symbols, imports: [...new Set(imports)], exports: [], calls: [...new Set(calls)], recovered };
 }
 
-function parseFile(path: string, content: string, language: FileSnapshot["language"]): Pick<FileSnapshot, "symbols" | "imports" | "parser" | "confidence"> {
+function parseFile(path: string, content: string, language: FileSnapshot["language"]): Pick<FileSnapshot, "symbols" | "imports" | "exports" | "calls" | "parser" | "confidence"> {
   if (language === "typescript" || language === "javascript") return { ...parseTs(path, content, language), parser: "typescript-compiler-api", confidence: 0.95 };
-  if (language === "python") return { ...parsePython(path, content), parser: "lezer-python", confidence: 0.9 };
-  return { symbols: [], imports: [], parser: "generic-text", confidence: 0.55 };
+  if (language === "python") { const parsed = parsePython(path, content); return { ...parsed, parser: parsed.recovered ? "lezer-python-recovery" : "lezer-python", confidence: parsed.recovered ? 0.55 : 0.9 }; }
+  return { symbols: [], imports: [], exports: [], calls: [], parser: "generic-text", confidence: 0.55 };
 }
 
 function resolveImport(fromPath: string, target: string, paths: Set<string>): string | null {
@@ -192,13 +203,23 @@ export async function indexRepository(root: string, options: IndexOptions = {}):
     const absolute = join(repository.canonicalRoot, path);
     const stat = await lstat(absolute).catch(() => null);
     if (!stat || !stat.isFile() || stat.isSymbolicLink() || stat.size > MAX_FILE_SIZE) { skipped += 1; continue; }
-    const resolved = await realpath(absolute);
-    if (resolved !== repository.canonicalRoot && !resolved.startsWith(`${repository.canonicalRoot}${sep}`)) throw new KernoError("SYMLINK_ESCAPE", `Resolved path escaped repository: ${path}`);
-    const buffer = await readFile(resolved);
+    const handle = await open(absolute, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0)).catch((error) => {
+      if ((error as NodeJS.ErrnoException).code === "ELOOP") throw new KernoError("SYMLINK_ESCAPE", `Refusing symlinked file: ${path}`);
+      throw error;
+    });
+    let resolved: string; let buffer: Buffer;
+    try {
+      const opened = await handle.stat();
+      if (!opened.isFile() || opened.size > MAX_FILE_SIZE) { skipped += 1; continue; }
+      resolved = await realpath(absolute);
+      if (resolved !== repository.canonicalRoot && !resolved.startsWith(`${repository.canonicalRoot}${sep}`)) throw new KernoError("SYMLINK_ESCAPE", `Resolved path escaped repository: ${path}`);
+      buffer = await handle.readFile();
+    } finally { await handle.close(); }
     if (isLikelyBinary(buffer)) { skipped += 1; continue; }
     const hash = sha256(buffer);
     const old = previous.get(path);
-    if (options.mode !== "full" && old?.contentHash === hash) { files.push(old.snapshot); reused += 1; continue; }
+    const reusable = old?.contentHash === hash && Array.isArray(old.snapshot.exports) && Array.isArray(old.snapshot.calls);
+    if (options.mode !== "full" && reusable) { files.push(old.snapshot); reused += 1; continue; }
     const raw = buffer.toString("utf8");
     const { text, redacted } = redactSecrets(raw);
     const language = languageFor(path);
@@ -209,11 +230,18 @@ export async function indexRepository(root: string, options: IndexOptions = {}):
   }
   const pathSet = new Set(files.map((file) => file.path));
   const edges: GraphEdge[] = [];
+  const symbolsByName = new Map<string, SymbolRecord[]>();
+  for (const symbol of files.flatMap((file) => file.symbols)) symbolsByName.set(symbol.name, [...(symbolsByName.get(symbol.name) ?? []), symbol]);
   for (const file of files) {
     for (const imported of file.imports) {
       const target = resolveImport(file.path, imported, pathSet);
       if (target) edges.push({ from: file.path, to: target, type: "imports", confidence: file.confidence });
     }
+    for (const exported of file.exports) {
+      const target = resolveImport(file.path, exported, pathSet);
+      if (target) edges.push({ from: file.path, to: target, type: "exports", confidence: file.confidence });
+    }
+    for (const called of file.calls) for (const target of symbolsByName.get(called) ?? []) if (target.path !== file.path) edges.push({ from: file.path, to: target.id, type: "calls", confidence: Math.min(file.confidence, target.confidence) * 0.8 });
     for (const symbol of file.symbols) edges.push({ from: file.path, to: symbol.id, type: "defines", confidence: symbol.confidence });
     if (file.isTest) {
       for (const target of file.imports.map((item) => resolveImport(file.path, item, pathSet)).filter((item): item is string => Boolean(item))) edges.push({ from: file.path, to: target, type: "tests", confidence: 0.95 });

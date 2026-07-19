@@ -10,13 +10,13 @@ import { routeTask } from "@kerno/core";
 const execFile = promisify(execFileCallback);
 export type DemoReplay = Awaited<ReturnType<typeof recordCanonicalReplay>>;
 
-async function testFixture(root: string): Promise<{ passed: boolean; output: string; durationMs: number; artifactHash: string }> {
+async function testFixture(root: string): Promise<{ passed: boolean; output: string; durationMs: number; artifactHash: string; exitCode: number }> {
   const started = performance.now();
   try {
-    const result = await execFile(process.execPath, ["--test", "--experimental-strip-types", "tests/refund.integration.test.ts"], { cwd: root, maxBuffer: 4 * 1024 * 1024 });
-    const output = `${result.stdout}\n${result.stderr}`; return { passed: true, output, durationMs: Math.round(performance.now() - started), artifactHash: createHash("sha256").update(output).digest("hex") };
+    const result = await execFile(process.execPath, ["--test", "--experimental-strip-types", "tests/refund.integration.test.ts", "tests/atomicity.integration.test.ts"], { cwd: root, maxBuffer: 4 * 1024 * 1024 });
+    const output = `${result.stdout}\n${result.stderr}`; return { passed: true, output, durationMs: Math.round(performance.now() - started), artifactHash: createHash("sha256").update(output).digest("hex"), exitCode: 0 };
   } catch (error: any) {
-    const output = `${error.stdout ?? ""}\n${error.stderr ?? error.message ?? ""}`; return { passed: false, output, durationMs: Math.round(performance.now() - started), artifactHash: createHash("sha256").update(output).digest("hex") };
+    const output = `${error.stdout ?? ""}\n${error.stderr ?? error.message ?? ""}`; return { passed: false, output, durationMs: Math.round(performance.now() - started), artifactHash: createHash("sha256").update(output).digest("hex"), exitCode: typeof error.code === "number" ? error.code : 1 };
   }
 }
 
@@ -39,7 +39,8 @@ export async function recordCanonicalReplay(options: { fixtureRoot: string; solu
     const initial = service.buildCapsule({ taskAnalysisId: task.id, budgetTokens: 2500 });
     const failing = await testFixture(worktree);
     if (failing.passed) throw new Error("Canonical fixture must fail before the solution is applied");
-    const child = service.expand({ capsuleId: initial.id, evidence: { kind: "test_failure", artifactId: `artifact_${failing.artifactHash.slice(0, 12)}`, text: "TransactionBoundary is required to atomically couple the ledger credit and idempotency marker", symbols: ["TransactionBoundary"], verified: true } });
+    const failingArtifact = service.recordArtifact({ kind: "test", source: "command", output: failing.output, exitCode: failing.exitCode, command: [process.execPath, "--test", "--experimental-strip-types", "tests/refund.integration.test.ts", "tests/atomicity.integration.test.ts"] });
+    const child = service.expand({ capsuleId: initial.id, evidence: { kind: "test_failure", artifactId: failingArtifact.id, text: "TransactionBoundary is required to atomically couple the ledger credit and idempotency marker", symbols: ["TransactionBoundary"] } });
     const solution = await readFile(options.solutionPath, "utf8");
     await writeFile(join(worktree, "src/webhooks/refund-handler.ts"), solution, { mode: 0o600 });
     const passing = await testFixture(worktree);
@@ -58,8 +59,8 @@ export async function recordCanonicalReplay(options: { fixtureRoot: string; solu
       { type: "route.recommended", at: initial.createdAt, detail: `${route.recommended.model} · ${route.recommended.reasoningEffort}; no runtime request in replay` },
       { type: "test.failed", at: new Date().toISOString(), detail: "TransactionBoundary evidence missing" },
       { type: "capsule.expanded", at: child.createdAt, detail: child.items.map((item) => item.locator.path).join(", ") },
-      { type: "test.passed", at: new Date().toISOString(), detail: "1/1 integration test passed" },
-      { type: "review.passed", at: new Date().toISOString(), detail: "Deterministic verifier: public event shape preserved; target test passed" },
+      { type: "test.passed", at: new Date().toISOString(), detail: "3/3 pinned integration assertions passed" },
+      { type: "review.unavailable", at: new Date().toISOString(), detail: "No independent Codex review ran in deterministic replay" },
       { type: "context.invalidated", at: changedIndex.indexedAt, detail: `Initial capsule is ${storedInitial?.status ?? "unknown"} after handler hash changed` }
     ];
     const resultWithoutHash = {
@@ -68,9 +69,9 @@ export async function recordCanonicalReplay(options: { fixtureRoot: string; solu
       task, initialCapsule: initial, childCapsule: child,
       route: { ...route, requested: null, effective: null, truthLabel: "RECOMMENDED ONLY — no App Server turn in deterministic replay" },
       tests: { before: { passed: failing.passed, durationMs: failing.durationMs, artifactHash: failing.artifactHash }, after: { passed: passing.passed, durationMs: passing.durationMs, artifactHash: passing.artifactHash } },
-      review: { kind: "deterministic-verifier", passed: passing.passed, findings: [], limitations: "A live Orchestrator Mode run uses a separate read-only Codex thread; this replay does not simulate one." },
+      review: { kind: "not-observed", passed: null, findings: null, limitations: "A live Orchestrator Mode run uses a separate read-only Codex thread; this replay does not simulate one." },
       invalidation: { capsuleId: initial.id, status: storedInitial?.status ?? "unknown", changedFiles: changedIndex.files.filter((file) => firstIndex.files.find((old) => old.path === file.path)?.contentHash !== file.contentHash).map((file) => file.path) },
-      metrics: { taskSuccess: passing.passed, testsPassed: passing.passed ? 1 : 0, threadTokens: null, filesOpened: null, repeatedReads: null, toolCalls: null, timeToFirstValidPatchMs: null, totalLatencyMs: null, unnecessaryChangedLines: null, reviewerFindings: 0, staleContextMistakes: null, contextExpansionCount: 1 }, timeline
+      metrics: { taskSuccess: null, testsPassed: passing.passed ? 3 : 0, threadTokens: null, filesOpened: null, repeatedReads: null, toolCalls: null, timeToFirstValidPatchMs: null, totalLatencyMs: null, unnecessaryChangedLines: null, reviewerFindings: null, staleContextMistakes: null, contextExpansionCount: 1 }, timeline
     };
     return { ...resultWithoutHash, artifactHash: createHash("sha256").update(JSON.stringify(resultWithoutHash)).digest("hex") };
   } finally { service.close(); await rm(temp, { recursive: true, force: true }); }

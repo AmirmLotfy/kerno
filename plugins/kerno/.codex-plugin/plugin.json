@@ -1,6 +1,6 @@
 {
   "name": "kerno",
-  "version": "0.1.0+codex.20260719022604",
+  "version": "0.1.0+codex.20260719074757",
   "description": "Evidence-backed context capsules and observable phase routing for Codex.",
   "author": {
     "name": "Kerno contributors"

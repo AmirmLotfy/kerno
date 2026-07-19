@@ -2,7 +2,9 @@
 
 ## Truth brief
 
-Grounding timestamp: July 18, 2026 at 6:09 PM PDT / July 19, 2026 at 4:09 AM Africa/Cairo.
+Latest refresh: July 19, 2026 at 12:06 AM PDT / 10:06 AM Africa/Cairo / 7:06 AM UTC. Approximately 64 hours 54 minutes remained. No substantive requirement changed from the prior grounding.
+
+The requested Devpost Hackathons plugin was not callable: no Devpost/Hackathons capability existed in the active tool catalog and `codex plugin list` showed no installed Devpost plugin. The refresh therefore used the authoritative official pages directly. No Devpost write was performed.
 
 - Phase: registration and submissions open.
 - Controlling deadline: Tuesday, July 21, 2026 at 5:00 PM PDT / Wednesday, July 22, 2026 at 3:00 AM EEST.
@@ -43,16 +45,20 @@ No Devpost write has been performed. The exact authenticated form labels remain 
 | Rules require less than three minutes; FAQ says three minutes or under | Keep it below 3:00. |
 | Overview presents the Devpost plugin as a participation step; Rules call it optional | Optional; Kerno does not depend on it. |
 | A pre-existing-project clause says Codex “and/or” GPT-5.6; principal requirements and FAQ require both | Evidence meaningful use of both. |
-| Overview advertised a credit request period; Resources say credits are exhausted | Assume no credits. Preserve the real `usageLimitExceeded` artifact and do not fabricate successful live runs. |
+| Overview advertised a credit request period; Resources say event credits are exhausted | Assume no event credits. The build account completed a separate live App Server smoke using its available access, but Kerno has no dependency on hackathon credits. |
 | Rules require all authenticated fields; logged-out access does not reveal their exact labels | Open the authenticated draft early, record every label, and invent none. |
 
 ## Final submission checklist
 
 - Re-check Rules, announcements, Resources, and the authenticated form with a new timestamp.
 - Confirm entrant and team eligibility.
+- Ensure every invited teammate accepts before the deadline.
 - Confirm repository visibility or both private-repository judge invitations.
+- Keep the free judge path available without restriction through August 5, 2026 at 5:00 PM PDT / August 6 at 3:00 AM Cairo.
+- Ensure all submitted materials are English or include an English translation.
 - Run the final clean-room checks and verify artifact hashes.
 - Add the public repository URL, public YouTube URL, and primary `/feedback` Session ID.
 - Verify the video signed out: public, English audio, working demo, and under 3:00.
 - Verify the packaged plugin and replay from a fresh judge profile.
+- Verify installation and runtime behavior match what the video depicts; submission edits stop at the deadline.
 - Obtain explicit user authorization before creating, updating, or submitting any Devpost entry.

@@ -8,7 +8,8 @@ describe("strict tool schemas", () => {
   it("applies safe index defaults", () => {
     expect(indexRepositoryInputSchema.parse({ root: "." }).mode).toBe("incremental");
   });
-  it("never treats omitted expansion verification as trusted", () => {
-    expect(expansionEvidenceSchema.parse({ kind: "runtime", text: "missing contract" }).verified).toBe(false);
+  it("requires an artifact id and rejects caller-controlled verification", () => {
+    expect(() => expansionEvidenceSchema.parse({ kind: "runtime", text: "missing contract" })).toThrow();
+    expect(() => expansionEvidenceSchema.parse({ kind: "runtime", artifactId: "artifact_1", text: "missing contract", verified: true })).toThrow();
   });
 });

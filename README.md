@@ -42,7 +42,7 @@ The dashboard shows the initial and child capsules, score breakdown, invalidatio
 
 ## Two honest modes
 
-- **Plugin Mode** packages Kerno’s skill, advisory hooks, and local MCP tools. It builds context and recommends a model/effort. It cannot silently switch the active parent task; use `/model` and `/reasoning` transparently.
+- **Plugin Mode** packages Kerno’s skill, optional reviewable hook definitions, and local MCP tools. The current validated manifest activates the skill and MCP server; hooks are nonessential and remain an explicit opt-in because the validator rejects a manifest `hooks` field. It builds context and recommends a model/effort. It cannot silently switch the active parent task; use `/model` and `/reasoning` transparently.
 - **Orchestrator Mode** uses Codex App Server over local STDIO. It calls live `model/list`, validates effort support, starts separate phase threads, requests model/effort explicitly, records streamed events, and uses a fresh read-only review thread. A requested model remains `Requested — not independently confirmed` unless runtime evidence proves an effective model or reports a reroute.
 
 ## Architecture

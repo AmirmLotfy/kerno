@@ -1,11 +1,11 @@
 ---
 name: kerno-context
-description: Use Kerno to classify repository tasks, build minimal evidence-backed context capsules, expand only from verified evidence, record outcomes, and request independent review for risky changes.
+description: Use Kerno for unfamiliar repository work, debugging, cross-module changes, refactors, test generation, architecture investigation, context reduction, model routing, evidence-backed capsules, selective expansion, outcomes, and independent review.
 ---
 
 # Kerno context workflow
 
-Use this skill when a user asks Kerno to diagnose, implement, debug, review, or compare repository work.
+Use this skill when a user asks Kerno to diagnose, implement, debug, review, refactor, generate tests, investigate architecture, change multiple modules, reduce unnecessary context, route models, or compare repository work.
 
 1. Call `kerno_repository_status`; call `kerno_index_repository` incrementally when the repository is not enrolled or stale.
 2. Call `kerno_analyze_task` with the user’s exact task text.

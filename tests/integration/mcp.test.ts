@@ -24,6 +24,8 @@ describe("MCP contract", () => {
     expect(indexed.isError).not.toBe(true);
     const envelope = indexed.structuredContent as any;
     expect(envelope.schemaVersion).toBe("1");
-    expect(envelope.data.files.length).toBeGreaterThan(3);
+    expect(envelope.data.stats.scanned).toBeGreaterThan(3);
+    expect(envelope.data.files).toBeUndefined();
+    expect(JSON.stringify(envelope.data)).not.toContain("A timeout here allows");
   });
 });

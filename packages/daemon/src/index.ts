@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { createServer, type Server } from "node:http";
 import { join } from "node:path";
-import type { ContextCapsule, DurableMemory, EvidenceRef, IndexSnapshot, RunEvent } from "@kerno/contracts";
+import type { CatalogModel, ContextCapsule, DurableMemory, EvidenceArtifact, EvidenceRef, IndexSnapshot, RunEvent } from "@kerno/contracts";
 import {
   KernoError, analyzeTaskInputSchema, buildCapsuleInputSchema, compareRunsInputSchema, expandContextInputSchema,
   explainContextInputSchema, impactAnalysisInputSchema, indexRepositoryInputSchema, invalidateContextInputSchema,
@@ -16,11 +16,12 @@ export type KernoServiceOptions = { databasePath?: string; storage?: "sqlite" | 
 export class KernoService {
   readonly store: StateStore;
   private roots = new Map<string, string>();
+  private eventListeners = new Map<string, Set<(event: RunEvent) => void>>();
   constructor(options: KernoServiceOptions = {}) { this.store = options.storage === "json" ? new JsonStateStore(options.databasePath ?? join(process.cwd(), ".kerno", "kerno-state.json")) : new SqliteStateStore(options.databasePath ?? ":memory:"); }
   close(): void { this.store.close(); }
 
-  private snapshotFor(repositoryId: string): IndexSnapshot {
-    const snapshot = this.store.latestSnapshot(repositoryId);
+  private snapshotFor(repositoryId: string, worktreeId?: string): IndexSnapshot {
+    const snapshot = this.store.latestSnapshot(repositoryId, worktreeId);
     if (!snapshot) throw new KernoError("REPOSITORY_NOT_ENROLLED", `Repository ${repositoryId} has not been indexed`);
     return snapshot;
   }
@@ -38,24 +39,49 @@ export class KernoService {
     const owner = stableId("lease", `${process.pid}:${Date.now()}`);
     if (!this.store.acquireLease(inspected.repository.id, owner)) throw new KernoError("INDEX_BUSY", "Repository index is already in progress", true);
     try {
-      const previousSnapshot = this.store.latestSnapshot(inspected.repository.id);
+      const previousSnapshot = this.store.latestSnapshot(inspected.repository.id, inspected.worktree.id);
       const previous = new Map<string, PreviousFile>();
       for (const file of previousSnapshot?.files ?? []) previous.set(file.path, { path: file.path, contentHash: file.contentHash, snapshot: file });
       const snapshot = await indexRepository(parsed.root, { mode: parsed.mode, previous });
-      this.store.saveSnapshot(snapshot);
+      this.store.transaction(() => {
+        this.store.saveSnapshot(snapshot);
+        if (previousSnapshot) this.applyAutomaticInvalidation(previousSnapshot, snapshot);
+      });
       this.roots.set(snapshot.repository.id, snapshot.repository.canonicalRoot);
-      if (previousSnapshot) this.applyAutomaticInvalidation(previousSnapshot, snapshot);
       return snapshot;
     } finally { this.store.releaseLease(inspected.repository.id, owner); }
   }
 
+  recordArtifact(input: { kind: EvidenceArtifact["kind"]; source: EvidenceArtifact["source"]; output: string; exitCode?: number | null; command?: string[] }): EvidenceArtifact {
+    if (Buffer.byteLength(input.output, "utf8") > 4 * 1024 * 1024) throw new KernoError("INVALID_INPUT", "Evidence artifact output exceeds 4 MiB");
+    const contentHash = createHash("sha256").update(input.output).digest("hex");
+    const redacted = redactSecrets(input.output).text.slice(0, 64_000);
+    const artifact: EvidenceArtifact = {
+      id: stableId("artifact", `${input.kind}:${contentHash}`), kind: input.kind, source: input.source,
+      contentHash, createdAt: new Date().toISOString(), redactedOutput: redacted, verified: true,
+      ...(input.exitCode !== undefined ? { exitCode: input.exitCode } : {}),
+      ...(input.command ? { command: input.command.map((part) => part.slice(0, 4096)).slice(0, 64) } : {})
+    };
+    this.store.put("artifact", artifact.id, artifact);
+    return artifact;
+  }
+  artifact(id: string): EvidenceArtifact | undefined { return this.store.get("artifact", id); }
+  recordCatalog(catalogSnapshotId: string, models: CatalogModel[], source: "app-server"): void {
+    if (source !== "app-server" || !models.length) throw new KernoError("NO_COMPATIBLE_MODEL", "Catalog must originate from a non-empty App Server model/list response");
+    this.store.saveCatalog(catalogSnapshotId, { source, models });
+  }
+
   private applyAutomaticInvalidation(previous: IndexSnapshot, current: IndexSnapshot): void {
     for (const memory of this.store.memories(current.repository.id)) {
+      if (memory.worktreeId && memory.worktreeId !== current.worktree.id) continue;
+      if (!memory.worktreeId && memory.branch && memory.branch !== previous.worktree.branch) continue;
       const next = invalidateMemory(memory, previous, current);
       if (next.status !== memory.status) this.store.saveMemory(next);
     }
     const changed = new Map(current.files.map((file) => [file.path, file.contentHash]));
     for (const capsule of this.store.capsules(current.repository.id)) {
+      const capsuleSnapshot = this.store.get<IndexSnapshot>("snapshot", capsule.snapshotId);
+      if (capsuleSnapshot?.worktree.id !== current.worktree.id) continue;
       const incompatibleBranch = capsule.items.some((item) => item.branch !== current.worktree.branch);
       const staleFile = capsule.items.some((item) => changed.get(item.locator.path) !== item.contentHash);
       if (incompatibleBranch || staleFile) this.store.updateStatus("capsule", capsule.id, "stale");
@@ -63,15 +89,15 @@ export class KernoService {
   }
 
   status(input: unknown): unknown {
-    const { repositoryId } = repositoryStatusInputSchema.parse(input);
-    const snapshot = this.snapshotFor(repositoryId);
+    const { repositoryId, worktreeId } = repositoryStatusInputSchema.parse(input);
+    const snapshot = this.snapshotFor(repositoryId, worktreeId);
     return { repositoryId, branch: snapshot.worktree.branch, head: snapshot.worktree.headCommit, dirty: snapshot.worktree.dirty, freshness: snapshot.indexedAt, indexCounts: { files: snapshot.files.length, symbols: snapshot.files.reduce((sum, file) => sum + file.symbols.length, 0), edges: snapshot.edges.length }, warnings: snapshot.files.some((file) => file.secretRedacted) ? ["Secret-like values were redacted from indexed excerpts"] : [] };
   }
 
   analyze(input: unknown): ReturnType<typeof analyzeTask> {
     const parsed = analyzeTaskInputSchema.parse(input);
-    const snapshot = this.snapshotFor(parsed.repositoryId);
-    const task = analyzeTask(parsed.repositoryId, snapshot.id, parsed.taskText);
+    const snapshot = this.snapshotFor(parsed.repositoryId, parsed.worktreeId);
+    const task = analyzeTask(parsed.repositoryId, snapshot.id, redactSecrets(parsed.taskText).text);
     this.store.saveTask(task); return task;
   }
   buildCapsule(input: unknown): ContextCapsule {
@@ -84,7 +110,10 @@ export class KernoService {
     const parsed = expandContextInputSchema.parse(input);
     const parent = this.store.capsule(parsed.capsuleId);
     if (!parent) throw new KernoError("UNKNOWN_ID", `Unknown capsule ${parsed.capsuleId}`);
-    if (["test_failure", "review"].includes(parsed.evidence.kind) && !parsed.evidence.artifactId) throw new KernoError("UNVERIFIED_EVIDENCE", `${parsed.evidence.kind} expansion requires an artifact id`);
+    const artifact = this.artifact(parsed.evidence.artifactId);
+    if (!artifact) throw new KernoError("UNVERIFIED_EVIDENCE", `Unknown evidence artifact ${parsed.evidence.artifactId}`);
+    const expectedKind = parsed.evidence.kind === "test_failure" ? "test" : parsed.evidence.kind === "review" ? "review" : "runtime";
+    if (artifact.kind !== expectedKind) throw new KernoError("UNVERIFIED_EVIDENCE", `Artifact ${artifact.id} is ${artifact.kind}, not ${expectedKind}`);
     let expansionDepth = 0; let ancestor: ContextCapsule | undefined = parent;
     while (ancestor.parentCapsuleId) { expansionDepth += 1; ancestor = this.store.capsule(ancestor.parentCapsuleId); if (!ancestor) break; }
     if (expansionDepth >= 3) throw new KernoError("BUDGET_EXCEEDED", "Automatic context expansion is capped at three child capsules; human escalation is required");
@@ -94,8 +123,9 @@ export class KernoService {
       kind: parsed.evidence.kind === "test_failure" ? "test" : parsed.evidence.kind === "review" ? "review" : "runtime",
       ...(parsed.evidence.paths?.[0] ? { path: parsed.evidence.paths[0] } : {}),
       ...(parsed.evidence.symbols?.[0] ? { symbol: parsed.evidence.symbols[0] } : {}),
-      ...(parsed.evidence.artifactId ? { artifactId: parsed.evidence.artifactId } : {}),
-      note: parsed.evidence.text.slice(0, 2048), text: parsed.evidence.text, verified: parsed.evidence.verified
+      artifactId: artifact.id,
+      contentHash: artifact.contentHash,
+      note: parsed.evidence.text.slice(0, 2048), text: parsed.evidence.text, verified: artifact.verified
     };
     const child = expandContextCapsule(parent, task, snapshot, evidence, parsed.additionalBudgetTokens);
     this.store.updateStatus("capsule", parent.id, "superseded");
@@ -123,14 +153,29 @@ export class KernoService {
   }
   recordDecision(input: unknown): DurableMemory {
     const parsed = recordDecisionInputSchema.parse(input); const snapshot = this.snapshotFor(parsed.repositoryId);
-    const source = parsed.userConfirmed ? "user" : parsed.evidence.some((item) => item.kind === "test") ? "test" : "codex";
-    const memory = createMemory({ repositoryId: parsed.repositoryId, ...(parsed.scope === "worktree" ? { worktreeId: snapshot.worktree.id } : {}), branch: parsed.scope === "repository" ? null : snapshot.worktree.branch, headCommit: snapshot.worktree.headCommit, type: parsed.type, summary: parsed.summary, evidence: parsed.evidence, invalidationConditions: parsed.invalidationConditions, creationSource: source, ...(parsed.userConfirmed !== undefined ? { userConfirmed: parsed.userConfirmed } : {}) });
-    this.store.saveMemory(memory); return memory;
+    const verifiedTestEvidence = parsed.evidence.some((item) => item.kind === "test" && item.artifactId && this.artifact(item.artifactId)?.kind === "test");
+    const source = parsed.userConfirmed ? "user" : verifiedTestEvidence ? "test" : "codex";
+    const superseded = (parsed.supersedes ?? []).map((id) => {
+      const previous = this.store.get<DurableMemory>("memory", id);
+      if (!previous || previous.repositoryId !== parsed.repositoryId) throw new KernoError("UNKNOWN_ID", `Cannot supersede unknown memory ${id}`);
+      return previous;
+    });
+    const memory = createMemory({ repositoryId: parsed.repositoryId, ...(parsed.scope === "worktree" ? { worktreeId: snapshot.worktree.id } : {}), branch: parsed.scope === "repository" ? null : snapshot.worktree.branch, headCommit: snapshot.worktree.headCommit, type: parsed.type, summary: redactSecrets(parsed.summary).text, evidence: parsed.evidence, invalidationConditions: parsed.invalidationConditions, creationSource: source, ...(parsed.userConfirmed !== undefined ? { userConfirmed: parsed.userConfirmed } : {}), ...(parsed.supersedes?.length ? { supersedes: parsed.supersedes } : {}) });
+    this.store.transaction(() => {
+      this.store.saveMemory(memory);
+      for (const previous of superseded) this.store.saveMemory({ ...previous, status: "superseded", supersededBy: memory.id });
+    });
+    return memory;
   }
   recordOutcome(input: unknown): unknown {
     const parsed = recordOutcomeInputSchema.parse(input);
-    if (parsed.status === "passed" && !parsed.tests.some((test) => test.kind === "test" && test.artifactId)) throw new KernoError("UNVERIFIED_EVIDENCE", "Passed outcomes require a test artifact");
-    const outcome = { id: stableId("outcome", `${parsed.runId}:${hashArtifact(parsed)}`), createdAt: new Date().toISOString(), ...parsed };
+    const artifacts = (parsed.artifacts ?? []).map((artifact) => this.recordArtifact({ kind: artifact.kind, source: artifact.source, output: artifact.output, ...(artifact.exitCode !== undefined ? { exitCode: artifact.exitCode } : {}), ...(artifact.command ? { command: artifact.command } : {}) }));
+    if (parsed.status === "passed" && !parsed.tests.some((test) => {
+      const artifact = test.artifactId ? this.artifact(test.artifactId) ?? artifacts.find((candidate) => candidate.id === test.artifactId) : undefined;
+      return test.kind === "test" && artifact?.kind === "test" && artifact.exitCode === 0;
+    })) throw new KernoError("UNVERIFIED_EVIDENCE", "Passed outcomes require a persisted successful test artifact");
+    const fields = { runId: parsed.runId, status: parsed.status, tests: parsed.tests, review: parsed.review, changedFiles: parsed.changedFiles };
+    const outcome = { id: stableId("outcome", `${parsed.runId}:${hashArtifact(parsed)}`), createdAt: new Date().toISOString(), ...fields, artifacts };
     this.store.put("outcome", outcome.id, outcome); return outcome;
   }
   invalidate(input: unknown): unknown {
@@ -143,8 +188,10 @@ export class KernoService {
   }
   route(input: unknown): ReturnType<typeof routeTask> {
     const parsed = routeTaskInputSchema.parse(input); const { task } = this.repositoryForTask(parsed.taskAnalysisId);
-    const decision = routeTask(task, parsed.phase, parsed.catalogSnapshotId, parsed.models, parsed.preferences);
-    this.store.saveCatalog(parsed.catalogSnapshotId, parsed.models); this.store.saveRoute(decision, task.repositoryId); return decision;
+    const catalog = this.store.catalog<{ source: "app-server"; models: CatalogModel[] }>(parsed.catalogSnapshotId);
+    if (!catalog || catalog.source !== "app-server") throw new KernoError("NO_COMPATIBLE_MODEL", `Unknown or untrusted catalog ${parsed.catalogSnapshotId}`);
+    const decision = routeTask(task, parsed.phase, parsed.catalogSnapshotId, catalog.models, parsed.preferences);
+    this.store.saveRoute(decision, task.repositoryId); return decision;
   }
   compare(input: unknown): unknown {
     const parsed = compareRunsInputSchema.parse(input); const baseline = this.store.get<any>("run", parsed.baselineRunId); const kerno = this.store.get<any>("run", parsed.kernoRunId);
@@ -160,7 +207,11 @@ export class KernoService {
   emit(runId: string, source: RunEvent["source"], type: string, payload: unknown): RunEvent {
     const redacted = redactSecrets(JSON.stringify(payload));
     const event: RunEvent = { runId, sequence: this.store.nextEventSequence(runId), occurredAt: new Date().toISOString(), source, type, redactedPayload: JSON.parse(redacted.text), rawArtifactHash: createHash("sha256").update(JSON.stringify(payload)).digest("hex") };
-    this.store.appendEvent(event); return event;
+    this.store.appendEvent(event); for (const listener of this.eventListeners.get(runId) ?? []) listener(event); return event;
+  }
+  subscribe(runId: string, listener: (event: RunEvent) => void): () => void {
+    const listeners = this.eventListeners.get(runId) ?? new Set(); listeners.add(listener); this.eventListeners.set(runId, listeners);
+    return () => { listeners.delete(listener); if (!listeners.size) this.eventListeners.delete(runId); };
   }
 }
 
@@ -180,8 +231,11 @@ export async function startHttpServer(service: KernoService, options: { port?: n
       else if (parts[0] === "v1" && parts[1] === "capsules" && parts[2]) data = service.store.capsule(parts[2]);
       else if (parts[0] === "v1" && parts[1] === "runs" && parts[2] && parts[3] === "events") {
         response.writeHead(200, { "content-type": "text/event-stream", "cache-control": "no-store", "access-control-allow-origin": origin ?? "http://127.0.0.1" });
+        response.flushHeaders();
         for (const event of service.store.events(parts[2])) response.write(`id: ${event.sequence}\nevent: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`);
-        response.end(); return;
+        const unsubscribe = service.subscribe(parts[2], (event) => response.write(`id: ${event.sequence}\nevent: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`));
+        const heartbeat = setInterval(() => response.write(": keepalive\n\n"), 15_000);
+        request.once("close", () => { clearInterval(heartbeat); unsubscribe(); }); return;
       } else if (parts[0] === "v1" && parts[1] === "runs" && parts[2]) data = service.store.get("run", parts[2]);
       else if (parts[0] === "v1" && parts[1] === "comparisons" && parts[2]) data = service.store.get("comparison", parts[2]);
       else { response.writeHead(404).end("Not found"); return; }

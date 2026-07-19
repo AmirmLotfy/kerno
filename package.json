@@ -12,6 +12,7 @@
   },
   "scripts": {
     "build": "npm run build --workspaces --if-present",
+    "format:check": "tsx scripts/check-format.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
@@ -19,6 +20,7 @@
     "test:contract": "vitest run tests/contract",
     "test:integration": "vitest run tests/integration",
     "test:security": "vitest run tests/security",
+    "test:cli": "vitest run tests/integration/cli.test.ts",
     "test:e2e": "npm run demo:record && npm run build --workspace @kerno/dashboard && playwright test",
     "test:app-server:live": "tsx scripts/app-server-live-smoke.ts",
     "judge": "tsx scripts/judge-demo.ts",
