@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" role="img" aria-label="Kerno Context Core micro icon">
-  <path d="M11.5 2.5H6A3.5 3.5 0 0 0 2.5 6v4A3.5 3.5 0 0 0 6 13.5h5.5" fill="none" stroke="#1C1B1A" stroke-width="2.5" stroke-linecap="round"/>
-  <rect x="6.25" y="6.25" width="3.5" height="3.5" rx=".8" fill="#1C1B1A"/>
-  <path d="M13.5 5.25v5.5" fill="none" stroke="#E85D2A" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="m11.5 3.5-2-1.2a3 3 0 0 0-3 0l-2 1.2A3 3 0 0 0 3 6.1v3.8a3 3 0 0 0 1.5 2.6l2 1.2a3 3 0 0 0 3 0l2-1.2" fill="none" stroke="#1C1B1A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="m8 5.2 2.4 1.4v2.8L8 10.8 5.6 9.4V6.6z" fill="#E85D2A"/>
+  <path d="m13.3 5.4.4.3a2 2 0 0 1 .8 1.6v1.4a2 2 0 0 1-.8 1.6l-.4.3" fill="none" stroke="#E85D2A" stroke-width="1.7" stroke-linecap="round"/>
 </svg>

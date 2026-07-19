@@ -6,7 +6,7 @@ Kerno’s visual identity is warm, engineered, editorial, and local-first. It av
 
 The Context Core symbol contains three levels of repository knowledge: an outer repository layer, a selected-context layer, and a compact verified core. A detached oxide segment represents removing noise and extracting only what the task needs. The negative space is suggestive without becoming a typographic K.
 
-The base mark is flat, container-free, gradient-free, shadow-free, and readable at 16 px. The favicon, launcher, and social avatar are the only approved container applications. Base variants contain no text; the horizontal wordmark uses a restrained neo-grotesk system stack.
+The base mark is flat, container-free, gradient-free, shadow-free, and readable at 16 px. Its open faceted shells, oxide core, and detached right edge are the canonical geometry used by the product, plugin, and submission assets. The favicon, launcher, and social avatar are the only approved container applications. Base variants contain no text; the horizontal wordmark uses a restrained neo-grotesk system stack with positive tracking so `r` and `n` remain distinct. Negative wordmark tracking is not allowed.
 
 ## Canonical palette
 
