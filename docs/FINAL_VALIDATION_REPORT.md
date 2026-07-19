@@ -1,19 +1,19 @@
 # Final validation report
 
-Validation completed: **July 19, 2026 at 12:24 PM PDT / 10:24 PM Africa/Cairo / 7:24 PM UTC**.
+Validation refreshed: **July 19, 2026 at 3:15 PM PDT / July 20, 2026 at 1:15 AM Africa/Cairo / July 19, 2026 at 10:15 PM UTC**.
 
 ## 1. Executive readiness result
 
-**NOT READY FOR SUBMISSION.** The local product, plugin, MCP surface, dashboard, security controls, live App Server smoke, deterministic replay, and current engineering gates pass. Submission readiness remains blocked by an incomplete three-task benchmark matrix, zero comparison pairs satisfying the strengthened fairness gate, absence of an effective-model/reroute event, and required external repository/video/Session-ID/form/eligibility evidence.
+**NOT READY FOR SUBMISSION.** The local service slice, plugin index/capsule path, MCP surface, dashboard, security controls, live App Server request, deterministic replay, and current engineering gates pass. Submission readiness remains blocked by the missing trusted-artifact handoff for Plugin Mode, an unreachable public compare-runs workflow, an incomplete three-task benchmark matrix with zero fairness-valid pairs, absence of an effective-model/reroute event, and required video/Session-ID/form/eligibility evidence.
 
-No Devpost project was registered, created, edited, or submitted. Nothing was pushed, published, deployed, uploaded, or made public.
+No Devpost project was registered, created, edited, or submitted. The user explicitly authorized a public GitHub repository and Vercel judge deployment; those are live. No package, release, tag, video, or Devpost field was published.
 
 ## 2. Exact commit tested
 
-- Product candidate commit: `017b4be98bc0b30f9654a1e5ca5e8132e75667ef`.
+- Product candidate commit: `[PRODUCT_COMMIT_TO_RECORD_AFTER_COMMIT]`.
 - Branch: `main`.
 - Clean-room method: local `git clone --no-hardlinks` into an isolated temporary directory.
-- This report is a documentation-only follow-up to that tested product commit; no product code changed after the isolated run.
+- The exact tested product commit will be recorded after the final local commit and isolated-clone run.
 
 ## 3. Environment tested
 
@@ -28,14 +28,14 @@ No Devpost project was registered, created, edited, or submitted. Nothing was pu
 | Requirement | State | Evidence / blocker |
 |---|---|---|
 | Developer Tools category | Pass | Positioning and draft select Developer Tools |
-| Working project | Pass locally | Index → capsule → failure → expansion → pass → invalidation is tested and replayable |
+| Working project | Partial | Index → capsule → trusted in-process failure → expansion → pass → invalidation is tested and replayable; Plugin Mode lacks a public trusted-artifact handoff |
 | Meaningful Codex/GPT-5.6 use | Pass with runtime caveat | Root collaboration documented; real catalog/request/completion/usage retained; effective model remains unconfirmed |
 | Public `<3:00` YouTube video with English audio | Blocked | Timed script and real screenshots exist; no video or signed-out URL |
-| Repository URL and judge access | Blocked | No final URL or public/private sharing confirmation |
+| Repository URL and judge access | Pass | Public repository: `https://github.com/AmirmLotfy/kerno`; public replay: `https://kerno-codex.vercel.app` |
 | README/setup/license | Pass locally | README, Apache-2.0 license, judge path, collaboration narrative |
 | Primary `/feedback` Session ID | Blocked | User has not run `/feedback` and recorded its ID |
 | Plugin/dev-tool install and no-rebuild path | Pass locally | Marketplace install, package, replay, and quickstart documented |
-| Authenticated form fields | Blocked | Exact logged-in labels/values remain unavailable; drafts do not invent them |
+| Authenticated form fields | Partial | Exact fields 27945–27951 are recorded; human selections, video URL, Session ID, and authorized form write remain |
 | Eligibility/team authority | Blocked on human confirmation | Personal/team/sanctions/conflict facts require human confirmation |
 
 The controlling deadline remains Tuesday, July 21, 2026 at 5:00 PM PDT / Wednesday, July 22 at 3:00 AM Africa/Cairo. Official rules control the conflicts recorded in `docs/HACKATHON_COMPLIANCE.md`.
@@ -44,7 +44,7 @@ The controlling deadline remains Tuesday, July 21, 2026 at 5:00 PM PDT / Wednesd
 
 | Criterion | Evidence | Remaining risk |
 |---|---|---|
-| Technological Implementation | Strict domain/storage/indexer/MCP/plugin/orchestrator code; 57 deterministic tests; real catalog/request/completion/usage evidence | Effective model not independently confirmed; benchmark matrix incomplete |
+| Technological Implementation | Strict domain/storage/indexer/MCP/plugin/orchestrator code; 63 deterministic tests; real catalog/request/completion/usage evidence | Plugin trusted-artifact handoff and public comparison workflow are incomplete; effective model is not independently confirmed |
 | Design | Warm editorial identity, complete product states, responsive dashboard, accessibility and contrast checks, real submission screenshots | Final video has not demonstrated the experience to judges |
 | Potential Impact | Specific long-lived-repository problem; correctness-first replay and measurable harness | No fairness-valid multi-task comparative result |
 | Quality of the Idea | Provenance, falsifiable capsules, targeted expansion, conservative invalidation, honest routing/review boundaries | Outcome-driven rank learning remains unimplemented and labeled unavailable |
@@ -61,30 +61,37 @@ Passed in the working candidate:
 - Handler hash change marks the original capsule stale.
 - JS/TS, Python, and lower-confidence generic parsing; memory states/supersession; branch/commit/file/worktree invalidation.
 - CLI, loopback HTTP/SSE, 13-tool MCP, App Server adapter, and full operational slice.
+- Snapshot freshness ignores intentionally skipped binaries while detecting newly added indexable files.
+- Capsule IDs remain immutable across phase, budget, parent, and evidence variants; artifact IDs remain distinct across pass/fail evidence.
+- Portable storage rejects concurrent writers, and installed plugin MCP processes use isolated portable files so separate Codex hosts cannot overwrite one JSON document.
 
 The deterministic replay does not claim live Codex implementation or independent review; unavailable evidence remains unavailable.
 
+Blocking functional boundaries: the public plugin/CLI surface cannot yet convert a sandbox-observed test result into a trusted Kerno artifact, so the public MCP cannot independently complete the failed-test → verified expansion/outcome loop. `kerno_compare_runs` also has no complete public workflow for creating the run entities it compares. The in-process operational test and replay are real, but they do not erase these integration gaps.
+
 ## 7. Clean-room validation
 
-**Passed** at product commit `017b4be98bc0b30f9654a1e5ca5e8132e75667ef` in a fresh, non-hardlinked macOS clone.
+The current worktree passed the full clean-room-equivalent local gate. A fresh, non-hardlinked clone of the final product commit is still required and will replace this sentence after the product commit is created.
 
-The clone ran `npm ci`, `npm run doctor`, `npm run judge -- --check`, the complete `npm run clean-room` gate, secret/license/link audits, and `npm audit --audit-level=high`. Results: 354 packages installed with zero vulnerabilities; schema-v2 doctor passed; 57 tests passed; all workspaces built; five Playwright product/accessibility/responsive checks passed; 20 contrast pairs passed; 13-tool MCP smoke passed; brand, secret, 320-package license, and 30-file link audits passed.
+The current worktree ran the complete `npm run clean-room` gate plus secret/license/link and dependency audits. Results: schema-v2 doctor passed; 63 tests passed; all workspaces built; five Playwright product/accessibility/responsive checks passed; three dedicated accessibility checks and 20 contrast pairs passed; 13-tool MCP smoke passed; brand, secret, 320-package license, and 30-file link audits passed; `npm audit --omit=dev --audit-level=high` found zero vulnerabilities.
 
-The judge and screenshot commands intentionally regenerated timestamped replay/report/image artifacts inside the isolated clone. Those generated changes were not copied back or presented as a clean working-tree claim. The run required no manual repair, source edit, credential, or hidden setup step.
+The judge and screenshot commands intentionally regenerate timestamped replay/report/image artifacts. The final isolated clone must complete without manual repair, source edit, credential, or hidden setup step.
 
 ## 8. Plugin validation
 
 - Repository-local marketplace is discoverable and the installed cache matches the source skill/MCP bundle.
 - The plugin archive contains the manifest, skill, MCP config/executable, reviewed optional hooks, license, and warm Context Core assets.
-- The bundled STDIO MCP exposes 13 tools and indexes the fixture through portable storage.
+- The bundled STDIO MCP exposes 13 tools and completes index → fresh status → task → capsule through portable storage.
+- The installed plugin was captured in the real Codex plugin surface; the privacy-safe crop is `docs/assets/submission/kerno-real-plugin-codex.png`.
+- Plugin portable state is process-scoped for concurrency safety; durable cross-task state uses the daemon SQLite store.
 - The current plugin-creator Python validator cannot run because its host Python lacks PyYAML; package inspection, marketplace install/cache comparison, and MCP smoke are the recorded substitutes. No dependency was installed to conceal that tooling limitation.
 
-Tested-clone SHA-256 evidence:
+Current artifact SHA-256 evidence will be regenerated from the final product commit:
 
-- Plugin archive: `3bef2140f3faad5a1aba30bef715ba36dea79f5066e2c027032221e926806709`.
-- Generated canonical replay: `2e0d374c87c643d3537e158fb4438d9b7b62c300097a2e4774b3f4703d4cf1b4`.
-- Retained live App Server evidence: `77c06e5da18a9bce5d8ce70aba00d62b8cd897bd3be46bf9980188e830327f57`.
-- Generated benchmark report: `2b473f9600bbdbc2393ea2f63ae464c1e7212b65c092761c831bd18472faefb5`.
+- Plugin archive: `[REGENERATE_AFTER_PRODUCT_COMMIT]`.
+- Generated canonical replay: `[REGENERATE_AFTER_PRODUCT_COMMIT]`.
+- Retained live App Server evidence: `[REGENERATE_AFTER_PRODUCT_COMMIT]`.
+- Generated benchmark report: `[REGENERATE_AFTER_PRODUCT_COMMIT]`.
 
 ## 9. MCP validation
 
@@ -92,16 +99,17 @@ Tested-clone SHA-256 evidence:
 - Repository/root/symlink/hardlink/ownership containment and fixed-command model discovery are tested.
 - Caller-provided artifact prose, exit codes, and `verified` fields cannot verify memory or outcomes.
 - No MCP tool accepts an arbitrary shell command or writes repository source.
+- The plugin MCP deliberately refuses caller assertions as trusted test evidence. A sandbox-attested App Server/hook receipt path is not implemented yet; this is blocking, not waived.
 
 ## 10. Model-routing validation
 
 - Live `model/list` discovered four available entries.
 - Policy selected and requested `gpt-5.6-sol` with `low` effort from that live catalog.
-- The accepted App Server turn completed and emitted observed usage; the latest recorded total was 33,781 tokens.
+- After a forward-compatibility schema fix, the accepted App Server turn completed and emitted two observed usage updates; the final recorded total was 33,859 tokens.
 - No effective-model or reroute event was emitted. The dashboard therefore shows `requested-unconfirmed` rather than asserting the requested model was effective.
 - Plugin Mode remains a recommendation/manual fallback. No silent parent-model switching is claimed.
 
-This passes live discovery/request/completion handling but does **not** satisfy the acceptance criterion that the displayed effective route match independently observed runtime identity.
+This passes live discovery/request/completion handling and the public Vercel routing view displays the same requested route and truth label. It does **not** satisfy the acceptance criterion that an independently observed effective model match the requested/displayed route.
 
 ## 11. Benchmark integrity
 
@@ -123,6 +131,10 @@ Fixed and verified during red-team:
 - Nested secret-file exclusion and recursive log/export redaction.
 - Aggregate MCP input/output limits and guarded export/delete.
 - Stale-snapshot, branch/commit, exact-memory-ID, and expansion-evidence invalidation gaps.
+- Stable-ID collision risk by replacing 32-bit FNV identifiers with 128-bit-truncated SHA-256 identifiers.
+- Immutable capsule/artifact identity gaps that previously allowed phase/budget or pass/fail variants to overwrite one another.
+- Portable JSON lost-update risk through exclusive writer locking; installed plugin MCP processes use isolated files to avoid cross-host lock contention.
+- Forward-compatible App Server metadata parsing while preserving validation of every field Kerno relies on.
 - Loopback token/origin controls, hostile paths, malicious repository instructions, oversized/binary files, and advisory-hook failure behavior.
 
 No unresolved critical security finding remains. Residual risks: pattern redaction is incomplete by nature, parsers are heuristic, same-UID filesystem TOCTOU cannot be eliminated, and local state is permission-restricted but not encrypted at rest.
@@ -144,13 +156,14 @@ No unresolved critical security finding remains. Residual risks: pattern redacti
 
 ## 15. Documentation results
 
-Completed and cross-linked: `README.md`, `LICENSE`, `SECURITY.md`, `CONTRIBUTING.md`, architecture, decisions, threat model, benchmark protocol, judge quickstart, Codex collaboration, hackathon compliance, demo script, Devpost draft, brand system/audit, submission image guide, P0 audit, and this report. Exact authenticated Devpost labels remain unavailable and are not invented.
+Completed and cross-linked: `README.md`, `LICENSE`, `SECURITY.md`, `CONTRIBUTING.md`, architecture, decisions, threat model, benchmark protocol, judge quickstart, Codex collaboration, hackathon compliance, demo script, Devpost draft, brand system/audit, submission image guide, P0 audit, and this report. Exact authenticated Devpost fields 27945–27951 are recorded without writing the draft.
 
 ## 16. Demo rehearsal result
 
 - Deterministic evidence reset and preflight pass.
 - Preflight proves failure → targeted expansion → passing test → stale invalidation, chronological events, truth labels, benchmark fairness failure, retained runtime evidence, and required assets.
 - Real dashboard screenshots cover Home, capsule, routing evidence, lifecycle, expansion, and invalidation.
+- A privacy-safe real Codex plugin capture and signed-out public Vercel Home/Routing captures are included.
 - Final script targets 2:48 with a hard stop at 2:55 and describes the completed-but-unconfirmed route accurately.
 - No video with captured English audio was recorded or uploaded.
 
@@ -159,6 +172,9 @@ Completed and cross-linked: `README.md`, `LICENSE`, `SECURITY.md`, `CONTRIBUTING
 - Effective model identity remains `requested-unconfirmed` because the runtime emitted no effective/reroute event.
 - Dashboard combines deterministic replay with separately labeled retained App Server evidence rather than one continuous live workflow.
 - CLI/daemon SQLite and plugin portable JSON are separate stores unless configured to share a path.
+- Process-scoped plugin storage does not provide durable cross-task memory; use the daemon SQLite store for that behavior.
+- Plugin Mode lacks a sandbox-attested public route for creating trusted test artifacts; verified expansion/outcome remains internal/orchestrator-handoff work.
+- `kerno_compare_runs` is not reachable from a complete public run-recording workflow and its public metric contract needs alignment with the benchmark schema.
 - Outcome-driven ranking utility is not implemented; prior usefulness remains neutral and labeled unavailable.
 - JS/TS/Python relationship extraction is useful but not compiler-complete semantic analysis.
 - Linux and Windows are not locally verified; Windows is not claimed.
@@ -172,7 +188,8 @@ Completed and cross-linked: `README.md`, `LICENSE`, `SECURITY.md`, `CONTRIBUTING
 
 ## 19. External placeholders still required
 
-- `[REQUIRED FINAL REPOSITORY URL]`
+- Public repository (complete): `https://github.com/AmirmLotfy/kerno`
+- Public judge replay (complete): `https://kerno-codex.vercel.app`
 - `[REQUIRED PUBLIC YOUTUBE URL UNDER 3:00]`
 - `[REQUIRED PRIMARY /feedback SESSION ID]`
 - `[REQUIRED AUTHENTICATED DEVPOST FIELD CHECK]`
@@ -214,4 +231,4 @@ npm run judge:live
 
 ## 21. READY or NOT READY decision
 
-**NOT READY.** The local product is operational and judge-demonstrable. Release remains blocked until the fairness-valid three-task evaluation (plus separate routing experiment), effective-model evidence or an explicitly accepted criteria waiver, public repository access, public sub-three-minute video, primary `/feedback` Session ID, authenticated form check, and entrant/team confirmation are complete.
+**NOT READY.** The product is locally operational and publicly judge-demonstrable, but P0 release remains blocked until the Plugin Mode trusted-artifact handoff and public compare-runs workflow are complete, the fairness-valid three-task evaluation plus separate routing experiment exists, effective-model evidence is available or the acceptance criterion is explicitly revised, the public sub-three-minute video is verified, the primary `/feedback` Session ID is recorded, and human form/eligibility confirmations are complete.

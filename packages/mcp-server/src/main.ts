@@ -105,7 +105,8 @@ export async function runStdioServer(): Promise<void> {
   const markerStat = lstatSync(marker);
   if (!markerStat.isFile() || markerStat.nlink !== 1 || (typeof process.getuid === "function" && markerStat.uid !== process.getuid()) || readFileSync(marker, "utf8") !== "kerno-local-data-v1\n") throw new KernoError("SYMLINK_ESCAPE", `Kerno ownership marker is not an owner-controlled regular file: ${marker}`);
   chmodSync(marker, 0o600);
-  const databasePath = join(dataDir, portable ? "kerno-state.json" : "kerno.db");
+  const portableName = process.env.KERNO_STATE_SCOPE === "process" ? `kerno-state-${process.pid}.json` : "kerno-state.json";
+  const databasePath = join(dataDir, portable ? portableName : "kerno.db");
   for (const localPath of [databasePath, `${databasePath}.bak`, `${databasePath}-wal`, `${databasePath}-shm`, `${databasePath}-journal`]) {
     if (!existsSync(localPath)) continue;
     const stat = lstatSync(localPath);

@@ -8,7 +8,7 @@ import {
   recordDecisionInputSchema, recordOutcomeInputSchema, redactSensitiveValue, repositoryStatusInputSchema, routeTaskInputSchema, stableId
 } from "@kerno/contracts";
 import { analyzeTask, buildContextCapsule, createMemory, expandContextCapsule, explainCapsule, hashArtifact, invalidateMemory, routeTask } from "@kerno/core";
-import { indexRepository, inspectRepository, redactSecrets, type PreviousFile } from "@kerno/indexer";
+import { indexRepository, inspectRepository, readIndexableRepositoryFile, redactSecrets, type PreviousFile } from "@kerno/indexer";
 import { JsonStateStore, SqliteStateStore, type StateStore } from "@kerno/storage";
 
 export type KernoServiceOptions = { databasePath?: string; storage?: "sqlite" | "json" };
@@ -56,11 +56,14 @@ export class KernoService {
     if (Buffer.byteLength(input.output, "utf8") > 4 * 1024 * 1024) throw new KernoError("INVALID_INPUT", "Evidence artifact output exceeds 4 MiB");
     const contentHash = createHash("sha256").update(input.output).digest("hex");
     const redacted = redactSecrets(input.output).text.slice(0, 64_000);
+    const createdAt = new Date().toISOString();
+    const safeCommand = input.command?.map((part) => redactSecrets(part).text.slice(0, 4096)).slice(0, 64);
+    const verified = input.trusted === true && input.source !== "user-confirmed";
     const artifact: EvidenceArtifact = {
-      id: stableId("artifact", `${input.kind}:${contentHash}`), kind: input.kind, source: input.source,
-      contentHash, createdAt: new Date().toISOString(), redactedOutput: redacted, verified: input.trusted === true && input.source !== "user-confirmed",
+      id: stableId("artifact", JSON.stringify({ kind: input.kind, source: input.source, contentHash, exitCode: input.exitCode ?? null, command: safeCommand ?? null, verified, createdAt })), kind: input.kind, source: input.source,
+      contentHash, createdAt, redactedOutput: redacted, verified,
       ...(input.exitCode !== undefined ? { exitCode: input.exitCode } : {}),
-      ...(input.command ? { command: input.command.map((part) => redactSecrets(part).text.slice(0, 4096)).slice(0, 64) } : {})
+      ...(safeCommand ? { command: safeCommand } : {})
     };
     this.store.put("artifact", artifact.id, artifact);
     return artifact;
@@ -98,7 +101,7 @@ export class KernoService {
       let next = invalidateMemory(memory, previous, current);
       if (next.status === "verified") for (const key of next.invalidationConditions.filter((condition) => condition.kind === "test-artifact")) {
         const artifact = this.artifact(key.key);
-        if (!artifact?.verified || artifact.kind !== "test" || (key.expected && artifact.contentHash !== key.expected)) { next = { ...next, status: "stale" }; break; }
+        if (!artifact?.verified || artifact.kind !== "test" || artifact.exitCode !== 0 || (key.expected && artifact.contentHash !== key.expected)) { next = { ...next, status: "stale" }; break; }
       }
       if (next.status !== memory.status) this.store.saveMemory(next);
     }
@@ -119,10 +122,11 @@ export class KernoService {
   private async snapshotIsFresh(snapshot: IndexSnapshot): Promise<boolean> {
     const current = await inspectRepository(snapshot.repository.canonicalRoot);
     if (current.repository.id !== snapshot.repository.id || current.worktree.id !== snapshot.worktree.id || current.repository.ignoreDigest !== snapshot.repository.ignoreDigest || current.worktree.branch !== snapshot.worktree.branch || current.worktree.headCommit !== snapshot.worktree.headCommit || current.worktree.dirtyDigest !== snapshot.worktree.dirtyDigest) return false;
-    if (current.paths.length !== snapshot.files.length || current.paths.some((path, index) => path !== snapshot.files[index]?.path)) return false;
+    const snapshotPaths = new Set(snapshot.files.map((file) => file.path));
+    for (const path of current.paths) if (!snapshotPaths.has(path) && await readIndexableRepositoryFile(snapshot.repository.canonicalRoot, path)) return false;
     for (const file of snapshot.files) {
-      const content = await import("node:fs/promises").then(({ readFile }) => readFile(`${snapshot.repository.canonicalRoot}/${file.path}`)).catch(() => null);
-      if (!content || createHash("sha256").update(content).digest("hex") !== file.contentHash) return false;
+      const currentFile = await readIndexableRepositoryFile(snapshot.repository.canonicalRoot, file.path);
+      if (!currentFile || currentFile.contentHash !== file.contentHash) return false;
     }
     return true;
   }
@@ -133,7 +137,7 @@ export class KernoService {
       let next = invalidateMemory(memory, snapshot, snapshot);
       if (next.status === "verified") for (const key of next.invalidationConditions.filter((condition) => condition.kind === "test-artifact")) {
         const artifact = this.artifact(key.key);
-        if (!artifact?.verified || artifact.kind !== "test" || (key.expected && artifact.contentHash !== key.expected)) { next = { ...next, status: "stale" }; break; }
+        if (!artifact?.verified || artifact.kind !== "test" || artifact.exitCode !== 0 || (key.expected && artifact.contentHash !== key.expected)) { next = { ...next, status: "stale" }; break; }
       }
       if (next.status !== memory.status) this.store.saveMemory(next);
     }

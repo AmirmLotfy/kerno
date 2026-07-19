@@ -53,7 +53,7 @@
 
 - Date: 2026-07-19
 - Status: accepted
-- Decision: SQLite/WAL is the normal embedded store; the self-contained plugin bundle uses a validated atomic JSON store because native-addon resolution is unreliable in plugin caches.
+- Decision: SQLite/WAL is the normal embedded store; the self-contained plugin bundle uses a validated, process-scoped atomic JSON store because native-addon resolution is unreliable in plugin caches and multiple Codex hosts must not share a long-lived whole-file writer lock. Durable cross-task state belongs to the daemon SQLite store.
 - Consequence: Portable writes use temporary files, fsync, rename, and backup recovery; SQLite remains the richer daemon/CLI backend.
 
 ## ADR-009 — Industrial editorial visual direction

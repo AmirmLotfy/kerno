@@ -35,6 +35,16 @@ describe("storage migrations and integrity", () => {
     await writeFile(path, "{truncated", "utf8");
     expect(() => new JsonStateStore(path)).toThrow("portable storage is corrupt");
   });
+  it("refuses concurrent portable writers instead of losing state", async () => {
+    const root = await mkdtemp(join(tmpdir(), "kerno-portable-lock-")); cleanup.push(root); const path = join(root, "state.json");
+    const first = new JsonStateStore(path);
+    first.put("run", "run_first", { id: "run_first", createdAt: new Date().toISOString() });
+    expect(() => new JsonStateStore(path)).toThrow("already open by another process");
+    first.close();
+    const reopened = new JsonStateStore(path);
+    try { expect(reopened.get<{ id: string }>("run", "run_first")?.id).toBe("run_first"); }
+    finally { reopened.close(); }
+  });
   it("recursively redacts values at the persistence boundary", async () => {
     const root = await mkdtemp(join(tmpdir(), "kerno-storage-redaction-")); cleanup.push(root);
     const sqlitePath = join(root, "kerno.db"); const sqlite = new SqliteStateStore(sqlitePath);

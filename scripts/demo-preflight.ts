@@ -18,6 +18,8 @@ const replay = z.object({
   tests: z.object({ before: z.object({ passed: z.literal(false) }), after: z.object({ passed: z.literal(true) }) }),
   invalidation: z.object({ status: z.literal("stale") })
 }).passthrough().parse(JSON.parse(await readFile(replayPath, "utf8")));
+const replayText = JSON.stringify(replay);
+if (/(?:file:\/\/|\/Users\/|\/?private\/var\/folders\/|\/var\/folders\/|\/tmp\/)/.test(replayText)) throw new Error("Replay contains an unsanitized absolute or temporary path");
 for (let index = 1; index < replay.timeline.length; index += 1) {
   if (Date.parse(replay.timeline[index]!.at) < Date.parse(replay.timeline[index - 1]!.at)) throw new Error("Replay events are not chronological");
 }

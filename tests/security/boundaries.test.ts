@@ -30,6 +30,21 @@ describe("repository security boundaries", () => {
       expect(memory.status).toBe("candidate");
     } finally { service.close(); await rm(root, { recursive: true, force: true }); }
   });
+  it("keeps test artifacts immutable across exit status changes", async () => {
+    const root = await mkdtemp(join(tmpdir(), "kerno-artifact-identity-"));
+    await cp(fileURLToPath(new URL("../../fixtures/relaycart-ts/seed", import.meta.url)), root, { recursive: true });
+    const service = new KernoService();
+    try {
+      const snapshot = await service.index({ root, mode: "incremental" });
+      const passing = service.recordArtifact({ kind: "test", source: "command", output: "same output", exitCode: 0, command: ["node", "--test"], trusted: true });
+      const memory = service.recordDecision({ repositoryId: snapshot.repository.id, type: "test-proven-behavior", summary: "verified behavior", scope: "branch", evidence: [{ id: "evidence_pass", kind: "test", artifactId: passing.id }], invalidationConditions: [] });
+      expect(memory.status).toBe("verified");
+      const failing = service.recordArtifact({ kind: "test", source: "command", output: "same output", exitCode: 1, command: ["node", "--test"], trusted: true });
+      expect(failing.id).not.toBe(passing.id);
+      expect(service.artifact(passing.id)?.exitCode).toBe(0);
+      expect(service.artifact(failing.id)?.exitCode).toBe(1);
+    } finally { service.close(); await rm(root, { recursive: true, force: true }); }
+  });
   it("refuses expansion after a tracked path is added to the repository", async () => {
     const root = await mkdtemp(join(tmpdir(), "kerno-expansion-freshness-")); await cp(fileURLToPath(new URL("../../fixtures/relaycart-ts/seed", import.meta.url)), root, { recursive: true });
     const service = new KernoService();

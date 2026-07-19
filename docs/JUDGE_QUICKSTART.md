@@ -13,6 +13,12 @@ Setup usually takes a few minutes on a warm npm cache; no duration is guaranteed
 
 ## Three-command judge path
 
+### Zero-install replay
+
+Open [https://kerno-codex.vercel.app](https://kerno-codex.vercel.app). This public deployment is a static, read-only rendering of the checked-in replay and separately labeled retained App Server evidence. It does not index a judge repository, execute Codex, upload source, or claim to be live.
+
+### Local product and plugin
+
 ```bash
 npm install
 npm run doctor
@@ -55,6 +61,7 @@ codex plugin list
 ```
 
 The plugin contains the skill and cache-portable MCP executable/configuration.
+Its process-scoped portable store prevents concurrent Codex hosts from overwriting one shared JSON file; durable cross-task state uses the daemon's SQLite store. The bundled smoke covers index → fresh status → task → capsule. Plugin Mode currently has no sandbox-attested public ingress for converting a test command result into trusted Kerno evidence, so verified expansion in the judge replay is produced by the trusted local evaluation harness and is labeled as deterministic replay evidence.
 
 The reviewed hooks under `plugins/kerno/hooks/` are optional. Current plugin validation rejects an explicit manifest `hooks` field, so Kerno does not pretend they are auto-packaged. If cache-relative MCP execution fails, run:
 

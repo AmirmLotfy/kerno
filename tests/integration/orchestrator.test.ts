@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { fileURLToPath } from "node:url";
-import { CodexPhaseOrchestrator, classifyTurnFailure } from "@kerno/orchestrator";
+import { AppServerClient, CodexPhaseOrchestrator, classifyTurnFailure } from "@kerno/orchestrator";
 import { analyzeTask, routeTask } from "@kerno/core";
 
 const fake = fileURLToPath(new URL("../fixtures/fake-app-server.mjs", import.meta.url));
@@ -55,5 +55,21 @@ describe("App Server orchestration", () => {
   it("classifies operational failures without pretending success", () => {
     expect(classifyTurnFailure("failed", { message: "workspace is out of credits" })).toBe("usage-limit");
     expect(classifyTurnFailure("failed", { message: "authentication required" })).toBe("authentication");
+  });
+  it("rejects malformed model catalogs instead of coercing them", async () => {
+    const client = new AppServerClient();
+    client.request = async () => ({ data: [{ isDefault: true, supportedReasoningEfforts: [{ unexpected: "value" }] }] });
+    await expect(client.listModels()).rejects.toThrow();
+  });
+  it("accepts forward-compatible thread metadata while validating required route fields", async () => {
+    const client = new AppServerClient();
+    client.request = async () => ({
+      thread: { id: "thread_forward", extra: { future: true }, historyMode: "full" },
+      model: "efficient-model",
+      runtimeWorkspaceRoots: [cwd],
+      activePermissionProfile: { type: "disabled" },
+      multiAgentMode: "default"
+    });
+    await expect(client.startThread({ model: "efficient-model", cwd, mode: "read-only" })).resolves.toMatchObject({ threadId: "thread_forward", acceptedModel: "efficient-model" });
   });
 });

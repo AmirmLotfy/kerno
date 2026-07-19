@@ -1,11 +1,38 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { createInterface, type Interface } from "node:readline";
 import { randomUUID } from "node:crypto";
+import { z } from "zod";
 import type { CatalogModel, RouteDecision, RunEvent, TaskPhase } from "@kerno/contracts";
 import { KernoError, redactSensitiveValue } from "@kerno/contracts";
 
 type JsonObject = Record<string, any>;
 type Pending = { resolve: (value: any) => void; reject: (reason: Error) => void; timer: NodeJS.Timeout };
+
+const rpcErrorSchema = z.object({ code: z.union([z.string(), z.number()]), message: z.string(), data: z.unknown().optional() }).strict();
+const rpcMessageSchema = z.union([
+  z.object({ jsonrpc: z.string().optional(), id: z.number().int(), result: z.unknown().optional(), error: rpcErrorSchema.optional() }).strict().refine((value) => Number(value.result !== undefined) + Number(value.error !== undefined) === 1, "RPC response must contain exactly one result or error"),
+  z.object({ jsonrpc: z.string().optional(), method: z.string().min(1), params: z.unknown().optional() }).passthrough()
+]);
+const reasoningEffortSchema = z.union([z.string().min(1), z.object({ reasoningEffort: z.string().min(1), description: z.string().optional() }).strict()]);
+const appServerModelSchema = z.object({
+  id: z.string().min(1).optional(), model: z.string().min(1).optional(), upgrade: z.string().nullable().optional(), upgradeInfo: z.unknown().nullable().optional(), availabilityNux: z.unknown().nullable().optional(),
+  displayName: z.string().optional(), description: z.string().optional(), hidden: z.boolean().optional(), isDefault: z.boolean().optional(),
+  supportedReasoningEfforts: z.array(reasoningEffortSchema), defaultReasoningEffort: z.string().optional(), inputModalities: z.array(z.enum(["text", "image"])).optional(), supportsPersonality: z.boolean().optional(),
+  additionalSpeedTiers: z.array(z.string()).optional(), serviceTiers: z.array(z.object({ id: z.string(), name: z.string(), description: z.string() }).strict()).optional(), defaultServiceTier: z.string().nullable().optional()
+}).strict().refine((value) => Boolean(value.model || value.id), "model/list entry requires model or id");
+const modelListResponseSchema = z.object({ data: z.array(appServerModelSchema), nextCursor: z.string().nullable().optional() }).strict();
+const threadSchema = z.object({
+  id: z.string().min(1), sessionId: z.string().optional(), forkedFromId: z.string().nullable().optional(), parentThreadId: z.string().nullable().optional(), preview: z.string().optional(), ephemeral: z.boolean().optional(), modelProvider: z.string().optional(),
+  createdAt: z.number().optional(), updatedAt: z.number().optional(), recencyAt: z.number().nullable().optional(), status: z.unknown().optional(), path: z.string().nullable().optional(), cwd: z.string().optional(), cliVersion: z.string().optional(), source: z.unknown().optional(), threadSource: z.unknown().nullable().optional(), agentNickname: z.string().nullable().optional(), agentRole: z.string().nullable().optional(), gitInfo: z.unknown().nullable().optional(), name: z.string().nullable().optional(), turns: z.array(z.unknown()).optional()
+}).passthrough();
+const threadResponseSchema = z.object({ thread: threadSchema }).passthrough();
+const threadStartResponseSchema = z.object({
+  thread: threadSchema, model: z.string().optional(), modelProvider: z.string().optional(), serviceTier: z.string().nullable().optional(), cwd: z.string().optional(), instructionSources: z.array(z.string()).optional(), approvalPolicy: z.unknown().optional(), approvalsReviewer: z.unknown().optional(), sandbox: z.unknown().optional(), reasoningEffort: z.string().nullable().optional()
+}).passthrough();
+const turnSchema = z.object({ id: z.string().min(1), items: z.array(z.unknown()).optional(), itemsView: z.unknown().optional(), status: z.string().optional(), error: z.unknown().nullable().optional(), startedAt: z.number().nullable().optional(), completedAt: z.number().nullable().optional(), durationMs: z.number().nullable().optional() }).passthrough();
+const turnStartResponseSchema = z.object({ turn: turnSchema }).passthrough();
+const turnCompletedParamsSchema = z.object({ threadId: z.string().optional(), turn: turnSchema }).passthrough();
+const rerouteParamsSchema = z.object({ threadId: z.string().optional(), turnId: z.string().min(1), fromModel: z.string().optional(), toModel: z.string().min(1), reason: z.string().optional() }).strict();
 
 export type AppServerClientOptions = {
   command?: string;
@@ -44,7 +71,7 @@ export class AppServerClient {
 
   private handleLine(line: string): void {
     let message: JsonObject;
-    try { message = JSON.parse(line); } catch { this.options.onNotification?.("app-server/invalid-json", line.slice(0, 8_192)); return; }
+    try { message = rpcMessageSchema.parse(JSON.parse(line)); } catch { this.options.onNotification?.("app-server/invalid-message", line.slice(0, 8_192)); return; }
     if (typeof message.id === "number") {
       const pending = this.pending.get(message.id); if (!pending) return;
       clearTimeout(pending.timer); this.pending.delete(message.id);
@@ -53,8 +80,10 @@ export class AppServerClient {
       return;
     }
     if (typeof message.method === "string") {
-      if (message.method === "turn/completed" && message.params?.turn?.id) {
-        const turnId = String(message.params.turn.id); this.completedTurns.set(turnId, message.params);
+      if (message.method === "turn/completed") {
+        const params = turnCompletedParamsSchema.safeParse(message.params);
+        if (!params.success) { this.options.onNotification?.("app-server/invalid-notification", { method: message.method }); return; }
+        const turnId = params.data.turn.id; this.completedTurns.set(turnId, params.data);
         const waiter = this.turnWaiters.get(turnId); if (waiter) { clearTimeout(waiter.timer); this.turnWaiters.delete(turnId); waiter.resolve(message.params); }
       }
       this.options.onNotification?.(message.method, message.params);
@@ -75,29 +104,28 @@ export class AppServerClient {
   }
 
   async listModels(): Promise<{ catalogSnapshotId: string; models: CatalogModel[]; raw: unknown }> {
-    const result = await this.request("model/list", { limit: 100, includeHidden: false });
-    const data = Array.isArray(result?.data) ? result.data : [];
-    const models: CatalogModel[] = data.map((model: any) => ({
-      id: String(model.model ?? model.id), displayName: String(model.displayName ?? model.model ?? model.id), isDefault: Boolean(model.isDefault), hidden: Boolean(model.hidden),
-      supportedReasoningEfforts: Array.isArray(model.supportedReasoningEfforts) ? model.supportedReasoningEfforts.map((effort: any) => String(effort.reasoningEffort ?? effort)) : [],
+    const result = modelListResponseSchema.parse(await this.request("model/list", { limit: 100, includeHidden: false }));
+    const models: CatalogModel[] = result.data.map((model) => ({
+      id: model.model ?? model.id!, displayName: model.displayName ?? model.model ?? model.id!, isDefault: model.isDefault ?? false, hidden: model.hidden ?? false,
+      supportedReasoningEfforts: model.supportedReasoningEfforts.map((effort) => typeof effort === "string" ? effort : effort.reasoningEffort),
       ...(model.defaultReasoningEffort ? { defaultReasoningEffort: String(model.defaultReasoningEffort) } : {})
     }));
     if (!models.length) throw new KernoError("NO_COMPATIBLE_MODEL", "App Server returned an empty live model catalog");
     return { catalogSnapshotId: `catalog_${randomUUID()}`, models, raw: result };
   }
   async startThread(options: { model: string; cwd: string; mode: "read-only" | "workspace-write"; developerInstructions?: string }): Promise<{ threadId: string; acceptedModel: string; raw: unknown }> {
-    const result = await this.request("thread/start", { model: options.model, cwd: options.cwd, approvalPolicy: "never", sandbox: options.mode, ephemeral: true, ...(options.developerInstructions ? { developerInstructions: options.developerInstructions } : {}) });
-    const threadId = result?.thread?.id; if (!threadId) throw new Error("thread/start returned no thread id");
+    const result = threadStartResponseSchema.parse(await this.request("thread/start", { model: options.model, cwd: options.cwd, approvalPolicy: "never", sandbox: options.mode, ephemeral: true, ...(options.developerInstructions ? { developerInstructions: options.developerInstructions } : {}) }));
+    const threadId = result.thread.id;
     return { threadId, acceptedModel: String(result.model ?? options.model), raw: result };
   }
-  async forkThread(threadId: string): Promise<{ threadId: string; raw: unknown }> { const result = await this.request("thread/fork", { threadId }); if (!result?.thread?.id) throw new Error("thread/fork returned no thread id"); return { threadId: result.thread.id, raw: result }; }
-  async resumeThread(threadId: string): Promise<unknown> { return this.request("thread/resume", { threadId }); }
+  async forkThread(threadId: string): Promise<{ threadId: string; raw: unknown }> { const result = threadResponseSchema.parse(await this.request("thread/fork", { threadId })); return { threadId: result.thread.id, raw: result }; }
+  async resumeThread(threadId: string): Promise<unknown> { return threadResponseSchema.parse(await this.request("thread/resume", { threadId })); }
   async runTurn(options: { threadId: string; prompt: string; model: string; effort: string; cwd?: string; mode?: "read-only" | "workspace-write" }): Promise<{ turnId: string; acceptedRequest: { model: string; effort: string }; status: string; error: unknown; raw: unknown; completion: unknown }> {
     const sandboxPolicy = options.mode === "workspace-write"
       ? { type: "workspaceWrite", writableRoots: options.cwd ? [options.cwd] : [], networkAccess: false, excludeTmpdirEnvVar: false, excludeSlashTmp: false }
       : { type: "readOnly", networkAccess: false };
-    const result = await this.request("turn/start", { threadId: options.threadId, input: [{ type: "text", text: options.prompt, text_elements: [] }], model: options.model, effort: options.effort, ...(options.cwd ? { cwd: options.cwd } : {}), sandboxPolicy, approvalPolicy: "never" });
-    const turnId = result?.turn?.id; if (!turnId) throw new Error("turn/start returned no turn id");
+    const result = turnStartResponseSchema.parse(await this.request("turn/start", { threadId: options.threadId, input: [{ type: "text", text: options.prompt, text_elements: [] }], model: options.model, effort: options.effort, ...(options.cwd ? { cwd: options.cwd } : {}), sandboxPolicy, approvalPolicy: "never" }));
+    const turnId = result.turn.id;
     try {
       const completion: any = await this.waitForTurn(String(turnId));
       return { turnId, acceptedRequest: { model: options.model, effort: options.effort }, status: String(completion?.turn?.status ?? "unknown"), error: completion?.turn?.error ?? null, raw: result, completion };
@@ -142,7 +170,11 @@ export class CodexPhaseOrchestrator {
     this.client = new AppServerClient({ ...clientOptions, onNotification: (method, params) => this.capture(method, params) });
   }
   private capture(method: string, params: any): void {
-    if (method === "model/rerouted" && params?.turnId && params?.toModel) this.reroutes.set(params.turnId, params.toModel);
+    if (method === "model/rerouted") {
+      const reroute = rerouteParamsSchema.safeParse(params);
+      if (!reroute.success) return;
+      this.reroutes.set(reroute.data.turnId, reroute.data.toModel);
+    }
     if (!this.activeRunId) return;
     const event = { runId: this.activeRunId, sequence: this.sequence++, occurredAt: new Date().toISOString(), source: "app-server" as const, type: method, redactedPayload: sanitizeRuntimePayload(params) };
     this.events.push(event); this.eventSink?.(event);

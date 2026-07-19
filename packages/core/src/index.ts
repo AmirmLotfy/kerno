@@ -159,11 +159,20 @@ export function buildContextCapsule(task: TaskAnalysis, snapshot: IndexSnapshot,
     items.push(candidate.item); used += candidate.item.estimatedTokens;
   }
   const createdAt = new Date().toISOString();
-  const identity = `${task.id}:${snapshot.id}:${options.parentCapsuleId ?? "root"}:${options.triggerEvidence?.id ?? "initial"}:${items.map((item) => item.id).join(",")}`;
+  const phase = options.phase ?? "targeted-retrieval";
+  const identity = JSON.stringify({
+    taskId: task.id,
+    snapshotId: snapshot.id,
+    parentCapsuleId: options.parentCapsuleId ?? null,
+    phase,
+    budgetTokens: budget,
+    triggerEvidence: options.triggerEvidence ? { id: options.triggerEvidence.id, contentHash: options.triggerEvidence.contentHash ?? null } : null,
+    itemIds: items.map((item) => item.id)
+  });
   return {
     id: stableId("capsule", identity), taskAnalysisId: task.id, snapshotId: snapshot.id,
     ...(options.parentCapsuleId ? { parentCapsuleId: options.parentCapsuleId } : {}),
-    phase: options.phase ?? "targeted-retrieval", budgetTokens: budget, estimatedTokens: used, createdAt,
+    phase, budgetTokens: budget, estimatedTokens: used, createdAt,
     ...(options.triggerEvidence ? { triggerEvidence: options.triggerEvidence } : {}),
     items, excluded, status: "current"
   };

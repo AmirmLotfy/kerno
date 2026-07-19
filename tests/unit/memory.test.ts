@@ -75,4 +75,17 @@ describe("evidence-backed memory", () => {
       expect(service.store.get<typeof memory>("memory", memory.id)?.status).toBe("stale");
     } finally { service.close(); }
   });
+
+  it("keeps phase and budget capsule variants immutable", async () => {
+    const service = new KernoService();
+    try {
+      const snapshot = await service.index({ root: fixture, mode: "incremental" });
+      const task = service.analyze({ repositoryId: snapshot.repository.id, taskText: "Review refund transaction behavior" });
+      const debugging = await service.buildCapsule({ taskAnalysisId: task.id, phase: "debugging", budgetTokens: 1200 });
+      const review = await service.buildCapsule({ taskAnalysisId: task.id, phase: "security-review", budgetTokens: 2400 });
+      expect(review.id).not.toBe(debugging.id);
+      expect(service.store.capsule(debugging.id)).toMatchObject({ phase: "debugging", budgetTokens: 1200 });
+      expect(service.store.capsule(review.id)).toMatchObject({ phase: "security-review", budgetTokens: 2400 });
+    } finally { service.close(); }
+  });
 });

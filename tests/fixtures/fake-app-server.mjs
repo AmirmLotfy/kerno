@@ -1,6 +1,6 @@
 import readline from "node:readline";
 const lines = readline.createInterface({ input: process.stdin });
-const send = (message) => process.stdout.write(`${JSON.stringify(message)}\n`);
+const send = (message) => process.stdout.write(`${JSON.stringify(message.method ? { ...message, emittedAtMs: Date.now() } : message)}\n`);
 let threadSequence = 0; let turnSequence = 0;
 lines.on("line", (line) => {
   const message = JSON.parse(line);

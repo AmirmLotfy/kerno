@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { createHash } from "node:crypto";
 
 export const SCHEMA_VERSION = "1" as const;
 export const idSchema = z.string().min(3).max(160);
@@ -337,7 +338,5 @@ export class KernoError extends Error {
 }
 
 export function stableId(prefix: string, value: string): string {
-  let hash = 2166136261;
-  for (let i = 0; i < value.length; i += 1) { hash ^= value.charCodeAt(i); hash = Math.imul(hash, 16777619); }
-  return `${prefix}_${(hash >>> 0).toString(36)}`;
+  return `${prefix}_${createHash("sha256").update(value).digest("hex").slice(0, 32)}`;
 }

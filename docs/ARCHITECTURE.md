@@ -60,7 +60,7 @@ Token estimates use `ceil(characters / 4)` and remain labeled estimates. Stable 
 
 The daemon uses versioned SQLite migrations, foreign keys, WAL, bounded busy timeouts, and repository-scoped indexing leases. A snapshot becomes current only after file/symbol/edge changes and invalidations commit. Corruption/migration tests reject incompatible state rather than resetting silently.
 
-The plugin bundle uses a portable atomic JSON adapter because native module resolution from a copied plugin cache is unreliable. It writes a temporary file, flushes, renames, and maintains a recovery backup. This is a compatibility adapter, not a second domain model.
+The plugin bundle uses a portable atomic JSON adapter because native module resolution from a copied plugin cache is unreliable. It writes a temporary file, flushes, renames, and maintains a recovery backup. Installed plugin MCP processes use process-scoped state files so concurrent Codex hosts cannot overwrite one shared JSON document; durable cross-task state remains the daemon's SQLite responsibility. This is a compatibility adapter, not a second domain model.
 
 ## MCP contract surface
 

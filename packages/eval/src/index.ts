@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { cp, mkdtemp, readFile, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFile as execFileCallback } from "node:child_process";
@@ -25,7 +25,7 @@ export async function recordCanonicalReplay(options: { fixtureRoot: string; solu
   schemaVersion: "1"; label: "DETERMINISTIC FIXTURE REPLAY"; recordedAt: string; source: { fixture: string; task: string };
   repository: unknown; task: unknown; initialCapsule: unknown; childCapsule: unknown; route: unknown; tests: unknown; review: unknown; invalidation: unknown; metrics: unknown; timeline: unknown[]; artifactHash: string;
 }> {
-  const temp = await mkdtemp(join(tmpdir(), "kerno-replay-"));
+  const temp = await realpath(await mkdtemp(join(tmpdir(), "kerno-replay-")));
   const worktree = join(temp, "relaycart-ts"); await cp(options.fixtureRoot, worktree, { recursive: true });
   const gitEnv = { ...process.env, GIT_AUTHOR_NAME: "Kerno Replay", GIT_AUTHOR_EMAIL: "replay@local.invalid", GIT_COMMITTER_NAME: "Kerno Replay", GIT_COMMITTER_EMAIL: "replay@local.invalid", GIT_AUTHOR_DATE: "2026-07-19T00:00:00Z", GIT_COMMITTER_DATE: "2026-07-19T00:00:00Z" };
   await execFile("git", ["init", "-b", "main"], { cwd: worktree, env: gitEnv });
@@ -84,7 +84,13 @@ export async function recordCanonicalReplay(options: { fixtureRoot: string; solu
       invalidation: { capsuleId: initial.id, status: storedInitial?.status ?? "unknown", changedFiles: changedIndex.files.filter((file) => firstIndex.files.find((old) => old.path === file.path)?.contentHash !== file.contentHash).map((file) => file.path) },
       metrics: { taskSuccess: null, testsPassed: passing.passed ? 3 : 0, threadTokens: null, filesOpened: null, repeatedReads: null, toolCalls: null, timeToFirstValidPatchMs: null, totalLatencyMs: null, unnecessaryChangedLines: null, reviewerFindings: null, staleContextMistakes: null, contextExpansionCount: 1 }, timeline
     };
-    return { ...resultWithoutHash, artifactHash: createHash("sha256").update(JSON.stringify(resultWithoutHash)).digest("hex") };
+    const serialized = JSON.stringify(resultWithoutHash)
+      .replaceAll(`file://${worktree}`, "[REPLAY_WORKTREE]")
+      .replaceAll(worktree, "[REPLAY_WORKTREE]")
+      .replaceAll(`file://${temp}`, "[TEMP]")
+      .replaceAll(temp, "[TEMP]");
+    const sanitized = JSON.parse(serialized) as typeof resultWithoutHash;
+    return { ...sanitized, artifactHash: createHash("sha256").update(JSON.stringify(sanitized)).digest("hex") };
   } finally { service.close(); await rm(temp, { recursive: true, force: true }); }
 }
 

@@ -2,7 +2,7 @@
 
 ## Truth brief
 
-Latest refresh: **July 19, 2026 at 2:05 PM PDT / July 20, 2026 at 12:05 AM Africa/Cairo / July 19, 2026 at 9:05 PM UTC**. Approximately 51 hours remained. No substantive requirement changed from the prior grounding.
+Latest refresh: **July 19, 2026 at 2:21 PM PDT / July 20, 2026 at 12:21 AM Africa/Cairo / July 19, 2026 at 9:21 PM UTC**. Approximately 51 hours remained. No substantive requirement changed from the prior grounding.
 
 The selected Devpost Hackathons plugin was called first and returned complete overview, announcements, rules, dates, criteria, prizes, registration, and submission-field data. Official Devpost pages were then cross-checked. The authenticated account is already registered, and an empty unsubmitted Kerno draft exists at `https://devpost.com/software/kerno`. No project field was created, edited, uploaded, or submitted in this refresh.
 
@@ -28,7 +28,7 @@ No Devpost write was performed in this refresh. The existing draft remains unsub
 | 27946 | Country of Residence | Yes | Human confirmation required; Egypt is present in the options and official eligibility list |
 | 27947 | Category | Yes | Developer Tools |
 | 27948 | Public or private code repository URL, README, and Codex/GPT-5.6 evidence | Yes | `https://github.com/AmirmLotfy/kerno` |
-| 27949 | Judge test URL and instructions | No | Public Vercel replay URL to be recorded after deployment |
+| 27949 | Judge test URL and instructions | No | `https://kerno-codex.vercel.app`; signed-out replay verification passed |
 | 27950 | Primary `/feedback` Session ID | Yes | Still required from this root implementation task |
 | 27951 | Plugin/developer-tool install, platform, and testing instructions | Form says optional; prose requires it for this project type | Drafted in `docs/DEVPOST_SUBMISSION.md` |
 
@@ -38,7 +38,7 @@ Global deliverables from the live form: video required; website not required; zi
 
 | Source | Retrieved | Use |
 |---|---:|---|
-| Devpost Hackathons plugin | Jul 19, 2:05 PM PDT / Jul 20, 12:05 AM Cairo | Authenticated retrieval of overview, announcements, registration state, project draft state, and exact submission fields |
+| Devpost Hackathons plugin | Jul 19, 2:21 PM PDT / Jul 20, 12:21 AM Cairo | Authenticated retrieval of overview, announcements, registration state, project draft state, and exact submission fields |
 | [Official Rules](https://openai.devpost.com/rules) | Same | Controlling contractual source for deadline, eligibility, deliverables, judging, testing, and prizes |
 | [Hackathon overview](https://openai.devpost.com/) | Same | Tracks, overview requirements, judging summary, and prizes |
 | [Resources](https://openai.devpost.com/resources) | Same | Credits, setup, support, and demo tips |
@@ -60,7 +60,7 @@ Global deliverables from the live form: video required; website not required; zi
 | Judging criteria | No observed change | Official Rules and overview | Preserve equal alignment to implementation, design, impact, and idea quality |
 | Resources | No new credit availability observed | Official Resources | Keep replay path independent of event credits |
 | Submission requirements | No observed change | Official Rules and FAQ | Preserve public under-three-minute video, repository access, and `/feedback` Session ID requirements |
-| Submission fields | Exact authenticated fields are now available | Devpost plugin submission-requirements response | Map fields 27945–27951; keep human selections and external IDs unset |
+| Submission fields | No change; exact authenticated fields remain available | Devpost plugin submission-requirements response | Map fields 27945–27951; keep human selections and external IDs unset |
 | Registration/project | Account is already registered; Kerno draft `1352517` exists but is empty and unsubmitted | Devpost plugin registration and project reads | Reuse the existing draft later; do not create a duplicate or write without authorization |
 | Devpost plugin | Selected plugin is callable | Devpost plugin plus FAQ; Rules/FAQ define it as optional | Use it for retrieval only in this pass; official Rules still control conflicts |
 
@@ -96,14 +96,15 @@ Global deliverables from the live form: video required; website not required; zi
 
 | Requirement | State | Evidence or blocker |
 |---|---|---|
-| Working Developer Tools project | Pass locally | Deterministic vertical slice, plugin bundle, MCP, dashboard, and tests exist |
+| Working Developer Tools project | Partial | Deterministic service slice, plugin index/capsule path, MCP, dashboard, and tests exist; a public trusted test-artifact handoff into Plugin Mode remains missing |
 | Meaningful Codex and GPT-5.6 use | Partial | Root implementation collaboration is documented; retained App Server evidence requested a live-discovered GPT-5.6 model but did not independently confirm the effective model |
 | Installation, supported platforms, no-rebuild test path | Pass locally | `README.md`, `docs/JUDGE_QUICKSTART.md`, plugin archive, replay mode |
-| Repository access | In progress | Public repository created at `https://github.com/AmirmLotfy/kerno`; final push and signed-out verification remain |
+| Repository access | Pass externally | Public repository is pushed and visible signed out at `https://github.com/AmirmLotfy/kerno` |
+| No-rebuild judge path | Pass externally | Public replay is visible signed out at `https://kerno-codex.vercel.app`; local/plugin paths remain documented |
 | README and license | Pass locally | Apache-2.0 repository and required setup/collaboration material exist |
 | Public YouTube video under 3:00 with English audio | Blocked externally | Script is complete; video has not been recorded, uploaded, or checked signed out |
 | Primary `/feedback` Session ID | Blocked externally | User must run `/feedback` in this root implementation task and record the returned ID |
 | Authenticated submission fields | Partial | Exact labels are recorded; human submitter/country choices, `/feedback`, video, and final authorized write remain |
 | Entrant/team eligibility | Blocked on human confirmation | Residence list includes Egypt, but age, sanctions, ownership, conflicts, and representative authority are not machine-verifiable |
 
-**Compliance decision:** locally demonstrable, but **NOT READY for submission** until the repository push/deployment verification, video, Session-ID, human form choices, and eligibility blockers are resolved. The account and Kerno draft pre-existed this refresh; no Devpost project creation, edit, upload, or submission occurred during this validation.
+**Compliance decision:** locally and publicly demonstrable, but **NOT READY for submission** until the video, Session-ID, human form choices, eligibility confirmation, and evaluation blockers are resolved. The account and Kerno draft pre-existed this refresh; no Devpost project creation, edit, upload, or submission occurred during this validation.

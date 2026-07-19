@@ -302,21 +302,62 @@ export class JsonStateStore implements StateStore {
   private state: JsonState;
   private leases = new Map<string, { owner: string; expiresAt: number }>();
   private transactionDepth = 0;
+  private readonly lockPath: string;
+  private closed = false;
   constructor(private path: string) {
     assertSafeStatePath(path);
+    this.lockPath = `${path}.lock`;
+    this.acquireExclusiveLock();
     const backup = `${path}.bak`;
-    if (existsSync(backup)) {
-      const backupStat = lstatSync(backup);
-      if (!backupStat.isFile() || backupStat.isSymbolicLink() || backupStat.nlink !== 1 || !isCurrentOwner(backupStat.uid)) throw new KernoError("SYMLINK_ESCAPE", `Refusing unsafe Kerno state backup: ${backup}`);
-      chmodSync(backup, OWNER_FILE_MODE);
+    try {
+      if (existsSync(backup)) {
+        const backupStat = lstatSync(backup);
+        if (!backupStat.isFile() || backupStat.isSymbolicLink() || backupStat.nlink !== 1 || !isCurrentOwner(backupStat.uid)) throw new KernoError("SYMLINK_ESCAPE", `Refusing unsafe Kerno state backup: ${backup}`);
+        chmodSync(backup, OWNER_FILE_MODE);
+      }
+      try { this.state = existsSync(path) ? JSON.parse(readFileSync(path, "utf8")) as JsonState : { schemaVersion: 1, entities: [], events: [] }; }
+      catch (error) {
+        try { this.state = JSON.parse(readFileSync(backup, "utf8")) as JsonState; }
+        catch { throw new Error(`Kerno portable storage is corrupt at ${path}: ${error instanceof Error ? error.message : String(error)}`); }
+      }
+      if (this.state.schemaVersion !== 1 || !Array.isArray(this.state.entities) || !Array.isArray(this.state.events)) throw new Error(`Kerno portable storage has an unsupported or corrupt schema at ${path}`);
+      this.state = safePersistedValue(this.state);
+    } catch (error) {
+      this.releaseExclusiveLock();
+      throw error;
     }
-    try { this.state = existsSync(path) ? JSON.parse(readFileSync(path, "utf8")) as JsonState : { schemaVersion: 1, entities: [], events: [] }; }
-    catch (error) {
-      try { this.state = JSON.parse(readFileSync(backup, "utf8")) as JsonState; }
-      catch { throw new Error(`Kerno portable storage is corrupt at ${path}: ${error instanceof Error ? error.message : String(error)}`); }
+  }
+  private acquireExclusiveLock(): void {
+    const tryCreate = (): boolean => {
+      try {
+        const descriptor = openSync(this.lockPath, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | (constants.O_NOFOLLOW ?? 0), OWNER_FILE_MODE);
+        try { writeFileSync(descriptor, `${JSON.stringify({ pid: process.pid, createdAt: new Date().toISOString() })}\n`); fsyncSync(descriptor); }
+        finally { closeSync(descriptor); }
+        chmodSync(this.lockPath, OWNER_FILE_MODE); return true;
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+        return false;
+      }
+    };
+    if (tryCreate()) return;
+    const stat = lstatSync(this.lockPath);
+    if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1 || !isCurrentOwner(stat.uid)) throw new KernoError("SYMLINK_ESCAPE", `Refusing unsafe Kerno portable storage lock: ${this.lockPath}`);
+    let ownerPid: number | undefined;
+    try { ownerPid = Number((JSON.parse(readFileSync(this.lockPath, "utf8")) as { pid?: unknown }).pid); } catch { /* actionable busy error below */ }
+    if (Number.isSafeInteger(ownerPid) && ownerPid! > 0) {
+      try { process.kill(ownerPid!, 0); }
+      catch (error) {
+        if ((error as NodeJS.ErrnoException).code === "ESRCH") { unlinkSync(this.lockPath); if (tryCreate()) return; }
+      }
     }
-    if (this.state.schemaVersion !== 1 || !Array.isArray(this.state.entities) || !Array.isArray(this.state.events)) throw new Error(`Kerno portable storage has an unsupported or corrupt schema at ${path}`);
-    this.state = safePersistedValue(this.state);
+    throw new KernoError("INDEX_BUSY", `Portable Kerno state is already open by another process; close the other Kerno MCP/CLI process or remove a verified stale lock at ${this.lockPath}`, true);
+  }
+  private releaseExclusiveLock(): void {
+    if (!existsSync(this.lockPath)) return;
+    try {
+      const owner = JSON.parse(readFileSync(this.lockPath, "utf8")) as { pid?: unknown };
+      if (owner.pid === process.pid) unlinkSync(this.lockPath);
+    } catch { /* Never remove an unverifiable lock. */ }
   }
   private persist(): void {
     if (this.transactionDepth > 0) return;
@@ -345,7 +386,7 @@ export class JsonStateStore implements StateStore {
     try { const result = operation(); this.transactionDepth -= 1; if (this.transactionDepth === 0) this.persist(); return result; }
     catch (error) { this.state = before; this.transactionDepth -= 1; throw error; }
   }
-  close(): void { this.persist(); }
+  close(): void { if (this.closed) return; try { this.persist(); } finally { this.closed = true; this.releaseExclusiveLock(); } }
   acquireLease(repositoryId: string, owner: string, ttlMs = 30_000): boolean { const current = this.leases.get(repositoryId); if (current && current.expiresAt >= Date.now()) return false; this.leases.set(repositoryId, { owner, expiresAt: Date.now() + ttlMs }); return true; }
   releaseLease(repositoryId: string, owner: string): void { if (this.leases.get(repositoryId)?.owner === owner) this.leases.delete(repositoryId); }
   put(kind: EntityKind, id: string, value: unknown, repositoryId?: string, status?: string): void {

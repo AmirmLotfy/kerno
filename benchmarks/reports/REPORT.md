@@ -1,6 +1,6 @@
 # Kerno benchmark report
 
-Generated: 2026-07-19T19:18:17.696Z
+Generated: 2026-07-19T22:08:14.758Z
 
 Recorded real runs: **8**. Missing values are unavailable, never zero.
 

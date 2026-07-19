@@ -28,6 +28,12 @@ export type IndexOptions = {
   previous?: Map<string, PreviousFile>;
 };
 
+export type IndexableRepositoryFile = {
+  absolutePath: string;
+  buffer: Buffer;
+  contentHash: string;
+};
+
 function sha256(value: string | Buffer): string { return createHash("sha256").update(value).digest("hex"); }
 function normalizePath(path: string): string { return path.split(sep).join("/"); }
 function languageFor(path: string): FileSnapshot["language"] {
@@ -40,6 +46,27 @@ function languageFor(path: string): FileSnapshot["language"] {
 function isLikelyBinary(buffer: Buffer): boolean {
   const sample = buffer.subarray(0, Math.min(buffer.length, 8_192));
   return sample.includes(0);
+}
+
+export async function readIndexableRepositoryFile(root: string, path: string): Promise<IndexableRepositoryFile | null> {
+  const absolute = assertWithinRepository(root, path);
+  const stat = await lstat(absolute).catch(() => null);
+  if (!stat || !stat.isFile() || stat.isSymbolicLink() || stat.size > MAX_FILE_SIZE) return null;
+  const handle = await open(absolute, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0)).catch((error) => {
+    if ((error as NodeJS.ErrnoException).code === "ELOOP") throw new KernoError("SYMLINK_ESCAPE", `Refusing symlinked file: ${path}`);
+    throw error;
+  });
+  try {
+    const opened = await handle.stat();
+    if (!opened.isFile() || opened.size > MAX_FILE_SIZE) return null;
+    const resolved = await realpath(absolute);
+    if (resolved !== root && !resolved.startsWith(`${root}${sep}`)) throw new KernoError("SYMLINK_ESCAPE", `Resolved path escaped repository: ${path}`);
+    const buffer = await handle.readFile();
+    if (isLikelyBinary(buffer)) return null;
+    return { absolutePath: resolved, buffer, contentHash: sha256(buffer) };
+  } finally {
+    await handle.close();
+  }
 }
 export function redactSecrets(value: string): { text: string; redacted: boolean } {
   return redactSensitiveString(value);
@@ -201,23 +228,9 @@ export async function indexRepository(root: string, options: IndexOptions = {}):
   let parsed = 0, reused = 0, skipped = 0, changed = 0;
   for (const path of paths) {
     if (isAbsolute(path) || path.includes("\0") || path.split("/").includes("..")) { skipped += 1; continue; }
-    const absolute = join(repository.canonicalRoot, path);
-    const stat = await lstat(absolute).catch(() => null);
-    if (!stat || !stat.isFile() || stat.isSymbolicLink() || stat.size > MAX_FILE_SIZE) { skipped += 1; continue; }
-    const handle = await open(absolute, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0)).catch((error) => {
-      if ((error as NodeJS.ErrnoException).code === "ELOOP") throw new KernoError("SYMLINK_ESCAPE", `Refusing symlinked file: ${path}`);
-      throw error;
-    });
-    let resolved: string; let buffer: Buffer;
-    try {
-      const opened = await handle.stat();
-      if (!opened.isFile() || opened.size > MAX_FILE_SIZE) { skipped += 1; continue; }
-      resolved = await realpath(absolute);
-      if (resolved !== repository.canonicalRoot && !resolved.startsWith(`${repository.canonicalRoot}${sep}`)) throw new KernoError("SYMLINK_ESCAPE", `Resolved path escaped repository: ${path}`);
-      buffer = await handle.readFile();
-    } finally { await handle.close(); }
-    if (isLikelyBinary(buffer)) { skipped += 1; continue; }
-    const hash = sha256(buffer);
+    const indexable = await readIndexableRepositoryFile(repository.canonicalRoot, path);
+    if (!indexable) { skipped += 1; continue; }
+    const { absolutePath: resolved, buffer, contentHash: hash } = indexable;
     const old = previous.get(path);
     const reusable = old?.contentHash === hash && Array.isArray(old.snapshot.exports) && Array.isArray(old.snapshot.calls);
     if (options.mode !== "full" && reusable) { files.push(old.snapshot); reused += 1; continue; }

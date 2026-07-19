@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1",
   "label": "DETERMINISTIC FIXTURE REPLAY",
-  "recordedAt": "2026-07-19T19:18:20.163Z",
+  "recordedAt": "2026-07-19T22:08:13.959Z",
   "source": {
     "fixture": "relaycart-ts",
     "task": "refund-debug"
   },
   "repository": {
-    "id": "repo_2p85nm",
-    "currentSnapshotId": "snapshot_101iswy",
-    "taskSnapshotId": "snapshot_vxp8f8",
+    "id": "repo_3708990e926d293b5db154e7c5f20fd8",
+    "currentSnapshotId": "snapshot_23311afa5f91aa626a75beadd29c1f26",
+    "taskSnapshotId": "snapshot_7f1d52841a95dc147f0366335a89d255",
     "snapshotStatus": "current",
     "name": "relaycart-ts",
     "branch": "main",
@@ -18,7 +18,7 @@
     "startingCommit": "30766fe0a961b73e725e89545fe8716e21c23840",
     "files": 7,
     "symbols": 48,
-    "indexFreshness": "2026-07-19T19:18:20.161Z",
+    "indexFreshness": "2026-07-19T22:08:13.957Z",
     "unchangedReparsed": 0,
     "languageBreakdown": {
       "text": 1,
@@ -28,9 +28,9 @@
     "invalidationCount": 1
   },
   "task": {
-    "id": "task_zinr21",
-    "repositoryId": "repo_2p85nm",
-    "snapshotId": "snapshot_vxp8f8",
+    "id": "task_776a2aa631e9d87a7e0203aea87e10eb",
+    "repositoryId": "repo_3708990e926d293b5db154e7c5f20fd8",
+    "snapshotId": "snapshot_7f1d52841a95dc147f0366335a89d255",
     "taskText": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
     "intent": "debugging",
     "terms": [
@@ -68,19 +68,19 @@
       "migration": 0.1,
       "contextBreadth": 0.75
     },
-    "createdAt": "2026-07-19T19:18:19.308Z"
+    "createdAt": "2026-07-19T22:08:13.108Z"
   },
   "initialCapsule": {
-    "id": "capsule_1mqdtb1",
-    "taskAnalysisId": "task_zinr21",
-    "snapshotId": "snapshot_vxp8f8",
+    "id": "capsule_1b339ad929122eb4833361a4e595f272",
+    "taskAnalysisId": "task_776a2aa631e9d87a7e0203aea87e10eb",
+    "snapshotId": "snapshot_7f1d52841a95dc147f0366335a89d255",
     "phase": "targeted-retrieval",
     "budgetTokens": 2500,
     "estimatedTokens": 1094,
-    "createdAt": "2026-07-19T19:18:19.446Z",
+    "createdAt": "2026-07-19T22:08:13.241Z",
     "items": [
       {
-        "id": "item_1eu0223",
+        "id": "item_bc769bfe8f4fc746dc942e180ce3f9ac",
         "sourceType": "test",
         "locator": {
           "path": "tests/refund.integration.test.ts"
@@ -106,7 +106,7 @@
         "excerpt": "import assert from \"node:assert/strict\";\nimport test from \"node:test\";\nimport { MemoryIdempotencyStore } from \"../src/idempotency/idempotency-store.ts\";\nimport { MemoryLedger } from \"../src/ledger/ledger.ts\";\nimport { RefundHandler } from \"../src/webhooks/refund-handler.ts\";\n\nconst event = { id: \"evt_1\", type: \"refund.succeeded\" as const, customerId: \"cus_1\", amount: 500 };\n\ntest(\"concurrent duplicate deliveries across handlers credit exactly once\", async () => {\n  const ledger = new MemoryLedger(); const idempotency = new MemoryIdempotencyStore();\n  const first = new RefundHandler(ledger, idempotency); const second = new RefundHandler(ledger, idempotency);\n  await Promise.all([first.handle(event), second.handle(event)]);\n  assert.equal(ledger.entries.length, 1, \"TransactionBoundary is required to serialize duplicate deliveries\");\n});\n\ntest(\"public refund event shape is unchanged\", () => {\n  assert.deepEqual(Object.keys(event).sort(), [\"amount\", \"customerId\", \"id\", \"type\"]);\n});\n",
         "provenance": [
           {
-            "id": "ev_1eu0223",
+            "id": "ev_bc769bfe8f4fc746dc942e180ce3f9ac",
             "kind": "test",
             "path": "tests/refund.integration.test.ts",
             "contentHash": "6e9c949c11e4a22f6be0e8a4417bc8b713817875ca8219ea86f626b30e8291cf",
@@ -116,7 +116,7 @@
         "invalidationKeys": [
           {
             "kind": "repository",
-            "key": "repo_2p85nm"
+            "key": "repo_3708990e926d293b5db154e7c5f20fd8"
           },
           {
             "kind": "branch",
@@ -136,7 +136,7 @@
         "trust": "repository-data"
       },
       {
-        "id": "item_1t7tgrw",
+        "id": "item_89e674bbb6361db7c63b1db27be8f159",
         "sourceType": "test",
         "locator": {
           "path": "tests/atomicity.integration.test.ts"
@@ -162,7 +162,7 @@
         "excerpt": "import assert from \"node:assert/strict\";\nimport test from \"node:test\";\nimport { MemoryIdempotencyStore } from \"../src/idempotency/idempotency-store.ts\";\nimport { MemoryLedger } from \"../src/ledger/ledger.ts\";\nimport { RefundHandler } from \"../src/webhooks/refund-handler.ts\";\n\ntest(\"write-ahead state survives a marker timeout and handler restart\", async () => {\n  const ledger = new MemoryLedger();\n  class FailingStore extends MemoryIdempotencyStore { override async mark(): Promise<void> { throw new Error(\"simulated timeout before marker commit\"); } }\n  const first = new RefundHandler(ledger, new FailingStore());\n  const event = { id: \"evt_1\", type: \"refund.succeeded\" as const, customerId: \"cus_1\", amount: 500 };\n  await assert.rejects(first.handle(event), /simulated timeout/);\n  // A new handler and marker store simulate process-local state loss; the ledger remains durable.\n  const restarted = new RefundHandler(ledger, new MemoryIdempotencyStore());\n  await restarted.handle(event);\n  assert.equal(ledger.entries.length, 1);\n\n  const freshLedger = new MemoryLedger(); const staleMarker = new MemoryIdempotencyStore();\n  await staleMarker.mark(\"evt_stale\");\n  await new RefundHandler(freshLedger, staleMarker).handle({ ...event, id: \"evt_stale\" });\n  assert.equal(freshLedger.entries.length, 1, \"a stale marker cannot suppress the durable ledger operation\");\n});\n",
         "provenance": [
           {
-            "id": "ev_1t7tgrw",
+            "id": "ev_89e674bbb6361db7c63b1db27be8f159",
             "kind": "test",
             "path": "tests/atomicity.integration.test.ts",
             "contentHash": "da2c7981b77273f40c80be708acc0f9c811329277dc28d4334953413a0528bf3",
@@ -172,7 +172,7 @@
         "invalidationKeys": [
           {
             "kind": "repository",
-            "key": "repo_2p85nm"
+            "key": "repo_3708990e926d293b5db154e7c5f20fd8"
           },
           {
             "kind": "branch",
@@ -192,7 +192,7 @@
         "trust": "repository-data"
       },
       {
-        "id": "item_jgd468",
+        "id": "item_49b6effb3f198317b1882d3034eee1c2",
         "sourceType": "file",
         "locator": {
           "path": "src/ledger/ledger.ts"
@@ -218,7 +218,7 @@
         "excerpt": "export type LedgerEntry = { customerId: string; amount: number; eventId: string };\n\nexport interface Ledger {\n  credit(entry: LedgerEntry): Promise<void>;\n  /** Durable atomic insert keyed by eventId; production implementations use a unique constraint. */\n  creditOnce(entry: LedgerEntry): Promise<\"applied\" | \"duplicate\">;\n}\n\nexport class MemoryLedger implements Ledger {\n  readonly entries: LedgerEntry[] = [];\n  private readonly eventIds = new Set<string>();\n  async credit(entry: LedgerEntry): Promise<void> {\n    this.entries.push(entry);\n  }\n  async creditOnce(entry: LedgerEntry): Promise<\"applied\" | \"duplicate\"> {\n    if (this.eventIds.has(entry.eventId)) return \"duplicate\";\n    this.eventIds.add(entry.eventId);\n    this.entries.push(entry);\n    return \"applied\";\n  }\n}\n",
         "provenance": [
           {
-            "id": "ev_jgd468",
+            "id": "ev_49b6effb3f198317b1882d3034eee1c2",
             "kind": "file",
             "path": "src/ledger/ledger.ts",
             "contentHash": "27854c7e639d7842e08e6bd441b3f2cf1510a26907c9a1fb92e58d4ddc9d8bcf",
@@ -228,7 +228,7 @@
         "invalidationKeys": [
           {
             "kind": "repository",
-            "key": "repo_2p85nm"
+            "key": "repo_3708990e926d293b5db154e7c5f20fd8"
           },
           {
             "kind": "branch",
@@ -248,7 +248,7 @@
         "trust": "repository-data"
       },
       {
-        "id": "item_1tsowm8",
+        "id": "item_5f0d0fc7921434302c033bfe1c7d3063",
         "sourceType": "file",
         "locator": {
           "path": "src/webhooks/refund-handler.ts"
@@ -274,7 +274,7 @@
         "excerpt": "import type { IdempotencyStore } from \"../idempotency/idempotency-store.ts\";\nimport type { Ledger } from \"../ledger/ledger.ts\";\n\nexport type RefundSucceeded = {\n  id: string;\n  type: \"refund.succeeded\";\n  customerId: string;\n  amount: number;\n};\n\nexport class RefundHandler {\n  private readonly ledger: Ledger;\n  private readonly idempotency: IdempotencyStore;\n  constructor(ledger: Ledger, idempotency: IdempotencyStore) {\n    this.ledger = ledger;\n    this.idempotency = idempotency;\n  }\n\n  async handle(event: RefundSucceeded): Promise<void> {\n    if (await this.idempotency.has(event.id)) return;\n    await this.ledger.credit({ customerId: event.customerId, amount: event.amount, eventId: event.id });\n    // A timeout here allows the retry to credit the customer again.\n    await this.idempotency.mark(event.id);\n  }\n}\n",
         "provenance": [
           {
-            "id": "ev_1tsowm8",
+            "id": "ev_5f0d0fc7921434302c033bfe1c7d3063",
             "kind": "file",
             "path": "src/webhooks/refund-handler.ts",
             "contentHash": "ebe3d2b92399c44bb5eca758a3e8e621e7df47b7ace2efdd664a6d952e030a58",
@@ -284,7 +284,7 @@
         "invalidationKeys": [
           {
             "kind": "repository",
-            "key": "repo_2p85nm"
+            "key": "repo_3708990e926d293b5db154e7c5f20fd8"
           },
           {
             "kind": "branch",
@@ -304,7 +304,7 @@
         "trust": "repository-data"
       },
       {
-        "id": "item_kzxefq",
+        "id": "item_9b6b77a964ecd0f9776ba04b2dcfd0dd",
         "sourceType": "file",
         "locator": {
           "path": "src/idempotency/idempotency-store.ts"
@@ -330,7 +330,7 @@
         "excerpt": "export interface IdempotencyStore {\n  has(eventId: string): Promise<boolean>;\n  mark(eventId: string): Promise<void>;\n}\n\nexport class MemoryIdempotencyStore implements IdempotencyStore {\n  readonly processed = new Set<string>();\n  async has(eventId: string): Promise<boolean> { return this.processed.has(eventId); }\n  async mark(eventId: string): Promise<void> { this.processed.add(eventId); }\n}\n",
         "provenance": [
           {
-            "id": "ev_kzxefq",
+            "id": "ev_9b6b77a964ecd0f9776ba04b2dcfd0dd",
             "kind": "file",
             "path": "src/idempotency/idempotency-store.ts",
             "contentHash": "deb4ae420f062d2cc7ff500791e33068ad1053830971cd2a21a166f3408ff293",
@@ -340,7 +340,7 @@
         "invalidationKeys": [
           {
             "kind": "repository",
-            "key": "repo_2p85nm"
+            "key": "repo_3708990e926d293b5db154e7c5f20fd8"
           },
           {
             "kind": "branch",
@@ -375,27 +375,27 @@
     "status": "current"
   },
   "childCapsule": {
-    "id": "capsule_1yt1fyh",
-    "taskAnalysisId": "task_zinr21",
-    "snapshotId": "snapshot_vxp8f8",
-    "parentCapsuleId": "capsule_1mqdtb1",
+    "id": "capsule_91c2e0325ce6b6e9039bfa079c53c697",
+    "taskAnalysisId": "task_776a2aa631e9d87a7e0203aea87e10eb",
+    "snapshotId": "snapshot_7f1d52841a95dc147f0366335a89d255",
+    "parentCapsuleId": "capsule_1b339ad929122eb4833361a4e595f272",
     "phase": "debugging",
     "budgetTokens": 1250,
     "estimatedTokens": 327,
-    "createdAt": "2026-07-19T19:18:19.738Z",
+    "createdAt": "2026-07-19T22:08:13.540Z",
     "triggerEvidence": {
-      "id": "artifact_95b47l",
+      "id": "artifact_e04a48cadd480ad9cf86562883e669ae",
       "kind": "test",
       "symbol": "TransactionBoundary",
-      "artifactId": "artifact_95b47l",
-      "contentHash": "145bff056eb5c302473c470cd19e3b83d3e5dce9514b84622535d14a809c5a80",
-      "note": "TAP version 13\n# (node:10728) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nnot ok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 1.2435\n  location: '/private/var/folders/2x/jrx2nybn1mlfj566lg2wzq2h0000gn/T/kerno-replay-MliVve/relaycart-ts/tests/atomicity.integration.test.ts:7:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    \n    2 !== 1\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 1\n  actual: 2\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///private/var/folders/2x/jrx2nybn1mlfj566lg2wzq2h0000gn/T/kerno-replay-MliVve/relaycart-ts/tests/atomicity.integration.test.ts:16:10)\n    async Test.run (node:internal/test_runner/test:932:9)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n# (node:10729) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nnot ok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.853209\n  location: '/private/var/folders/2x/jrx2nybn1mlfj566lg2wzq2h0000gn/T/kerno-replay-MliVve/relaycart-ts/tests/refund.integration.test.ts:9:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    TransactionBoundary is required to serialize duplicate deliveries\n    \n    2 !== 1\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 1\n  actual: 2\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///private/var/folders/2x/jrx2nybn1mlfj566lg2wzq2h0000gn/T/kerno-replay-MliVve/relaycart-ts/tests/refund.integration.test.ts:13:10)\n    async Test.run (node:internal/test_runner/test:932:9)\n    async st",
-      "text": "TAP version 13\n# (node:10728) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nnot ok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 1.2435\n  location: '/private/var/folders/2x/jrx2nybn1mlfj566lg2wzq2h0000gn/T/kerno-replay-MliVve/relaycart-ts/tests/atomicity.integration.test.ts:7:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    \n    2 !== 1\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 1\n  actual: 2\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///private/var/folders/2x/jrx2nybn1mlfj566lg2wzq2h0000gn/T/kerno-replay-MliVve/relaycart-ts/tests/atomicity.integration.test.ts:16:10)\n    async Test.run (node:internal/test_runner/test:932:9)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n# (node:10729) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nnot ok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.853209\n  location: '/private/var/folders/2x/jrx2nybn1mlfj566lg2wzq2h0000gn/T/kerno-replay-MliVve/relaycart-ts/tests/refund.integration.test.ts:9:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    TransactionBoundary is required to serialize duplicate deliveries\n    \n    2 !== 1\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 1\n  actual: 2\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///private/var/folders/2x/jrx2nybn1mlfj566lg2wzq2h0000gn/T/kerno-replay-MliVve/relaycart-ts/tests/refund.integration.test.ts:13:10)\n    async Test.run (node:internal/test_runner/test:932:9)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.48575\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 1\n# fail 2\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 101.053084\n\n(node:10727) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "artifactId": "artifact_e04a48cadd480ad9cf86562883e669ae",
+      "contentHash": "832374db08e7a1dda31ac8a17306f2e829b3deac8131f006e0abe4b9a5ce794d",
+      "note": "TAP version 13\n# (node:33584) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nnot ok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 1.513292\n  location: '[REPLAY_WORKTREE]/tests/atomicity.integration.test.ts:7:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    \n    2 !== 1\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 1\n  actual: 2\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> ([REPLAY_WORKTREE]/tests/atomicity.integration.test.ts:16:10)\n    async Test.run (node:internal/test_runner/test:932:9)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n# (node:33585) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nnot ok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 1.087208\n  location: '[REPLAY_WORKTREE]/tests/refund.integration.test.ts:9:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    TransactionBoundary is required to serialize duplicate deliveries\n    \n    2 !== 1\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 1\n  actual: 2\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> ([REPLAY_WORKTREE]/tests/refund.integration.test.ts:13:10)\n    async Test.run (node:internal/test_runner/test:932:9)\n    async ",
+      "text": "TAP version 13\n# (node:33584) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nnot ok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 1.513292\n  location: '[REPLAY_WORKTREE]/tests/atomicity.integration.test.ts:7:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    \n    2 !== 1\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 1\n  actual: 2\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> ([REPLAY_WORKTREE]/tests/atomicity.integration.test.ts:16:10)\n    async Test.run (node:internal/test_runner/test:932:9)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n# (node:33585) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nnot ok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 1.087208\n  location: '[REPLAY_WORKTREE]/tests/refund.integration.test.ts:9:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    TransactionBoundary is required to serialize duplicate deliveries\n    \n    2 !== 1\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 1\n  actual: 2\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> ([REPLAY_WORKTREE]/tests/refund.integration.test.ts:13:10)\n    async Test.run (node:internal/test_runner/test:932:9)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.697334\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 1\n# fail 2\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 109.424917\n\n(node:33583) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
       "verified": true
     },
     "items": [
       {
-        "id": "item_122slty",
+        "id": "item_7cbd2b61b84120c0e4a3973f1955614e",
         "sourceType": "config",
         "locator": {
           "path": "src/transactions/transaction-boundary.ts"
@@ -421,7 +421,7 @@
         "excerpt": "import type { IdempotencyStore } from \"../idempotency/idempotency-store.ts\";\nimport type { Ledger, LedgerEntry } from \"../ledger/ledger.ts\";\n\n/** Governing contract: the durable ledger owns uniqueness; the marker is a repairable cache. */\nexport interface TransactionBoundary {\n  creditOnce(eventId: string, entry: LedgerEntry): Promise<\"applied\" | \"duplicate\">;\n}\n\nexport class MemoryTransactionBoundary implements TransactionBoundary {\n  private readonly ledger: Ledger;\n  private readonly idempotency: IdempotencyStore;\n  constructor(ledger: Ledger, idempotency: IdempotencyStore) {\n    this.ledger = ledger;\n    this.idempotency = idempotency;\n  }\n  async creditOnce(eventId: string, entry: LedgerEntry): Promise<\"applied\" | \"duplicate\"> {\n    // The durable ledger is authoritative. A marker may be missing or stale and must\n    // never suppress a legitimate ledger write.\n    const result = await this.ledger.creditOnce(entry);\n    if (!await this.idempotency.has(eventId)) await this.idempotency.mark(eventId);\n    return result;\n  }\n}\n\n/** Factory kept explicit so the handler depends on the governing transaction contract. */\nexport function transactionBoundaryFor(ledger: Ledger, idempotency: IdempotencyStore): TransactionBoundary {\n  return new MemoryTransactionBoundary(ledger, idempotency);\n}\n",
         "provenance": [
           {
-            "id": "ev_122slty",
+            "id": "ev_7cbd2b61b84120c0e4a3973f1955614e",
             "kind": "file",
             "path": "src/transactions/transaction-boundary.ts",
             "contentHash": "88d947b29a835369bf9b647dcae539eaebd3d769e3a05a08e723d51998714f4c",
@@ -431,7 +431,7 @@
         "invalidationKeys": [
           {
             "kind": "repository",
-            "key": "repo_2p85nm"
+            "key": "repo_3708990e926d293b5db154e7c5f20fd8"
           },
           {
             "kind": "branch",
@@ -466,7 +466,7 @@
     "status": "current"
   },
   "route": {
-    "id": "route_1430hoo",
+    "id": "route_bd21de686b44d49039c64801111a8de0",
     "phase": "implementation",
     "catalogSnapshotId": "catalog_replay_policy_example",
     "recommended": {
@@ -526,13 +526,13 @@
   "tests": {
     "before": {
       "passed": false,
-      "durationMs": 155,
-      "artifactHash": "145bff056eb5c302473c470cd19e3b83d3e5dce9514b84622535d14a809c5a80"
+      "durationMs": 163,
+      "artifactHash": "832374db08e7a1dda31ac8a17306f2e829b3deac8131f006e0abe4b9a5ce794d"
     },
     "after": {
       "passed": true,
-      "durationMs": 152,
-      "artifactHash": "049ad3148c2fcfedcd69301827c40aacd8ed18eea3bfacfea95b480239a43b57"
+      "durationMs": 151,
+      "artifactHash": "dd7201ab1c2ed518cc8615c95f46a11163ff04fec4774202e22db8445f03e092"
     }
   },
   "review": {
@@ -542,7 +542,7 @@
     "limitations": "A live Orchestrator Mode run uses a separate read-only Codex thread; this replay does not simulate one."
   },
   "invalidation": {
-    "capsuleId": "capsule_1mqdtb1",
+    "capsuleId": "capsule_1b339ad929122eb4833361a4e595f272",
     "status": "stale",
     "changedFiles": [
       "src/webhooks/refund-handler.ts"
@@ -565,59 +565,59 @@
   "timeline": [
     {
       "type": "index.completed",
-      "at": "2026-07-19T19:18:19.040Z",
+      "at": "2026-07-19T22:08:12.775Z",
       "detail": "7 files parsed"
     },
     {
       "type": "index.incremental",
-      "at": "2026-07-19T19:18:19.305Z",
+      "at": "2026-07-19T22:08:13.105Z",
       "detail": "7 unchanged files reused; 0 reparsed"
     },
     {
       "type": "task.analyzed",
-      "at": "2026-07-19T19:18:19.308Z",
-      "detail": "debugging task bound to current snapshot snapshot_vxp8f8"
+      "at": "2026-07-19T22:08:13.108Z",
+      "detail": "debugging task bound to current snapshot snapshot_7f1d52841a95dc147f0366335a89d255"
     },
     {
       "type": "capsule.created",
-      "at": "2026-07-19T19:18:19.446Z",
+      "at": "2026-07-19T22:08:13.241Z",
       "detail": "5 items · 1094 estimated tokens"
     },
     {
       "type": "route.recommended",
-      "at": "2026-07-19T19:18:19.446Z",
+      "at": "2026-07-19T22:08:13.242Z",
       "detail": "catalog-default · medium; no runtime request in replay"
     },
     {
       "type": "test.failed",
-      "at": "2026-07-19T19:18:19.601Z",
+      "at": "2026-07-19T22:08:13.405Z",
       "detail": "TransactionBoundary evidence missing"
     },
     {
       "type": "capsule.expanded",
-      "at": "2026-07-19T19:18:19.738Z",
+      "at": "2026-07-19T22:08:13.540Z",
       "detail": "src/transactions/transaction-boundary.ts"
     },
     {
       "type": "test.passed",
-      "at": "2026-07-19T19:18:19.893Z",
+      "at": "2026-07-19T22:08:13.694Z",
       "detail": "3/3 pinned integration assertions passed"
     },
     {
       "type": "review.unavailable",
-      "at": "2026-07-19T19:18:19.893Z",
+      "at": "2026-07-19T22:08:13.694Z",
       "detail": "No independent Codex review ran in deterministic replay"
     },
     {
       "type": "context.invalidated",
-      "at": "2026-07-19T19:18:20.161Z",
+      "at": "2026-07-19T22:08:13.957Z",
       "detail": "Initial capsule is stale after handler hash changed"
     },
     {
       "type": "replay.recorded",
-      "at": "2026-07-19T19:18:20.163Z",
+      "at": "2026-07-19T22:08:13.959Z",
       "detail": "Deterministic evidence replay completed; no Codex orchestration or independent review was run"
     }
   ],
-  "artifactHash": "0d05e317f5eddc9c61a62fe81e8288887355ee321c12f14a6e1a40d20db83081"
+  "artifactHash": "490ec9091a188c22a0e914059409d6bfa13e7b1edd520241c664f00bd8e7aa7b"
 }
