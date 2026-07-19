@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "kerno": {
+      "command": "node",
+      "args": ["${PLUGIN_ROOT}/dist/kerno-mcp.cjs"],
+      "env": { "KERNO_DATA_DIR": "${PLUGIN_DATA}", "KERNO_MCP_STANDALONE": "1", "KERNO_STORAGE": "json" }
+    }
+  }
+}

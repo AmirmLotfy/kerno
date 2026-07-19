@@ -1,0 +1,1 @@
+{"name":"@kerno/eval","version":"0.1.0","type":"module","exports":"./src/index.ts","scripts":{"build":"tsc -p ../../tsconfig.json --noEmit"},"dependencies":{"@kerno/contracts":"0.1.0","@kerno/daemon":"0.1.0"}}

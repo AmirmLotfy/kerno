@@ -1,0 +1,32 @@
+{
+  "name": "kerno",
+  "version": "0.1.0+codex.20260719022604",
+  "description": "Evidence-backed context capsules and observable phase routing for Codex.",
+  "author": {
+    "name": "Kerno contributors"
+  },
+  "license": "Apache-2.0",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Kerno",
+    "shortDescription": "Right context. Right model. Every task.",
+    "longDescription": "Kerno builds bounded, evidence-backed repository context capsules, expands them from test evidence, and makes phase routing observable without pretending a plugin can silently switch its parent model.",
+    "developerName": "Kerno contributors",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Context capsules",
+      "Evidence-backed memory",
+      "Model recommendations",
+      "Independent verification"
+    ],
+    "brandColor": "#EF6837",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/logo.svg",
+    "logoDark": "./assets/logo.svg",
+    "screenshots": [
+      "./assets/screenshot.png"
+    ],
+    "defaultPrompt": "Use Kerno to diagnose this task with the smallest verified context. You can also ask why every capsule item was included or compare this run with an available plain-Codex baseline."
+  },
+  "mcpServers": "./.mcp.json"
+}

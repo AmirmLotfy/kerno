@@ -1,0 +1,1 @@
+{"schemaVersion":"1","experiment":"context-controlled","conditions":["plain-codex","codex-with-kerno-capsule"],"tasks":["refund-debug","refund-transaction-change","queue-retry-refactor"],"mustMatch":["prompt","startingCommit","permissions","modelId","reasoningEffort","acceptanceTests"],"retainFailures":true,"costMetric":false}

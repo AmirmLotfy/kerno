@@ -1,0 +1,6 @@
+{
+  "name": "gatehouse-python",
+  "language": "python",
+  "task": "Refactor retry policy selection without changing queue acknowledgement behavior.",
+  "acceptance": "tests/test_worker.py"
+}

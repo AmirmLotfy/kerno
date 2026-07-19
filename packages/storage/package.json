@@ -1,0 +1,1 @@
+{"name":"@kerno/storage","version":"0.1.0","type":"module","exports":"./src/index.ts","scripts":{"build":"tsc -p ../../tsconfig.json --noEmit"},"dependencies":{"@kerno/contracts":"0.1.0","better-sqlite3":"^11.10.0"}}

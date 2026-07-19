@@ -1,0 +1,1 @@
+{"id":"refund-transaction-change","fixture":"relaycart-ts","kind":"cross-module-change","prompt":"Move refund idempotency into the transaction boundary while preserving the webhook API.","startingCommit":"fixture-v1","moduleAllowlist":["src/webhooks","src/transactions","tests"]}

@@ -1,0 +1,8 @@
+{
+  "name": "@kerno/codex-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Evidence-backed context capsules and observable phase routing for Codex.",
+  "license": "Apache-2.0",
+  "files": [".codex-plugin", ".mcp.json", "skills", "hooks", "assets", "dist", "README.md", "LICENSE"]
+}

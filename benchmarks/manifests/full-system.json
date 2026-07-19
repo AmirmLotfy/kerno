@@ -1,0 +1,1 @@
+{"schemaVersion":"1","experiment":"full-system","conditions":["plain-default-workflow","kerno-phase-routing"],"tasks":["refund-debug","refund-transaction-change","queue-retry-refactor"],"mustMatch":["prompt","startingCommit","permissions","targetBehavior","acceptanceTests"],"retainFailures":true,"causalContextClaim":false,"costMetric":false}

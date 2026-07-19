@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+.kerno/
+.kerno-cache/
+*.db
+*.db-shm
+*.db-wal
+*.log
+test-results/
+playwright-report/
+.DS_Store
+apps/dashboard/public/replay.json

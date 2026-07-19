@@ -1,0 +1,514 @@
+{
+  "schemaVersion": "1",
+  "label": "DETERMINISTIC FIXTURE REPLAY",
+  "recordedAt": "2026-07-19T02:26:35.597Z",
+  "source": {
+    "fixture": "relaycart-ts",
+    "task": "refund-debug"
+  },
+  "repository": {
+    "id": "repo_3qerzp",
+    "branch": "main",
+    "head": "63a9eb695127797e707dbcd0bcc8fadab262fb2b",
+    "dirty": false,
+    "files": 6,
+    "symbols": 27,
+    "indexFreshness": "2026-07-19T02:26:35.596Z",
+    "unchangedReparsed": 0
+  },
+  "task": {
+    "id": "task_4yeueu",
+    "repositoryId": "repo_3qerzp",
+    "snapshotId": "snapshot_ceo7r",
+    "taskText": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+    "intent": "change",
+    "terms": [
+      "retried",
+      "refund.succeeded",
+      "webhook",
+      "credit",
+      "customer",
+      "twice",
+      "first",
+      "delivery",
+      "commits",
+      "ledger",
+      "entry",
+      "but",
+      "times",
+      "out",
+      "idempotency",
+      "marker.",
+      "handling",
+      "exactly-once",
+      "application",
+      "boundary",
+      "changing",
+      "public",
+      "api."
+    ],
+    "explicitPaths": [],
+    "symbols": [
+      "Make",
+      "API"
+    ],
+    "risk": {
+      "complexity": 0.75,
+      "blastRadius": 0.8500000000000001,
+      "uncertainty": 0.4,
+      "security": 0.15,
+      "migration": 0.1,
+      "contextBreadth": 0.75
+    },
+    "createdAt": "2026-07-19T02:26:35.026Z"
+  },
+  "initialCapsule": {
+    "id": "capsule_1od6itg",
+    "taskAnalysisId": "task_4yeueu",
+    "snapshotId": "snapshot_ceo7r",
+    "phase": "targeted-retrieval",
+    "budgetTokens": 2500,
+    "estimatedTokens": 623,
+    "createdAt": "2026-07-19T02:26:35.027Z",
+    "items": [
+      {
+        "id": "item_67zepc",
+        "sourceType": "test",
+        "locator": {
+          "path": "tests/refund.integration.test.ts"
+        },
+        "contentHash": "1747dc3e04adaa205e24731c9dd1f5e84df142663532a6b4ab4853954d208989",
+        "headCommit": "63a9eb695127797e707dbcd0bcc8fadab262fb2b",
+        "branch": "main",
+        "freshness": 1,
+        "confidence": 0.95,
+        "estimatedTokens": 235,
+        "score": 0.6358266966429142,
+        "scoreBreakdown": {
+          "taskRelevance": 0.14347826086956522,
+          "graphProximity": 0.15,
+          "freshness": 0.1,
+          "confidence": 0.095,
+          "riskImportance": 0.074,
+          "testEvidence": 0.108,
+          "priorUsefulness": 0.055,
+          "tokenPenalty": 1.141
+        },
+        "reason": "task vocabulary match; reachable through a typed dependency edge; directly related test evidence",
+        "excerpt": "import assert from \"node:assert/strict\";\nimport test from \"node:test\";\nimport { MemoryIdempotencyStore } from \"../src/idempotency/idempotency-store.ts\";\nimport { MemoryLedger } from \"../src/ledger/ledger.ts\";\nimport { RefundHandler } from \"../src/webhooks/refund-handler.ts\";\n\ntest(\"refund credit and marker must share TransactionBoundary\", async () => {\n  const ledger = new MemoryLedger();\n  const idempotency = new MemoryIdempotencyStore();\n  const handler = new RefundHandler(ledger, idempotency);\n  await handler.handle({ id: \"evt_1\", type: \"refund.succeeded\", customerId: \"cus_1\", amount: 500 });\n  idempotency.processed.delete(\"evt_1\"); // models a timeout before the marker is committed\n  await handler.handle({ id: \"evt_1\", type: \"refund.succeeded\", customerId: \"cus_1\", amount: 500 });\n  assert.equal(ledger.entries.length, 1, \"TransactionBoundary is required to atomically couple the ledger credit and idempotency marker\");\n});\n\n",
+        "provenance": [
+          {
+            "id": "ev_67zepc",
+            "kind": "test",
+            "path": "tests/refund.integration.test.ts",
+            "contentHash": "1747dc3e04adaa205e24731c9dd1f5e84df142663532a6b4ab4853954d208989",
+            "note": "typescript-compiler-api parser; repository content is untrusted evidence"
+          }
+        ],
+        "invalidationKeys": [
+          {
+            "kind": "repository",
+            "key": "repo_3qerzp"
+          },
+          {
+            "kind": "branch",
+            "key": "main",
+            "expected": "63a9eb695127797e707dbcd0bcc8fadab262fb2b"
+          },
+          {
+            "kind": "file",
+            "key": "tests/refund.integration.test.ts",
+            "expected": "1747dc3e04adaa205e24731c9dd1f5e84df142663532a6b4ab4853954d208989"
+          },
+          {
+            "kind": "engine",
+            "key": "0.1.0"
+          }
+        ],
+        "trust": "repository-data"
+      },
+      {
+        "id": "item_1ggv8s",
+        "sourceType": "file",
+        "locator": {
+          "path": "src/ledger/ledger.ts"
+        },
+        "contentHash": "480657eba28525230860c9c26cd57150464a0123ec3481696af99c6980c380f7",
+        "headCommit": "63a9eb695127797e707dbcd0bcc8fadab262fb2b",
+        "branch": "main",
+        "freshness": 1,
+        "confidence": 0.95,
+        "estimatedTokens": 83,
+        "score": 0.5478062073935409,
+        "scoreBreakdown": {
+          "taskRelevance": 0.08608695652173913,
+          "graphProximity": 0.075,
+          "freshness": 0.1,
+          "confidence": 0.095,
+          "riskImportance": 0.074,
+          "testEvidence": 0.09,
+          "priorUsefulness": 0.055,
+          "tokenPenalty": 1.0498
+        },
+        "reason": "task vocabulary match; reachable through a typed dependency edge; directly related test evidence",
+        "excerpt": "export type LedgerEntry = { customerId: string; amount: number; eventId: string };\n\nexport interface Ledger {\n  credit(entry: LedgerEntry): Promise<void>;\n}\n\nexport class MemoryLedger implements Ledger {\n  readonly entries: LedgerEntry[] = [];\n  async credit(entry: LedgerEntry): Promise<void> {\n    this.entries.push(entry);\n  }\n}\n",
+        "provenance": [
+          {
+            "id": "ev_1ggv8s",
+            "kind": "file",
+            "path": "src/ledger/ledger.ts",
+            "contentHash": "480657eba28525230860c9c26cd57150464a0123ec3481696af99c6980c380f7",
+            "note": "typescript-compiler-api parser; repository content is untrusted evidence"
+          }
+        ],
+        "invalidationKeys": [
+          {
+            "kind": "repository",
+            "key": "repo_3qerzp"
+          },
+          {
+            "kind": "branch",
+            "key": "main",
+            "expected": "63a9eb695127797e707dbcd0bcc8fadab262fb2b"
+          },
+          {
+            "kind": "file",
+            "key": "src/ledger/ledger.ts",
+            "expected": "480657eba28525230860c9c26cd57150464a0123ec3481696af99c6980c380f7"
+          },
+          {
+            "kind": "engine",
+            "key": "0.1.0"
+          }
+        ],
+        "trust": "repository-data"
+      },
+      {
+        "id": "item_x82y3w",
+        "sourceType": "file",
+        "locator": {
+          "path": "src/webhooks/refund-handler.ts"
+        },
+        "contentHash": "ebe3d2b92399c44bb5eca758a3e8e621e7df47b7ace2efdd664a6d952e030a58",
+        "headCommit": "63a9eb695127797e707dbcd0bcc8fadab262fb2b",
+        "branch": "main",
+        "freshness": 1,
+        "confidence": 0.95,
+        "estimatedTokens": 206,
+        "score": 0.511825344002972,
+        "scoreBreakdown": {
+          "taskRelevance": 0.08608695652173913,
+          "graphProximity": 0.075,
+          "freshness": 0.1,
+          "confidence": 0.095,
+          "riskImportance": 0.074,
+          "testEvidence": 0.09,
+          "priorUsefulness": 0.055,
+          "tokenPenalty": 1.1236
+        },
+        "reason": "task vocabulary match; reachable through a typed dependency edge; directly related test evidence",
+        "excerpt": "import type { IdempotencyStore } from \"../idempotency/idempotency-store.ts\";\nimport type { Ledger } from \"../ledger/ledger.ts\";\n\nexport type RefundSucceeded = {\n  id: string;\n  type: \"refund.succeeded\";\n  customerId: string;\n  amount: number;\n};\n\nexport class RefundHandler {\n  private readonly ledger: Ledger;\n  private readonly idempotency: IdempotencyStore;\n  constructor(ledger: Ledger, idempotency: IdempotencyStore) {\n    this.ledger = ledger;\n    this.idempotency = idempotency;\n  }\n\n  async handle(event: RefundSucceeded): Promise<void> {\n    if (await this.idempotency.has(event.id)) return;\n    await this.ledger.credit({ customerId: event.customerId, amount: event.amount, eventId: event.id });\n    // A timeout here allows the retry to credit the customer again.\n    await this.idempotency.mark(event.id);\n  }\n}\n",
+        "provenance": [
+          {
+            "id": "ev_x82y3w",
+            "kind": "file",
+            "path": "src/webhooks/refund-handler.ts",
+            "contentHash": "ebe3d2b92399c44bb5eca758a3e8e621e7df47b7ace2efdd664a6d952e030a58",
+            "note": "typescript-compiler-api parser; repository content is untrusted evidence"
+          }
+        ],
+        "invalidationKeys": [
+          {
+            "kind": "repository",
+            "key": "repo_3qerzp"
+          },
+          {
+            "kind": "branch",
+            "key": "main",
+            "expected": "63a9eb695127797e707dbcd0bcc8fadab262fb2b"
+          },
+          {
+            "kind": "file",
+            "key": "src/webhooks/refund-handler.ts",
+            "expected": "ebe3d2b92399c44bb5eca758a3e8e621e7df47b7ace2efdd664a6d952e030a58"
+          },
+          {
+            "kind": "engine",
+            "key": "0.1.0"
+          }
+        ],
+        "trust": "repository-data"
+      },
+      {
+        "id": "item_yflk2y",
+        "sourceType": "file",
+        "locator": {
+          "path": "src/idempotency/idempotency-store.ts"
+        },
+        "contentHash": "deb4ae420f062d2cc7ff500791e33068ad1053830971cd2a21a166f3408ff293",
+        "headCommit": "63a9eb695127797e707dbcd0bcc8fadab262fb2b",
+        "branch": "main",
+        "freshness": 1,
+        "confidence": 0.95,
+        "estimatedTokens": 99,
+        "score": 0.48866872963367297,
+        "scoreBreakdown": {
+          "taskRelevance": 0.028695652173913042,
+          "graphProximity": 0.075,
+          "freshness": 0.1,
+          "confidence": 0.095,
+          "riskImportance": 0.074,
+          "testEvidence": 0.09,
+          "priorUsefulness": 0.055,
+          "tokenPenalty": 1.0594
+        },
+        "reason": "task vocabulary match; reachable through a typed dependency edge; directly related test evidence",
+        "excerpt": "export interface IdempotencyStore {\n  has(eventId: string): Promise<boolean>;\n  mark(eventId: string): Promise<void>;\n}\n\nexport class MemoryIdempotencyStore implements IdempotencyStore {\n  readonly processed = new Set<string>();\n  async has(eventId: string): Promise<boolean> { return this.processed.has(eventId); }\n  async mark(eventId: string): Promise<void> { this.processed.add(eventId); }\n}\n",
+        "provenance": [
+          {
+            "id": "ev_yflk2y",
+            "kind": "file",
+            "path": "src/idempotency/idempotency-store.ts",
+            "contentHash": "deb4ae420f062d2cc7ff500791e33068ad1053830971cd2a21a166f3408ff293",
+            "note": "typescript-compiler-api parser; repository content is untrusted evidence"
+          }
+        ],
+        "invalidationKeys": [
+          {
+            "kind": "repository",
+            "key": "repo_3qerzp"
+          },
+          {
+            "kind": "branch",
+            "key": "main",
+            "expected": "63a9eb695127797e707dbcd0bcc8fadab262fb2b"
+          },
+          {
+            "kind": "file",
+            "key": "src/idempotency/idempotency-store.ts",
+            "expected": "deb4ae420f062d2cc7ff500791e33068ad1053830971cd2a21a166f3408ff293"
+          },
+          {
+            "kind": "engine",
+            "key": "0.1.0"
+          }
+        ],
+        "trust": "repository-data"
+      }
+    ],
+    "excluded": [
+      {
+        "path": "src/transactions/transaction-boundary.ts",
+        "score": 0.3805573362494815,
+        "reason": "below initial evidence threshold; available for evidence-driven expansion"
+      },
+      {
+        "path": "package.json",
+        "score": 0.24877571008814894,
+        "reason": "below initial evidence threshold; available for evidence-driven expansion"
+      }
+    ],
+    "status": "current"
+  },
+  "childCapsule": {
+    "id": "capsule_yxp5td",
+    "taskAnalysisId": "task_4yeueu",
+    "snapshotId": "snapshot_ceo7r",
+    "parentCapsuleId": "capsule_1od6itg",
+    "phase": "debugging",
+    "budgetTokens": 1250,
+    "estimatedTokens": 255,
+    "createdAt": "2026-07-19T02:26:35.176Z",
+    "triggerEvidence": {
+      "id": "artifact_56b00cf01257",
+      "kind": "test",
+      "symbol": "TransactionBoundary",
+      "artifactId": "artifact_56b00cf01257",
+      "note": "TransactionBoundary is required to atomically couple the ledger credit and idempotency marker",
+      "text": "TransactionBoundary is required to atomically couple the ledger credit and idempotency marker",
+      "verified": true
+    },
+    "items": [
+      {
+        "id": "item_2uixry",
+        "sourceType": "config",
+        "locator": {
+          "path": "src/transactions/transaction-boundary.ts"
+        },
+        "contentHash": "02cfe8f768e736183d2b889c174f71dffa9aabe8390e199a91e0b0200093bad9",
+        "headCommit": "63a9eb695127797e707dbcd0bcc8fadab262fb2b",
+        "branch": "main",
+        "freshness": 1,
+        "confidence": 0.95,
+        "estimatedTokens": 255,
+        "score": 0.4531831109166484,
+        "scoreBreakdown": {
+          "taskRelevance": 0.11785714285714287,
+          "graphProximity": 0.15,
+          "freshness": 0.1,
+          "confidence": 0.095,
+          "riskImportance": 0.074,
+          "testEvidence": 0,
+          "priorUsefulness": 0.055,
+          "tokenPenalty": 1.306
+        },
+        "reason": "task vocabulary match; reachable through a typed dependency edge",
+        "excerpt": "import type { IdempotencyStore } from \"../idempotency/idempotency-store.ts\";\nimport type { Ledger, LedgerEntry } from \"../ledger/ledger.ts\";\n\n/** Governing contract: the ledger write and idempotency marker commit atomically. */\nexport interface TransactionBoundary {\n  creditOnce(eventId: string, entry: LedgerEntry): Promise<\"applied\" | \"duplicate\">;\n}\n\nexport class MemoryTransactionBoundary implements TransactionBoundary {\n  private readonly committed = new Set<string>();\n  private readonly ledger: Ledger;\n  private readonly idempotency: IdempotencyStore;\n  constructor(ledger: Ledger, idempotency: IdempotencyStore) {\n    this.ledger = ledger;\n    this.idempotency = idempotency;\n  }\n  async creditOnce(eventId: string, entry: LedgerEntry): Promise<\"applied\" | \"duplicate\"> {\n    if (this.committed.has(eventId) || await this.idempotency.has(eventId)) return \"duplicate\";\n    await this.ledger.credit(entry);\n    await this.idempotency.mark(eventId);\n    this.committed.add(eventId);\n    return \"applied\";\n  }\n}\n",
+        "provenance": [
+          {
+            "id": "ev_2uixry",
+            "kind": "file",
+            "path": "src/transactions/transaction-boundary.ts",
+            "contentHash": "02cfe8f768e736183d2b889c174f71dffa9aabe8390e199a91e0b0200093bad9",
+            "note": "typescript-compiler-api parser; repository content is untrusted evidence"
+          }
+        ],
+        "invalidationKeys": [
+          {
+            "kind": "repository",
+            "key": "repo_3qerzp"
+          },
+          {
+            "kind": "branch",
+            "key": "main",
+            "expected": "63a9eb695127797e707dbcd0bcc8fadab262fb2b"
+          },
+          {
+            "kind": "file",
+            "key": "src/transactions/transaction-boundary.ts",
+            "expected": "02cfe8f768e736183d2b889c174f71dffa9aabe8390e199a91e0b0200093bad9"
+          },
+          {
+            "kind": "engine",
+            "key": "0.1.0"
+          }
+        ],
+        "trust": "repository-data"
+      }
+    ],
+    "excluded": [
+      {
+        "path": "package.json",
+        "score": 0.24376199616122846,
+        "reason": "below initial evidence threshold; available for evidence-driven expansion"
+      }
+    ],
+    "status": "current"
+  },
+  "route": {
+    "id": "route_udvyqn",
+    "phase": "implementation",
+    "catalogSnapshotId": "catalog_replay_policy_example",
+    "recommended": {
+      "model": "catalog-default",
+      "reasoningEffort": "medium"
+    },
+    "confidence": 0.86,
+    "reasons": [
+      "phase=implementation",
+      "computed need=0.52",
+      "balanced implementation role"
+    ],
+    "fallback": {
+      "model": "catalog-default",
+      "reasoningEffort": "medium"
+    },
+    "escalationConditions": [
+      "test failure",
+      "runtime contradiction",
+      "widening blast radius",
+      "high-severity reviewer finding"
+    ],
+    "budgetImplication": "normal",
+    "requested": null,
+    "effective": null,
+    "truthLabel": "RECOMMENDED ONLY — no App Server turn in deterministic replay"
+  },
+  "tests": {
+    "before": {
+      "passed": false,
+      "durationMs": 148,
+      "artifactHash": "56b00cf0125722abd60131b0554d454d6257c04fbf4bc5e1e91c0b5c9d3dec10"
+    },
+    "after": {
+      "passed": true,
+      "durationMs": 146,
+      "artifactHash": "c95c2b45119498948f609440aa2f0d62210fe2e2a7409dc1c44adf1bbe210ba2"
+    }
+  },
+  "review": {
+    "kind": "deterministic-verifier",
+    "passed": true,
+    "findings": [],
+    "limitations": "A live Orchestrator Mode run uses a separate read-only Codex thread; this replay does not simulate one."
+  },
+  "invalidation": {
+    "capsuleId": "capsule_1od6itg",
+    "status": "stale",
+    "changedFiles": [
+      "src/webhooks/refund-handler.ts"
+    ]
+  },
+  "metrics": {
+    "taskSuccess": true,
+    "testsPassed": 1,
+    "threadTokens": null,
+    "filesOpened": null,
+    "repeatedReads": null,
+    "toolCalls": null,
+    "timeToFirstValidPatchMs": null,
+    "totalLatencyMs": null,
+    "unnecessaryChangedLines": null,
+    "reviewerFindings": 0,
+    "staleContextMistakes": null,
+    "contextExpansionCount": 1
+  },
+  "timeline": [
+    {
+      "type": "index.completed",
+      "at": "2026-07-19T02:26:34.748Z",
+      "detail": "6 files parsed"
+    },
+    {
+      "type": "index.incremental",
+      "at": "2026-07-19T02:26:35.024Z",
+      "detail": "6 unchanged files reused; 0 reparsed"
+    },
+    {
+      "type": "capsule.created",
+      "at": "2026-07-19T02:26:35.027Z",
+      "detail": "4 items · 623 estimated tokens"
+    },
+    {
+      "type": "route.recommended",
+      "at": "2026-07-19T02:26:35.027Z",
+      "detail": "catalog-default · medium; no runtime request in replay"
+    },
+    {
+      "type": "test.failed",
+      "at": "2026-07-19T02:26:35.597Z",
+      "detail": "TransactionBoundary evidence missing"
+    },
+    {
+      "type": "capsule.expanded",
+      "at": "2026-07-19T02:26:35.176Z",
+      "detail": "src/transactions/transaction-boundary.ts"
+    },
+    {
+      "type": "test.passed",
+      "at": "2026-07-19T02:26:35.597Z",
+      "detail": "1/1 integration test passed"
+    },
+    {
+      "type": "review.passed",
+      "at": "2026-07-19T02:26:35.597Z",
+      "detail": "Deterministic verifier: public event shape preserved; target test passed"
+    },
+    {
+      "type": "context.invalidated",
+      "at": "2026-07-19T02:26:35.596Z",
+      "detail": "Initial capsule is stale after handler hash changed"
+    }
+  ],
+  "artifactHash": "81e127fbceb2ebbf5502efb94e4e6160e515b38d69081c52b03aeca6f4e987f8"
+}

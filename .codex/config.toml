@@ -1,0 +1,9 @@
+# Loaded only after the repository is trusted. Kerno does not set a project model,
+# reasoning effort, provider, approval policy, or telemetry preference.
+
+[mcp_servers.kerno]
+command = "node"
+args = ["plugins/kerno/dist/kerno-mcp.cjs"]
+env = { KERNO_DATA_DIR = ".kerno", KERNO_MCP_STANDALONE = "1", KERNO_STORAGE = "json" }
+startup_timeout_sec = 20
+tool_timeout_sec = 120

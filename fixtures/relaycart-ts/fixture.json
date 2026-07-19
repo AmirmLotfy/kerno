@@ -1,0 +1,8 @@
+{
+  "name": "relaycart-ts",
+  "language": "typescript",
+  "task": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+  "initialBudgetTokens": 2500,
+  "expectedExpansion": "src/transactions/transaction-boundary.ts",
+  "failureArtifact": "tests/refund.integration.test.ts: TransactionBoundary is required to atomically couple the ledger credit and idempotency marker"
+}

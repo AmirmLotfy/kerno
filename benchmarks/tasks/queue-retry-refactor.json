@@ -1,0 +1,1 @@
+{"id":"queue-retry-refactor","fixture":"gatehouse-python","kind":"refactor-test","prompt":"Refactor retry policy selection without changing queue acknowledgement behavior.","startingCommit":"fixture-v1","moduleAllowlist":["gatehouse/retry.py","gatehouse/worker.py","tests/test_worker.py"]}

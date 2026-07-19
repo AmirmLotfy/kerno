@@ -1,0 +1,871 @@
+{
+  "recordedAt": "2026-07-19T02:20:09.096Z",
+  "catalog": {
+    "id": "catalog_59eeb869-45bf-44c0-8752-4b9d368e3be0",
+    "models": [
+      {
+        "id": "gpt-5.6-sol",
+        "displayName": "GPT-5.6-Sol",
+        "isDefault": true,
+        "hidden": false,
+        "supportedReasoningEfforts": [
+          "low",
+          "medium",
+          "high",
+          "xhigh",
+          "max",
+          "ultra"
+        ],
+        "defaultReasoningEffort": "medium"
+      },
+      {
+        "id": "gpt-5.6-terra",
+        "displayName": "GPT-5.6-Terra",
+        "isDefault": false,
+        "hidden": false,
+        "supportedReasoningEfforts": [
+          "low",
+          "medium",
+          "high",
+          "xhigh",
+          "max",
+          "ultra"
+        ],
+        "defaultReasoningEffort": "medium"
+      },
+      {
+        "id": "gpt-5.6-luna",
+        "displayName": "GPT-5.6-Luna",
+        "isDefault": false,
+        "hidden": false,
+        "supportedReasoningEfforts": [
+          "low",
+          "medium",
+          "high",
+          "xhigh",
+          "max"
+        ],
+        "defaultReasoningEffort": "medium"
+      },
+      {
+        "id": "gpt-5.5",
+        "displayName": "GPT-5.5",
+        "isDefault": false,
+        "hidden": false,
+        "supportedReasoningEfforts": [
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+        ],
+        "defaultReasoningEffort": "xhigh"
+      }
+    ]
+  },
+  "phase": {
+    "runId": "run_live_smoke",
+    "phase": "broad-exploration",
+    "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+    "turnId": "019f782c-5fce-7750-bdba-97882fd8a1da",
+    "route": {
+      "id": "route_33eyls",
+      "phase": "broad-exploration",
+      "catalogSnapshotId": "catalog_59eeb869-45bf-44c0-8752-4b9d368e3be0",
+      "recommended": {
+        "model": "gpt-5.6-sol",
+        "reasoningEffort": "low"
+      },
+      "confidence": 0.86,
+      "reasons": [
+        "phase=broad-exploration",
+        "computed need=0.29",
+        "bounded retrieval favors the efficiency role"
+      ],
+      "fallback": {
+        "model": "gpt-5.6-sol",
+        "reasoningEffort": "medium"
+      },
+      "escalationConditions": [
+        "test failure",
+        "runtime contradiction",
+        "widening blast radius",
+        "high-severity reviewer finding"
+      ],
+      "budgetImplication": "lower",
+      "requested": {
+        "model": "gpt-5.6-sol",
+        "reasoningEffort": "low"
+      }
+    },
+    "outcome": {
+      "status": "failed",
+      "error": {
+        "message": "Your workspace is out of credits. Add credits to continue.",
+        "codexErrorInfo": "usageLimitExceeded",
+        "additionalDetails": null
+      }
+    },
+    "modelState": {
+      "recommended": "gpt-5.6-sol",
+      "requested": "gpt-5.6-sol",
+      "effective": null,
+      "label": "requested-unconfirmed"
+    },
+    "events": [
+      {
+        "runId": "run_live_smoke",
+        "sequence": 0,
+        "occurredAt": "2026-07-19T02:20:01.769Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.769275Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/\"},\"target\":\"codex_core_skills::loader\"}\n{\"timestamp\":\"2026-07-19T02:20:01.769323Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/\"},\"target\":\"codex_core_skills::loader\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 1,
+        "occurredAt": "2026-07-19T02:20:01.775Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.775178Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 2,
+        "occurredAt": "2026-07-19T02:20:01.776Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.776037Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 3,
+        "occurredAt": "2026-07-19T02:20:01.808Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.807907Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 4,
+        "occurredAt": "2026-07-19T02:20:01.808Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.808253Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 5,
+        "occurredAt": "2026-07-19T02:20:01.809Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.809657Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 6,
+        "occurredAt": "2026-07-19T02:20:01.810Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.810154Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 7,
+        "occurredAt": "2026-07-19T02:20:01.810Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.810763Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 8,
+        "occurredAt": "2026-07-19T02:20:01.811Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.811070Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 9,
+        "occurredAt": "2026-07-19T02:20:01.811Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.811521Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 10,
+        "occurredAt": "2026-07-19T02:20:01.812Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.812030Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 11,
+        "occurredAt": "2026-07-19T02:20:01.812Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.812620Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 12,
+        "occurredAt": "2026-07-19T02:20:01.813Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.813082Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 13,
+        "occurredAt": "2026-07-19T02:20:01.813Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.813417Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 14,
+        "occurredAt": "2026-07-19T02:20:01.813Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.813710Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 15,
+        "occurredAt": "2026-07-19T02:20:01.814Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.814237Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 16,
+        "occurredAt": "2026-07-19T02:20:01.815Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.815021Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 17,
+        "occurredAt": "2026-07-19T02:20:01.815Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.815426Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 18,
+        "occurredAt": "2026-07-19T02:20:01.815Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.815906Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 19,
+        "occurredAt": "2026-07-19T02:20:01.816Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.816653Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 20,
+        "occurredAt": "2026-07-19T02:20:01.817Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.817443Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 21,
+        "occurredAt": "2026-07-19T02:20:01.818Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.818026Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 22,
+        "occurredAt": "2026-07-19T02:20:01.818Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.818638Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 23,
+        "occurredAt": "2026-07-19T02:20:01.819Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.819200Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 24,
+        "occurredAt": "2026-07-19T02:20:01.819Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.819708Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 25,
+        "occurredAt": "2026-07-19T02:20:01.820Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.820405Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 26,
+        "occurredAt": "2026-07-19T02:20:01.821Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.821516Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 27,
+        "occurredAt": "2026-07-19T02:20:01.822Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.822560Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 28,
+        "occurredAt": "2026-07-19T02:20:01.823Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.823440Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 29,
+        "occurredAt": "2026-07-19T02:20:01.823Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.823747Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 30,
+        "occurredAt": "2026-07-19T02:20:01.824Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.824428Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 31,
+        "occurredAt": "2026-07-19T02:20:01.825Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.825133Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 32,
+        "occurredAt": "2026-07-19T02:20:01.825Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.825754Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 33,
+        "occurredAt": "2026-07-19T02:20:01.827Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.827042Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 34,
+        "occurredAt": "2026-07-19T02:20:01.827Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.827392Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 35,
+        "occurredAt": "2026-07-19T02:20:01.828Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.828112Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 36,
+        "occurredAt": "2026-07-19T02:20:01.828Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.828397Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 37,
+        "occurredAt": "2026-07-19T02:20:01.828Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.828891Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 38,
+        "occurredAt": "2026-07-19T02:20:01.830Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:01.829965Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back\"},\"target\":\"codex_rollout::list\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 39,
+        "occurredAt": "2026-07-19T02:20:01.867Z",
+        "source": "app-server",
+        "type": "thread/started",
+        "redactedPayload": {
+          "thread": {
+            "id": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+            "extra": null,
+            "sessionId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+            "forkedFromId": null,
+            "parentThreadId": null,
+            "preview": "",
+            "ephemeral": true,
+            "historyMode": "legacy",
+            "modelProvider": "openai",
+            "createdAt": 1784427601,
+            "updatedAt": 1784427601,
+            "recencyAt": 1784427601,
+            "status": {
+              "type": "idle"
+            },
+            "path": null,
+            "cwd": "/Users/frameless/Desktop/Kerno/fixtures/relaycart-ts/seed",
+            "cliVersion": "0.145.0-alpha.18",
+            "source": "vscode",
+            "threadSource": null,
+            "agentNickname": null,
+            "agentRole": null,
+            "gitInfo": null,
+            "name": null,
+            "turns": []
+          }
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 40,
+        "occurredAt": "2026-07-19T02:20:01.868Z",
+        "source": "app-server",
+        "type": "mcpServer/startupStatus/updated",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "name": "codex_apps",
+          "status": "starting",
+          "error": null,
+          "failureReason": null
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 41,
+        "occurredAt": "2026-07-19T02:20:01.870Z",
+        "source": "app-server",
+        "type": "mcpServer/startupStatus/updated",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "name": "sites-design-picker",
+          "status": "starting",
+          "error": null,
+          "failureReason": null
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 42,
+        "occurredAt": "2026-07-19T02:20:01.873Z",
+        "source": "app-server",
+        "type": "mcpServer/startupStatus/updated",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "name": "kerno",
+          "status": "starting",
+          "error": null,
+          "failureReason": null
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 43,
+        "occurredAt": "2026-07-19T02:20:01.873Z",
+        "source": "app-server",
+        "type": "mcpServer/startupStatus/updated",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "name": "openaiDeveloperDocs",
+          "status": "starting",
+          "error": null,
+          "failureReason": null
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 44,
+        "occurredAt": "2026-07-19T02:20:01.873Z",
+        "source": "app-server",
+        "type": "mcpServer/startupStatus/updated",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "name": "node_repl",
+          "status": "starting",
+          "error": null,
+          "failureReason": null
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 45,
+        "occurredAt": "2026-07-19T02:20:01.873Z",
+        "source": "app-server",
+        "type": "mcpServer/startupStatus/updated",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "name": "repset",
+          "status": "starting",
+          "error": null,
+          "failureReason": null
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 46,
+        "occurredAt": "2026-07-19T02:20:01.878Z",
+        "source": "app-server",
+        "type": "thread/status/changed",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "status": {
+            "type": "active",
+            "activeFlags": []
+          }
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 47,
+        "occurredAt": "2026-07-19T02:20:01.878Z",
+        "source": "app-server",
+        "type": "turn/started",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "turn": {
+            "id": "019f782c-5fce-7750-bdba-97882fd8a1da",
+            "items": [],
+            "itemsView": "notLoaded",
+            "status": "inProgress",
+            "error": null,
+            "startedAt": 1784427601,
+            "completedAt": null,
+            "durationMs": null
+          }
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 48,
+        "occurredAt": "2026-07-19T02:20:02.031Z",
+        "source": "app-server",
+        "type": "mcpServer/startupStatus/updated",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "name": "sites-design-picker",
+          "status": "ready",
+          "error": null,
+          "failureReason": null
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 49,
+        "occurredAt": "2026-07-19T02:20:02.035Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:02.035480Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"Failed to terminate MCP process group 79839: Operation not permitted (os error 1)\"},\"target\":\"codex_rmcp_client::stdio_server_launcher\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 50,
+        "occurredAt": "2026-07-19T02:20:02.036Z",
+        "source": "app-server",
+        "type": "mcpServer/startupStatus/updated",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "name": "kerno",
+          "status": "failed",
+          "error": "MCP client for `kerno` failed to start: MCP startup failed: handshaking with MCP server failed: connection closed: initialize response",
+          "failureReason": null
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 51,
+        "occurredAt": "2026-07-19T02:20:02.157Z",
+        "source": "app-server",
+        "type": "mcpServer/startupStatus/updated",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "name": "node_repl",
+          "status": "ready",
+          "error": null,
+          "failureReason": null
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 52,
+        "occurredAt": "2026-07-19T02:20:02.179Z",
+        "source": "app-server",
+        "type": "mcpServer/startupStatus/updated",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "name": "repset",
+          "status": "ready",
+          "error": null,
+          "failureReason": null
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 53,
+        "occurredAt": "2026-07-19T02:20:06.733Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:06.733617Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/\"},\"target\":\"codex_core_skills::loader\"}\n{\"timestamp\":\"2026-07-19T02:20:06.733649Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/\"},\"target\":\"codex_core_skills::loader\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 54,
+        "occurredAt": "2026-07-19T02:20:07.171Z",
+        "source": "app-server",
+        "type": "app-server/stderr",
+        "redactedPayload": "{\"timestamp\":\"2026-07-19T02:20:07.171318Z\",\"level\":\"WARN\",\"fields\":{\"message\":\"failed to download remote installed plugin bundle\",\"remote_plugin_id\":\"plugin_asdk_app_693ca6ce2db08191bb52d66743c65184\",\"plugin\":\"airtable\",\"marketplace\":\"openai-curated-remote\",\"error\":\"plugin.json name `app-693ca6ce2db08191bb52d66743c65184` does not match marketplace plugin name `airtable`\"},\"target\":\"codex_core_plugins::remote::remote_installed_plugin_sync\"}\n"
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 55,
+        "occurredAt": "2026-07-19T02:20:07.412Z",
+        "source": "app-server",
+        "type": "mcpServer/startupStatus/updated",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "name": "openaiDeveloperDocs",
+          "status": "ready",
+          "error": null,
+          "failureReason": null
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 56,
+        "occurredAt": "2026-07-19T02:20:07.852Z",
+        "source": "app-server",
+        "type": "mcpServer/startupStatus/updated",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "name": "codex_apps",
+          "status": "ready",
+          "error": null,
+          "failureReason": null
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 57,
+        "occurredAt": "2026-07-19T02:20:08.663Z",
+        "source": "app-server",
+        "type": "hook/started",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "turnId": "019f782c-5fce-7750-bdba-97882fd8a1da",
+          "run": {
+            "id": "session-start:0:/Users/frameless/.codex/plugins/cache/repset-marketplace/repset/0.3.3/hooks/hooks.json",
+            "eventName": "sessionStart",
+            "handlerType": "command",
+            "executionMode": "sync",
+            "scope": "thread",
+            "sourcePath": "/Users/frameless/.codex/plugins/cache/repset-marketplace/repset/0.3.3/hooks/hooks.json",
+            "source": "plugin",
+            "displayOrder": 0,
+            "status": "running",
+            "statusMessage": "Initializing private Repset context",
+            "startedAt": 1784427608,
+            "completedAt": null,
+            "durationMs": null,
+            "entries": []
+          }
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 58,
+        "occurredAt": "2026-07-19T02:20:08.759Z",
+        "source": "app-server",
+        "type": "hook/completed",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "turnId": "019f782c-5fce-7750-bdba-97882fd8a1da",
+          "run": {
+            "id": "session-start:0:/Users/frameless/.codex/plugins/cache/repset-marketplace/repset/0.3.3/hooks/hooks.json",
+            "eventName": "sessionStart",
+            "handlerType": "command",
+            "executionMode": "sync",
+            "scope": "thread",
+            "sourcePath": "/Users/frameless/.codex/plugins/cache/repset-marketplace/repset/0.3.3/hooks/hooks.json",
+            "source": "plugin",
+            "displayOrder": 0,
+            "status": "completed",
+            "statusMessage": "Initializing private Repset context",
+            "startedAt": 1784427608,
+            "completedAt": 1784427608,
+            "durationMs": 78,
+            "entries": []
+          }
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 59,
+        "occurredAt": "2026-07-19T02:20:08.759Z",
+        "source": "app-server",
+        "type": "item/started",
+        "redactedPayload": {
+          "item": {
+            "type": "userMessage",
+            "id": "019f782c-7aa3-79d1-b8fa-6be0260a725c",
+            "clientId": null,
+            "content": [
+              {
+                "type": "text",
+                "text": "Read only src/webhooks/refund-handler.ts and state the transaction risk in one concise sentence. Do not edit files.",
+                "text_elements": []
+              }
+            ]
+          },
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "turnId": "019f782c-5fce-7750-bdba-97882fd8a1da",
+          "startedAtMs": 1784427608739
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 60,
+        "occurredAt": "2026-07-19T02:20:08.759Z",
+        "source": "app-server",
+        "type": "item/completed",
+        "redactedPayload": {
+          "item": {
+            "type": "userMessage",
+            "id": "019f782c-7aa3-79d1-b8fa-6be0260a725c",
+            "clientId": null,
+            "content": [
+              {
+                "type": "text",
+                "text": "Read only src/webhooks/refund-handler.ts and state the transaction risk in one concise sentence. Do not edit files.",
+                "text_elements": []
+              }
+            ]
+          },
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "turnId": "019f782c-5fce-7750-bdba-97882fd8a1da",
+          "completedAtMs": 1784427608739
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 61,
+        "occurredAt": "2026-07-19T02:20:09.096Z",
+        "source": "app-server",
+        "type": "account/rateLimits/updated",
+        "redactedPayload": {
+          "rateLimits": {
+            "limitId": "premium",
+            "limitName": null,
+            "primary": null,
+            "secondary": null,
+            "credits": {
+              "hasCredits": false,
+              "unlimited": false,
+              "balance": null
+            },
+            "individualLimit": null,
+            "spendControlReached": null,
+            "planType": null,
+            "rateLimitReachedType": "workspace_owner_credits_depleted"
+          }
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 62,
+        "occurredAt": "2026-07-19T02:20:09.096Z",
+        "source": "app-server",
+        "type": "thread/status/changed",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "status": {
+            "type": "systemError"
+          }
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 63,
+        "occurredAt": "2026-07-19T02:20:09.096Z",
+        "source": "app-server",
+        "type": "error",
+        "redactedPayload": {
+          "error": {
+            "message": "Your workspace is out of credits. Add credits to continue.",
+            "codexErrorInfo": "usageLimitExceeded",
+            "additionalDetails": null
+          },
+          "willRetry": false,
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "turnId": "019f782c-5fce-7750-bdba-97882fd8a1da"
+        }
+      },
+      {
+        "runId": "run_live_smoke",
+        "sequence": 64,
+        "occurredAt": "2026-07-19T02:20:09.096Z",
+        "source": "app-server",
+        "type": "turn/completed",
+        "redactedPayload": {
+          "threadId": "019f782c-5f53-7df2-8ddd-11980d80ea1a",
+          "turn": {
+            "id": "019f782c-5fce-7750-bdba-97882fd8a1da",
+            "items": [],
+            "itemsView": "notLoaded",
+            "status": "failed",
+            "error": {
+              "message": "Your workspace is out of credits. Add credits to continue.",
+              "codexErrorInfo": "usageLimitExceeded",
+              "additionalDetails": null
+            },
+            "startedAt": 1784427601,
+            "completedAt": 1784427609,
+            "durationMs": 7220
+          }
+        }
+      }
+    ]
+  }
+}

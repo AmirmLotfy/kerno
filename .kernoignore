@@ -1,0 +1,7 @@
+.git/
+.kerno/
+.kerno-cache/
+node_modules/
+dist/
+coverage/
+fixtures/**/node_modules/
