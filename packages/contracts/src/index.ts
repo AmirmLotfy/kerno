@@ -222,6 +222,40 @@ export const runEventSchema = z.object({
 }).strict();
 export type RunEvent = z.infer<typeof runEventSchema>;
 
+const nullableMetric = z.number().nonnegative().nullable();
+export const benchmarkRunSchema = z.object({
+  schemaVersion: z.literal(SCHEMA_VERSION),
+  id: idSchema,
+  recordedAt: isoDateSchema,
+  experiment: z.enum(["context-controlled", "full-system"]),
+  condition: z.enum(["plain-codex", "codex-with-kerno-capsule", "plain-default-workflow", "kerno-phase-routing"]),
+  task: z.object({
+    id: z.string().min(1), text: z.string().min(1), repository: z.string().min(1), license: z.string().min(1),
+    startingCommit: z.string().min(1), branch: z.string().min(1), successCriteria: z.array(z.string()).min(1), testCommands: z.array(z.string()).min(1)
+  }).strict(),
+  environment: z.object({ platform: z.string(), architecture: z.string(), node: z.string(), codex: z.string(), recordedFrom: z.enum(["live-app-server", "recorded-real-run"]) }).strict(),
+  model: z.object({ requested: z.string().nullable(), reasoningEffort: z.string().nullable(), effective: z.string().nullable(), truthLabel: z.enum(["not-requested", "requested-unconfirmed", "rerouted", "verified"]) }).strict(),
+  permissions: z.string().min(1),
+  kernoConfiguration: z.object({ capsuleBudget: z.number().int().positive(), initialCapsuleId: idSchema, childCapsuleId: idSchema.nullable(), routingPolicy: z.string() }).strict().nullable(),
+  finalStatus: z.enum(["passed", "failed", "partial", "timeout", "unavailable"]),
+  tests: z.object({ passed: z.boolean(), exitCode: z.number().int().nullable(), artifactHash: z.string(), outputTail: z.string() }).strict(),
+  metrics: z.object({
+    totalTokens: nullableMetric, filesOpened: nullableMetric, repeatedReads: nullableMetric, toolCalls: nullableMetric,
+    contextExpansions: nullableMetric, latencyMs: nullableMetric, changedLines: nullableMetric,
+    unnecessaryChangedLines: nullableMetric, reviewerFindings: nullableMetric
+  }).strict(),
+  review: z.object({ status: z.enum(["passed", "failed", "not-observed", "unavailable"]), artifactHash: z.string().nullable(), summary: z.string() }).strict(),
+  artifacts: z.object({ events: z.string().nullable(), diff: z.string().nullable(), tests: z.string(), review: z.string().nullable() }).strict(),
+  limitations: z.array(z.string())
+}).strict();
+export type BenchmarkRun = z.infer<typeof benchmarkRunSchema>;
+
+export const benchmarkReportSchema = z.object({
+  schemaVersion: z.literal(SCHEMA_VERSION), generatedAt: isoDateSchema, runCount: z.number().int().nonnegative(), runs: z.array(benchmarkRunSchema),
+  comparisons: z.array(z.object({ taskId: z.string(), experiment: z.string(), baselineRunId: idSchema.nullable(), kernoRunId: idSchema.nullable(), fairness: z.object({ passed: z.boolean(), mismatches: z.array(z.string()) }).strict(), metrics: z.record(z.string(), z.object({ baseline: z.number().nullable(), kerno: z.number().nullable() }).strict()) }).strict())
+}).strict();
+export type BenchmarkReport = z.infer<typeof benchmarkReportSchema>;
+
 export const toolResultSchema = <T extends z.ZodTypeAny>(data: T) => z.object({
   schemaVersion: z.literal(SCHEMA_VERSION),
   requestId: idSchema,

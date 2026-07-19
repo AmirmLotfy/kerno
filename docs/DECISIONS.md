@@ -62,3 +62,24 @@
 - Status: accepted
 - Decision: Use warm paper, ink, signal orange, verified green, strong evidence hierarchy, and restrained motion.
 - Consequence: The product reads as an engineering instrument rather than a generic analytics dashboard.
+
+## ADR-010 — Preserve unfavorable benchmark outcomes
+
+- Date: 2026-07-19
+- Status: accepted
+- Decision: Retain complete real pairs even when Kerno uses more tokens, tools, or latency. Separate context-controlled and routing experiments.
+- Consequence: The first real pair is published as partial and unfavorable on several efficiency metrics; no percentage headline or generalized claim is permitted.
+
+## ADR-011 — Sanitize checked evidence without rewriting measurements
+
+- Date: 2026-07-19
+- Status: accepted
+- Decision: Checked-in App Server and benchmark artifacts replace local home/workspace/temp prefixes but preserve events, results, and derived values.
+- Consequence: Reports link repository-relative artifacts; source-private paths are not publication evidence.
+
+## ADR-012 — Truth-labeled replay as the default judge path
+
+- Date: 2026-07-19
+- Status: accepted
+- Decision: `npm run judge` opens a deterministic local proof loop; authenticated live orchestration is separate.
+- Consequence: Judges can understand the product without capacity risk, while the UI never presents replayed data as a live model run.

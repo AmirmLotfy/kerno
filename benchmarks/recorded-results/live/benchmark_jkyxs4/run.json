@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "1",
+  "id": "benchmark_jkyxs4",
+  "recordedAt": "2026-07-19T08:19:22.791Z",
+  "experiment": "context-controlled",
+  "condition": "codex-with-kerno-capsule",
+  "task": {
+    "id": "refund-debug",
+    "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+    "repository": "relaycart-ts",
+    "license": "Apache-2.0",
+    "startingCommit": "d1698451b44224594b2c224c3bc6b6d4f4ba654c",
+    "branch": "main",
+    "successCriteria": [
+      "all three pinned assertions pass",
+      "concurrent deliveries credit once",
+      "restart after marker timeout does not re-credit",
+      "public RefundSucceeded event shape is unchanged"
+    ],
+    "testCommands": [
+      "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+    ]
+  },
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v22.13.1",
+    "codex": "codex-cli 0.145.0-alpha.18",
+    "recordedFrom": "live-app-server"
+  },
+  "model": {
+    "requested": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "effective": null,
+    "truthLabel": "requested-unconfirmed"
+  },
+  "permissions": "workspace-write:no-network:never-approve",
+  "kernoConfiguration": {
+    "capsuleBudget": 2500,
+    "initialCapsuleId": "capsule_1aa4fjp",
+    "childCapsuleId": "capsule_aapupk",
+    "routingPolicy": "context-controlled-pinned-live-model-lowest-effort"
+  },
+  "finalStatus": "partial",
+  "tests": {
+    "passed": true,
+    "exitCode": 0,
+    "artifactHash": "ffa18b053509c9531880559bb277022cde985162ee9f642919a05bf1fa22124c",
+    "outputTail": "TAP version 13\n# (node:79176) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and boundary restart\nok 1 - write-ahead state survives a marker timeout and boundary restart\n  ---\n  duration_ms: 0.801125\n  ...\n# (node:79177) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries credit exactly once\nok 2 - concurrent duplicate deliveries credit exactly once\n  ---\n  duration_ms: 0.518\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.628708\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 111.317667\n\n(node:79175) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+  },
+  "metrics": {
+    "totalTokens": 134979,
+    "filesOpened": 2,
+    "repeatedReads": 0,
+    "toolCalls": 18,
+    "contextExpansions": 1,
+    "latencyMs": 119785,
+    "changedLines": 16,
+    "unnecessaryChangedLines": null,
+    "reviewerFindings": null
+  },
+  "review": {
+    "status": "unavailable",
+    "artifactHash": null,
+    "summary": "Review timeout: {\"message\":\"Turn 019f7974-7369-7092-8ba5-96ad13283908 did not complete before timeout\"}"
+  },
+  "artifacts": {
+    "events": "benchmarks/recorded-results/live/benchmark_jkyxs4/events.json",
+    "diff": "benchmarks/recorded-results/live/benchmark_jkyxs4/diff.patch",
+    "tests": "benchmarks/recorded-results/live/benchmark_jkyxs4/tests.txt",
+    "review": "benchmarks/recorded-results/live/benchmark_jkyxs4/review.txt"
+  },
+  "limitations": [
+    "Requested model was not independently confirmed by an effective-model or reroute event."
+  ]
+}

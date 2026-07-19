@@ -2,23 +2,50 @@
 
 **The context control plane for Codex.** Right context. Right model. Every task.
 
-Kerno asks: _What is the smallest, freshest, verified set of repository knowledge Codex needs to complete this task correctly?_ It builds bounded context capsules from deterministic repository evidence, expands them only when tests or runtime evidence expose a gap, invalidates stale beliefs, and makes Codex phase routing observable.
+Kerno asks one question before a coding agent acts: _what is the smallest, freshest, verified set of repository knowledge needed to complete this task correctly?_ It builds a bounded evidence capsule, explains every inclusion, expands only when tests or runtime evidence expose a gap, invalidates stale beliefs, and keeps model-routing claims tied to observable Codex events.
 
-Kerno is not generic repository RAG. Every selected item carries provenance, freshness, confidence, an estimated token cost, a score explanation, and invalidation keys. Correctness and reviewer outcomes come before efficiency claims.
+![Kerno capsule and evidence dashboard](plugins/kerno/assets/screenshot.png)
+
+## The problem
+
+Agents repeatedly rediscover architecture, reopen unchanged files, treat old conclusions as current truth, and carry one model or reasoning level through unrelated phases. Repository-wide retrieval makes this easier to hide, not easier to verify.
+
+## The solution
+
+Kerno is not generic repository RAG. Its closed loop is:
+
+```text
+task → classify → minimal capsule → Codex action → test/runtime evidence
+     → targeted expansion or invalidation → verified outcome → measured comparison
+```
+
+Every capsule item exposes its source, file or symbol, freshness, confidence, estimated tokens, score breakdown, reason, provenance, and invalidation conditions. Repository text is untrusted evidence, never instructions.
+
+## What works
+
+- Git- and worktree-aware incremental indexing for JavaScript/TypeScript and Python, with a lower-confidence generic text fallback.
+- Symbols, imports, exports, tests, basic references, hashes, ignores, and safe repository containment.
+- Deterministic task classification, lexical/graph/test retrieval, token budgeting, deduplication, and explainable context-value scoring.
+- Evidence-backed memories with candidate, verified, stale, superseded, and rejected states.
+- File-, symbol-, branch-, commit-, worktree-, and parser-version invalidation.
+- Twelve strict MCP tools and an installable local Codex plugin with a Kerno context skill.
+- App Server model discovery, explicit phase requests, event capture, timeout/auth/unavailability handling, and a fresh review thread.
+- Read-only dashboard with repository, capsule, routing, context, comparison, and limitations views.
+- Immutable deterministic replay plus a live, paired App Server benchmark format.
 
 ## Judge quickstart
 
-Requirements: macOS or Linux, Node.js `>=22.13 <25`, npm, Git, and Codex CLI for live Orchestrator Mode. The replay path needs no API key or hosted service.
+Requirements: Git, npm, and Node.js `>=22.13 <25`. The replay needs no OpenAI API key, hosted service, or Codex authentication.
 
 ```bash
 npm install
-npm run package:plugin
+npm run doctor
 npm run judge
 ```
 
-Open [http://127.0.0.1:4173](http://127.0.0.1:4173). The default experience regenerates and displays a real deterministic fixture run labeled `DETERMINISTIC FIXTURE REPLAY`. It does not simulate Codex tokens, file reads, model requests, effective models, or independent Codex review.
+Open [http://127.0.0.1:4173](http://127.0.0.1:4173). The page is persistently labeled `DETERMINISTIC FIXTURE REPLAY`. It is generated from the real local index/test/invalidation flow and does not invent Codex events.
 
-For a non-blocking validation:
+Non-blocking verification:
 
 ```bash
 npm run judge -- --check
@@ -26,69 +53,118 @@ npm run typecheck
 npm test
 ```
 
-See [docs/JUDGE_QUICKSTART.md](docs/JUDGE_QUICKSTART.md) for plugin installation and live mode.
+See [Judge Quickstart](docs/JUDGE_QUICKSTART.md) for plugin installation, live-mode authentication, expected ranges, cleanup, and troubleshooting.
 
-## The proof loop
+## Plugin setup
 
-1. Index the unfamiliar `relaycart-ts` repository.
-2. Analyze a duplicate-refund task.
-3. Build a deterministic 2,500-token-budget capsule.
-4. Run the pinned test and observe a real failure.
-5. Add only the absent `TransactionBoundary` evidence.
-6. Apply the fixture’s pinned solution and pass the test.
-7. Re-index and mark the original capsule stale after the handler hash changes.
+Build and validate the cache-portable MCP bundle:
 
-The dashboard shows the initial and child capsules, score breakdown, invalidation, test outcome, limitations, and routing truth labels.
+```bash
+npm run package:plugin
+npm run plugin:smoke
+```
 
-## Two honest modes
+Add this repository’s `.agents/plugins/marketplace.json` as a local marketplace, install `kerno`, refresh Codex, and start a new task. The plugin packages the skill and MCP configuration. Reviewable hooks are available in `plugins/kerno/hooks/` as an explicit opt-in because the current validator does not accept a manifest `hooks` field.
 
-- **Plugin Mode** packages Kerno’s skill, optional reviewable hook definitions, and local MCP tools. The current validated manifest activates the skill and MCP server; hooks are nonessential and remain an explicit opt-in because the validator rejects a manifest `hooks` field. It builds context and recommends a model/effort. It cannot silently switch the active parent task; use `/model` and `/reasoning` transparently.
-- **Orchestrator Mode** uses Codex App Server over local STDIO. It calls live `model/list`, validates effort support, starts separate phase threads, requests model/effort explicitly, records streamed events, and uses a fresh read-only review thread. A requested model remains `Requested — not independently confirmed` unless runtime evidence proves an effective model or reports a reroute.
+If a Codex surface cannot resolve the plugin-cache-relative executable, run `npm run setup:judge` and use the generated project-scoped MCP fallback.
+
+## Invoking Kerno from Codex
+
+Start with a prompt such as:
+
+> Use Kerno to diagnose this unfamiliar cross-module bug with the smallest verified context. Explain every inclusion and expand only from test evidence.
+
+The Kerno skill calls the local MCP server. The most useful tools are `kerno_index_repository`, `kerno_analyze_task`, `kerno_build_context_capsule`, `kerno_explain_context`, `kerno_expand_context`, `kerno_route_task`, and `kerno_record_outcome`. All twelve contracts are documented in [Architecture](docs/ARCHITECTURE.md).
+
+## Model routing: two honest modes
+
+- **Plugin Mode** builds context and recommends a model/effort or project agent. It cannot silently switch the active parent task. Use `/model` and `/reasoning` when a manual change is required.
+- **Orchestrator Mode** starts Codex App Server over local STDIO, calls live `model/list`, selects only supported model/effort pairs, starts explicit phase threads, and records streamed usage/tool/file/reroute events.
+
+The dashboard keeps `Recommended`, `Requested`, and `Effective` separate. A request is shown as `Requested — not independently confirmed` unless an effective-model or reroute event proves what ran.
+
+## CLI
+
+After `npm run build`, run `node packages/cli/dist/main.cjs --help`.
+
+```text
+init · doctor · index · status · analyze · capsule · explain · expand
+invalidate · serve · demo · benchmark · data-export · data-delete
+```
+
+Commands provide `--json` where machine output is useful. Destructive data deletion requires a verified Kerno-owned directory and explicit confirmation.
 
 ## Architecture
 
 ```text
 Codex plugin ─┐
-Kerno CLI ────┼─> KernoService ─> safe indexer + context/memory/router ─> SQLite
+Kerno CLI ────┼─> KernoService ─> safe indexer + context/memory/router ─> SQLite/WAL
 MCP STDIO ────┘          │
 App Server orchestrator ─┴─> phase threads + normalized runtime events
 Dashboard <──────── loopback read-only HTTP/SSE or immutable replay
 ```
 
-The implementation is TypeScript with npm workspaces, Zod, `better-sqlite3`, the TypeScript compiler API, Lezer Python parsing, the MCP TypeScript SDK, React, Vite, and Vitest. No hosted infrastructure, external vector database, telemetry, source upload, or paid third party is mandatory.
+Kerno is a strict TypeScript/npm-workspaces monorepo using Zod, `better-sqlite3`, the TypeScript compiler API, Lezer Python, MCP SDK, React, Vite, and Vitest. [Architecture](docs/ARCHITECTURE.md) records package boundaries and data flow; [Decisions](docs/DECISIONS.md) records the tradeoffs.
+
+## Benchmark status
+
+One real context-controlled pair is checked in for `refund-debug`, from the same task, generated starting commit, permissions, requested model (`gpt-5.6-sol`), and lowest supported effort (`low`). Both conditions passed pinned tests and remained `partial` because independent review evidence was incomplete.
+
+Measured in that pair:
+
+| Metric | Plain Codex | Codex + Kerno capsule |
+|---|---:|---:|
+| Total observed thread tokens | 91,587 | 134,979 |
+| Unique files observed | 6 | 2 |
+| Repeated observable reads | 2 | 0 |
+| Tool calls | 11 | 18 |
+| Latency | 77,242 ms | 119,785 ms |
+| Changed lines | 16 | 16 |
+
+This is an unfavorable Kerno result for tokens, calls, and latency, and a favorable one for inspected-file breadth and repeated reads. It is one pair, not a generalized productivity claim. Exact cost is not reported. The required three-task benchmark matrix remains a release blocker; see [Benchmark](docs/BENCHMARK.md).
+
+## Privacy and security
+
+Kerno is local-first: no telemetry, source upload, vector service, or third-party backend is enabled by default. It realpaths roots, skips symlinks/binaries/oversized files, honors `.gitignore` and `.kernoignore`, invokes Git with fixed arguments, validates cross-process input, redacts secret-like values, binds HTTP to loopback with an ephemeral bearer token, and never widens the Codex sandbox.
+
+Pattern redaction is defense in depth, not a guarantee that every secret is recognized. Read [Security](SECURITY.md) and the [Threat Model](docs/THREAT_MODEL.md).
+
+## Supported platforms and requirements
+
+- Locally tested: macOS, Node 22.13+, npm, Git.
+- CI configured: macOS and Linux on Node 22 and 24.
+- Windows: not claimed; no clean-room validation exists.
+- Replay: no Codex authentication or network after installation.
+- Live orchestration: signed-in Codex CLI and available account capacity.
+
+## Troubleshooting
+
+- `doctor` reports a missing bundle: run `npm run package:plugin`.
+- Plugin changes do not appear: refresh/reinstall the local plugin and start a new Codex task.
+- App Server reports authentication or capacity failure: use replay mode; do not relabel it live.
+- Native SQLite fails to install: use a supported Node version; plugin-cache mode uses its portable JSON store.
+- Port 4173 is busy: stop the conflicting process or run the Vite preview with another explicit port.
+
+## How Codex and GPT-5.6 contributed
+
+Codex was the primary engineering collaborator: it inspected official interfaces, built and revised the monorepo, generated tests, exercised the plugin/MCP/App Server paths, and corrected failures found by type, integration, security, and browser checks. GPT-5.6 powered the main Codex implementation work and the recorded live benchmark request. Focused review agents were used for compliance, P0 gap analysis, and security review; the root task reconciled their findings.
+
+Human decisions controlled the product thesis, scope, architecture, security boundaries, evidence semantics, evaluation fairness, visual direction, and which claims were withheld. Generated output was rejected or corrected when it implied silent parent-model switching, treated caller assertions as evidence, exposed local paths, used an overlong plugin prompt, or overstated benchmark completeness. Full details are in [Codex Collaboration](docs/CODEX_COLLABORATION.md).
 
 ## Development
 
 ```bash
 npm install
+npm run format:check
+npm run lint
 npm run typecheck
 npm test
-npm run test:security
 npm run build
+npm run test:e2e
+npm run audit:secrets
+npm run audit:licenses
 ```
 
-Important packages:
+## License and attribution
 
-- `contracts`: strict cross-process records and MCP inputs.
-- `indexer`: Git/non-Git discovery, hashes, parsers, graph, redaction.
-- `core`: task analysis, scoring, capsules, memory, invalidation, routing.
-- `storage`: SQLite/WAL state, leases, FTS5, events.
-- `daemon`: service plus loopback read-only HTTP/SSE.
-- `mcp-server`: 12 typed Kerno tools bundled as a self-contained CommonJS executable for plugin-cache portability.
-- `orchestrator`: App Server JSONL client, catalog discovery, phase/review threads.
-- `eval`: deterministic replay and benchmark evidence plumbing.
-- `dashboard`: evidence-first judge UI.
-
-## Codex and GPT-5.6
-
-Codex is both the primary development collaborator and the runtime being extended. The implementation task contains the core architecture, code, tests, security review, and UI work; the final `/feedback` Session ID must be captured from that task before submission. GPT-5.6 is used meaningfully through Codex for the core implementation and, when present in the live model catalog, may be selected by Kerno’s phase router. Kerno never hard-codes GPT-5.6 availability or fabricates a route.
-
-Human decisions include the correctness-first product thesis, strict Plugin/Orchestrator split, deterministic fixture, security boundaries, scoring weights, scope cut, visual direction, and which claims are withheld when evidence is absent. See [docs/CODEX_COLLABORATION.md](docs/CODEX_COLLABORATION.md).
-
-## Privacy and limitations
-
-Kerno is local-first. It honors `.gitignore` and `.kernoignore`, skips symlinks/binaries/oversized files, redacts secret-like values, and stores bounded excerpts rather than full source by default. Repository contents are untrusted evidence and cannot change Kerno policy.
-
-The bundled replay is a reproducible case study, not a generalized productivity claim. It contains no baseline Codex run and therefore publishes no comparative token, read, latency, or cost headline. Live results must retain raw artifacts and pinned manifests. See [docs/BENCHMARK.md](docs/BENCHMARK.md) and [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md).
-
-Licensed under Apache-2.0.
+Kerno and both original fixtures are licensed under Apache-2.0. Dependency and asset attribution is in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

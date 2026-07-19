@@ -186,8 +186,18 @@ function parseFile(path: string, content: string, language: FileSnapshot["langua
 }
 
 function resolveImport(fromPath: string, target: string, paths: Set<string>): string | null {
-  if (!target.startsWith(".")) return null;
-  const base = normalizePath(resolve("/", fromPath, "..", target).slice(1));
+  let base: string;
+  if (fromPath.endsWith(".py")) {
+    const relative = target.match(/^(\.+)(.*)$/);
+    if (relative) {
+      const levels = relative[1]!.length; const modulePath = relative[2]!.replaceAll(".", "/");
+      const parentSegments = fromPath.split("/").slice(0, -levels);
+      base = normalizePath([...parentSegments, modulePath].filter(Boolean).join("/"));
+    } else base = normalizePath(target.replaceAll(".", "/"));
+  } else {
+    if (!target.startsWith(".")) return null;
+    base = normalizePath(resolve("/", fromPath, "..", target).slice(1));
+  }
   for (const candidate of [base, `${base}.ts`, `${base}.tsx`, `${base}.js`, `${base}.py`, `${base}/index.ts`, `${base}/__init__.py`]) if (paths.has(candidate)) return candidate;
   return null;
 }

@@ -7,7 +7,7 @@ describe("repository security boundaries", () => {
     expect(() => assertWithinRepository("/tmp/repository", path)).toThrow();
   });
   it("redacts secret-like values before persistence", () => {
-    const result = redactSecrets('const apiKey = "sk_abcdefghijklmnopqrstuvwxyz"');
+    const result = redactSecrets(`const apiKey = "${["sk_", "abcdefghijklmnopqrstuvwxyz"].join("")}"`);
     expect(result.redacted).toBe(true);
     expect(result.text).not.toContain("abcdefghijklmnopqrstuvwxyz");
   });

@@ -1,6 +1,9 @@
 {
   "name": "gatehouse-python",
   "language": "python",
-  "task": "Refactor retry policy selection without changing queue acknowledgement behavior.",
-  "acceptance": "tests/test_worker.py"
+  "license": "Apache-2.0",
+  "origin": "Original Kerno benchmark fixture; no third-party source copied",
+  "task": "Refactor retry policy selection so transient messages use the fast policy and throttled messages use the durable policy without changing exactly-once queue acknowledgement behavior.",
+  "acceptance": "python3 -m unittest discover -s tests -v",
+  "startingCommitLabel": "fixture-v1"
 }

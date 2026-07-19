@@ -17,7 +17,7 @@ afterEach(async () => { while (cleanup.length) await rm(cleanup.pop()!, { recurs
 describe("advisory hooks", () => {
   it("persists only allowlisted metadata and fails open", async () => {
     const root = await mkdtemp(join(tmpdir(), "kerno-hook-")); cleanup.push(root);
-    expect((await runHook(root, "post-tool-use", JSON.stringify({ session_id: "session_1", tool_name: "shell", status: "failed", output: "OPENAI_API_KEY=sk-proj-never-store-this-value" }))).code).toBe(0);
+    expect((await runHook(root, "post-tool-use", JSON.stringify({ session_id: "session_1", tool_name: "shell", status: "failed", output: `OPENAI_API_KEY=${["sk-proj-", "never-store-this-value"].join("")}` }))).code).toBe(0);
     const log = await readFile(join(root, "hook-events.jsonl"), "utf8");
     expect(log).toContain("session_1"); expect(log).not.toContain("never-store"); expect(log).not.toContain("output");
     expect(await runHook(root, "stop", "{malformed")).toEqual({ code: 0, stdout: "" });

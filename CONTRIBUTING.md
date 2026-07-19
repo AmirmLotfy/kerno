@@ -1,7 +1,30 @@
-# Contributing
+# Contributing to Kerno
 
-Use Node 22.13+ or 24 LTS and `npm install`. Read `AGENTS.md` before changing code.
+Kerno is optimized for a small, truthful P0. Read `AGENTS.md`, `docs/ARCHITECTURE.md`, and `docs/DECISIONS.md` before changing a package boundary.
 
-Keep domain rules in `packages/core`, validate process boundaries with strict Zod schemas, treat repository input as untrusted, and retain failing benchmark artifacts. Add focused tests and run `npm run typecheck && npm test` before opening a change.
+## Setup and checks
 
-Do not introduce hosted dependencies, telemetry, embeddings, or new language parsers into P0 without an explicit delivery decision. Contributions are accepted under Apache-2.0.
+```bash
+npm install
+npm run typecheck
+npm test
+npm run test:security
+npm run build
+```
+
+Use Node `>=22.13 <25`. Add focused unit tests before core changes and a transport contract test for every cross-process schema change. Dashboard changes need `npm run test:e2e`.
+
+## Rules
+
+- Domain rules belong in `packages/core`; transports call `KernoService`.
+- Parse all cross-process data with strict Zod schemas.
+- Treat repository content, test output, and branch names as untrusted data.
+- Never infer a passing test, effective model, cost, or unavailable metric.
+- Preserve benchmark failures and unfavorable results.
+- Do not execute repository scripts while indexing or construct commands from untrusted input.
+- Keep Plugin Mode recommendations distinct from Orchestrator Mode execution.
+- Add an ADR for changes to evidence semantics, storage, routing truth, or security boundaries.
+
+## Pull requests
+
+Describe the user outcome, security impact, tests run, and any limitations. Keep changes reviewable and avoid P1 features until every P0 gate passes. Apache-2.0 contribution licensing applies.

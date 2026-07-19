@@ -1,6 +1,6 @@
 {
   "name": "kerno",
-  "version": "0.1.0+codex.20260719074757",
+  "version": "0.1.0+codex.20260719083445",
   "description": "Evidence-backed context capsules and observable phase routing for Codex.",
   "author": {
     "name": "Kerno contributors"
@@ -26,7 +26,7 @@
     "screenshots": [
       "./assets/screenshot.png"
     ],
-    "defaultPrompt": "Use Kerno to diagnose this task with the smallest verified context. You can also ask why every capsule item was included or compare this run with an available plain-Codex baseline."
+    "defaultPrompt": "Use Kerno to diagnose this task with the smallest verified context, then expand only from evidence."
   },
   "mcpServers": "./.mcp.json"
 }

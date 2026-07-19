@@ -2,9 +2,9 @@
 
 ## Truth brief
 
-Latest refresh: July 19, 2026 at 12:06 AM PDT / 10:06 AM Africa/Cairo / 7:06 AM UTC. Approximately 64 hours 54 minutes remained. No substantive requirement changed from the prior grounding.
+Latest refresh: **July 19, 2026 at 12:59 AM PDT / 10:59 AM Africa/Cairo / 7:59 AM UTC**. Approximately 64 hours remained. No substantive requirement changed from the prior grounding.
 
-The requested Devpost Hackathons plugin was not callable: no Devpost/Hackathons capability existed in the active tool catalog and `codex plugin list` showed no installed Devpost plugin. The refresh therefore used the authoritative official pages directly. No Devpost write was performed.
+The requested Devpost Hackathons plugin was checked first and was not callable: no Devpost/Hackathons capability existed in the active tool catalog. The refresh therefore used the authoritative official pages directly. The public pages continued to expose the same deadline, required-tool language, and participation guidance. No Devpost write was performed.
 
 - Phase: registration and submissions open.
 - Controlling deadline: Tuesday, July 21, 2026 at 5:00 PM PDT / Wednesday, July 22, 2026 at 3:00 AM EEST.
@@ -34,6 +34,19 @@ No Devpost write has been performed. The exact authenticated form labels remain 
 | [Submission form](https://devpost.com/submit-to/30223-openai-build-week/manage/submissions) | Grounding timestamp | Logged-out check; authenticated labels unavailable |
 | [Supported countries](https://developers.openai.com/api/docs/supported-countries) | July 19, 2026 | Egypt support cross-check |
 | [Codex documentation](https://learn.chatgpt.com/docs/app-server) | Grounding timestamp | Current supported Codex integration behavior |
+
+## July 19 refresh log
+
+| Checked item | Change since prior brief | Controlling source | Resulting action |
+|---|---|---|---|
+| Announcements | No newer requirement-changing announcement was visible; the Tuesday deadline correction remains the relevant update | Official host updates; Rules if an update conflicts | Keep the Tuesday deadline and four-hour submission buffer |
+| Rules and eligibility | No observed change | Official Rules | No scope change; human eligibility confirmation remains required |
+| Dates | No observed change to submission deadline; Rules/schedule judging-period conflict remains | Official Rules | Deadline remains July 21, 5:00 PM PDT / July 22, 3:00 AM Cairo |
+| Judging criteria | No observed change | Official Rules and overview | Preserve equal alignment to implementation, design, impact, and idea quality |
+| Resources | No new credit availability observed | Official Resources | Keep replay path independent of event credits |
+| Submission requirements | No observed change | Official Rules and FAQ | Preserve public under-three-minute video, repository access, and `/feedback` Session ID requirements |
+| Submission fields | Authenticated labels still unavailable without entering the managed submission flow | Authenticated Devpost form | Keep polished drafts and placeholders; invent no labels or values |
+| Devpost plugin | Still absent from the callable tool catalog | Active Codex tool catalog; Rules define it as optional | Continue with official sources; do not install or write to Devpost |
 
 ## Conflict log
 
