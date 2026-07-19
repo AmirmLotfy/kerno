@@ -6,7 +6,7 @@ Recorded local environment: macOS, Node 22.13.1, npm 10.9.2, Codex CLI 0.145.0-a
 
 Required final entries:
 
-- Git implementation commits: `fcaf60e535fb70a22f0dd4dcdd6f70b61851415b` (`feat: build Kerno context control plane`) and `532eb7c` (`feat: complete operational Kerno P0 slice`).
+- Git implementation commits: `fcaf60e535fb70a22f0dd4dcdd6f70b61851415b` (`feat: build Kerno context control plane`), `532eb7c` (`feat: complete operational Kerno P0 slice`), and `3f8c5b8` (`fix: preserve App Server timeout evidence`).
 - Working tree before the initial commit: all 108 project files are new; no pre-existing source was present.
 - Node 22/24 CI: workflow configured; pending remote CI.
 - macOS local clean-room-equivalent gate: passed on Node 22.13.1.
