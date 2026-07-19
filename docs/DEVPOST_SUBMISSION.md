@@ -7,7 +7,7 @@ No registration, project creation, submission edit, or submission action is auth
 - **Project name:** Kerno
 - **Tagline:** The context control plane for Codex.
 - **Category:** Developer Tools
-- **Repository:** `[REQUIRED VERIFIED PUBLIC URL OR JUDGE-SHARED PRIVATE URL]`
+- **Repository:** `https://github.com/AmirmLotfy/kerno`
 - **Demo video:** `[REQUIRED PUBLIC YOUTUBE URL, UNDER 3:00]`
 - **Primary Codex Session ID:** `[REQUIRED — run /feedback in the root implementation task]`
 - **Built with:** TypeScript, Node.js, npm workspaces, Codex, GPT-5.6, Codex App Server, Codex plugins, MCP, SQLite, Zod, React, Vite, Vitest, Playwright, Git
@@ -101,7 +101,8 @@ Tested locally on macOS with Node 22.13. CI targets macOS/Linux on Node 22 and 2
 
 ## Final authenticated-form checklist
 
-- `[ ]` Open draft early and record exact required labels; do not invent them.
+- `[x]` Record exact authenticated field labels and IDs without editing the draft.
+- `[ ]` Select Submitter Type and Country of Residence from the live form based on human confirmation.
 - `[ ]` Verify repository access signed out or share private access with required judge addresses.
 - `[ ]` Verify video public, signed out, English audio, and duration `< 3:00`.
 - `[ ]` Add primary `/feedback` Session ID.

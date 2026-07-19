@@ -1,0 +1,15 @@
+.git
+.github
+.kerno
+.kerno-cache
+.vercel
+node_modules
+dist
+coverage
+test-results
+playwright-report
+*.db
+*.db-shm
+*.db-wal
+*.log
+opengraph.png
