@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-labelledby="title description">
+  <title id="title">Kerno Devpost thumbnail</title>
+  <desc id="description">Kerno Context Core mark, product positioning, and minimal context and routing fragments on warm ivory.</desc>
+  <rect width="900" height="600" fill="#F7F3EC"/>
+  <g transform="translate(62 52) scale(1.25)">
+    <path d="M48 9H23C15.27 9 9 15.27 9 23v18c0 7.73 6.27 14 14 14h25" fill="none" stroke="#1C1B1A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M42 21H29a8 8 0 0 0-8 8v6a8 8 0 0 0 8 8h13" fill="none" stroke="#1C1B1A" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="28" y="28" width="8" height="8" rx="2" fill="#1C1B1A"/>
+    <path d="M53 21v22" fill="none" stroke="#E85D2A" stroke-width="8" stroke-linecap="round"/>
+  </g>
+  <text x="62" y="235" fill="#1C1B1A" font-family="Arial, Helvetica, sans-serif" font-size="102" font-weight="650" letter-spacing="-5">Kerno</text>
+  <text x="67" y="294" fill="#49443F" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="600">Context control plane for Codex</text>
+  <text x="67" y="338" fill="#746D65" font-family="Arial, Helvetica, sans-serif" font-size="19">Control context. Reduce noise. Ship with confidence.</text>
+  <g transform="translate(550 62)">
+    <rect width="286" height="462" rx="16" fill="#FFFDF9" stroke="#DCD4C9" stroke-width="2"/>
+    <text x="24" y="40" fill="#746D65" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="2">CONTEXT CAPSULE</text>
+    <g transform="translate(24 70)">
+      <rect width="238" height="78" rx="9" fill="#FFF3EC" stroke="#E85D2A" stroke-width="2"/>
+      <rect x="16" y="17" width="126" height="9" rx="4.5" fill="#302D2A"/>
+      <rect x="16" y="38" width="184" height="7" rx="3.5" fill="#B9AEA1"/>
+      <rect x="16" y="55" width="92" height="7" rx="3.5" fill="#DCD4C9"/>
+    </g>
+    <g transform="translate(24 166)">
+      <rect width="238" height="78" rx="9" fill="#FFFDF9" stroke="#DCD4C9" stroke-width="2"/>
+      <rect x="16" y="17" width="108" height="9" rx="4.5" fill="#302D2A"/>
+      <rect x="16" y="38" width="174" height="7" rx="3.5" fill="#B9AEA1"/>
+      <rect x="16" y="55" width="74" height="7" rx="3.5" fill="#DCD4C9"/>
+    </g>
+    <path d="M48 292h62" stroke="#E85D2A" stroke-width="5" stroke-linecap="round"/>
+    <path d="M110 292h62" stroke="#DCD4C9" stroke-width="5" stroke-linecap="round"/>
+    <path d="M172 292h62" stroke="#673A52" stroke-width="5" stroke-linecap="round"/>
+    <text x="24" y="332" fill="#746D65" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="2">ROUTE → EVIDENCE → REVIEW</text>
+    <rect x="24" y="360" width="238" height="64" rx="9" fill="#EFE3E9"/>
+    <rect x="40" y="378" width="128" height="9" rx="4.5" fill="#673A52"/>
+    <rect x="40" y="399" width="178" height="7" rx="3.5" fill="#B77B98"/>
+  </g>
+  <path d="M0 584h900v16H0z" fill="#E85D2A"/>
+</svg>

@@ -83,3 +83,10 @@
 - Status: accepted
 - Decision: `npm run judge` opens a deterministic local proof loop; authenticated live orchestration is separate.
 - Consequence: Judges can understand the product without capacity risk, while the UI never presents replayed data as a live model run.
+
+## ADR-013 — Context Core and a canonical warm token system
+
+- Date: 2026-07-19
+- Status: accepted; supersedes ADR-009’s underspecified palette and typographic K treatment
+- Decision: Use `@kerno/brand` as the sole editable source for oxide, warm graphite, ivory, stone, aubergine, semantic, dark, and chart tokens. Replace the typographic K with the container-free Context Core; allow a graphite container only for launcher-scale assets.
+- Consequence: Dashboard components consume semantic aliases, green is restricted to true success, review is aubergine, Baseline/Kerno are stone/oxide, plugin and marketing copies are generated from canonical SVGs, and automated checks reject old colors or divergent mirrors.

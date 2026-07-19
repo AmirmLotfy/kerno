@@ -1,6 +1,6 @@
 # Third-party notices
 
-Kerno source and the original `relaycart-ts` and `gatehouse-python` fixtures are authored for this project and licensed under Apache-2.0. The Kerno SVG marks are original; the dashboard screenshot is generated from Kerno’s own UI and fixture data. No third-party benchmark repository or external image is checked in.
+Kerno source and the original `relaycart-ts` and `gatehouse-python` fixtures are authored for this project and licensed under Apache-2.0. The Context Core SVG family, wordmark compositions, Open Graph card, Devpost thumbnail, social avatar, and dashboard screenshots are original Kerno assets generated from repository-owned vectors and fixture data. They use only system font-family fallbacks and contain no third-party logo or image. No third-party benchmark repository or external image is checked in.
 
 Direct runtime dependencies:
 

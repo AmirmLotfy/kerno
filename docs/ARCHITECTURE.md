@@ -4,6 +4,8 @@
 
 Kerno is a local context-intelligence service with two Codex integrations. Plugin Mode exposes a skill and STDIO MCP tools but only recommends model changes. Orchestrator Mode owns separate Codex App Server threads and can request a live-discovered model and reasoning effort. The dashboard is an evidence reader, not a second control plane.
 
+`@kerno/brand` is the sole visual-system dependency. It exports typed color/chart values and semantic CSS tokens; plugin, dashboard, documentation, social, Open Graph, and Devpost assets are generated from its canonical SVG directory and verified where packaging requires copies.
+
 ```text
 plugin skill ─┐                           ┌─ SQLite/WAL daemon store
 CLI ─────────┼─> KernoService ──────────┼─ portable atomic plugin store
@@ -20,6 +22,7 @@ dashboard <──────── loopback HTTP/SSE or sanitized immutable rep
 
 | Package | Responsibility | Must not do |
 |---|---|---|
+| `brand` | Canonical primitives, semantic theme tokens, chart palette, Context Core and marketing vectors | Duplicate product truth, embed metrics, or use component-local colors |
 | `contracts` | Branded IDs, Zod entities, events, MCP/benchmark schemas | Domain decisions or I/O |
 | `indexer` | Safe discovery, Git identity, hashes, JS/TS/Python parsing, graph edges | Execute repository scripts or follow symlinks |
 | `core` | Classification, candidate scoring, capsules, memory, invalidation, routing | Transport-specific behavior |

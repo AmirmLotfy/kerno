@@ -11,6 +11,8 @@ No registration, project creation, submission edit, or submission action is auth
 - **Demo video:** `[REQUIRED PUBLIC YOUTUBE URL, UNDER 3:00]`
 - **Primary Codex Session ID:** `[REQUIRED — run /feedback in the root implementation task]`
 - **Built with:** TypeScript, Node.js, npm workspaces, Codex, GPT-5.6, Codex App Server, Codex plugins, MCP, SQLite, Zod, React, Vite, Vitest, Playwright, Git
+- **3:2 thumbnail asset:** `docs/assets/brand/kerno-devpost-thumbnail.png` (900×600, original Kerno artwork, no metrics)
+- **Open Graph asset:** `docs/assets/brand/kerno-open-graph.png` (1200×630, original Kerno artwork, no metrics)
 
 ## Short pitch
 

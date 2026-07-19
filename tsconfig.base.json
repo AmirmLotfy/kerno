@@ -16,6 +16,7 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
+      "@kerno/brand": ["packages/brand/src/index.ts"],
       "@kerno/contracts": ["packages/contracts/src/index.ts"],
       "@kerno/core": ["packages/core/src/index.ts"],
       "@kerno/indexer": ["packages/indexer/src/index.ts"],

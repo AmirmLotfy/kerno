@@ -46,7 +46,8 @@ If live Codex capacity, authentication, or latency is unreliable, record the imm
 ## Asset checklist
 
 - 1440×900 dashboard capture, readable at 1080p.
-- Kerno SVG logo/icon and current product screenshot.
+- Context Core light/dark SVGs, current light/dark product screenshots, and the warm ivory closing composition from `docs/assets/brand/`.
+- Oxide is used for active context/routing; aubergine identifies independent review. Do not color-grade these into blue/cyan product tones.
 - Release replay/report generated from final commit.
 - Optional sanitized real routing clip with truth label.
 - Exact task/acceptance text and final artifact hashes.

@@ -19,12 +19,13 @@
       "Model recommendations",
       "Independent verification"
     ],
-    "brandColor": "#EF6837",
-    "composerIcon": "./assets/icon.svg",
+    "brandColor": "#E85D2A",
+    "composerIcon": "./assets/launcher.svg",
     "logo": "./assets/logo.svg",
-    "logoDark": "./assets/logo.svg",
+    "logoDark": "./assets/logo-dark.svg",
     "screenshots": [
-      "./assets/screenshot.png"
+      "./assets/screenshot.png",
+      "./assets/screenshot-dark.png"
     ],
     "defaultPrompt": "Use Kerno to diagnose this task with the smallest verified context, then expand only from evidence."
   },

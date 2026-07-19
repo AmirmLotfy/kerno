@@ -9,6 +9,8 @@ npm install
 npm run typecheck
 npm test
 npm run test:security
+npm run audit:brand
+npm run audit:contrast
 npm run build
 ```
 
@@ -24,6 +26,7 @@ Use Node `>=22.13 <25`. Add focused unit tests before core changes and a transpo
 - Do not execute repository scripts while indexing or construct commands from untrusted input.
 - Keep Plugin Mode recommendations distinct from Orchestrator Mode execution.
 - Add an ADR for changes to evidence semantics, storage, routing truth, or security boundaries.
+- Add brand primitives only in `@kerno/brand`; product components use semantic aliases and generated assets must remain byte-identical to their canonical SVG.
 
 ## Pull requests
 

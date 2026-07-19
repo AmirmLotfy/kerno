@@ -21,6 +21,8 @@ npm run judge
 
 Open `http://127.0.0.1:4173`. The default is an immutable `DETERMINISTIC FIXTURE REPLAY`, generated from real local indexing, a real pinned test failure, targeted expansion, passing pinned tests, and hash invalidation. It is not a recording of Codex model usage.
 
+The dashboard follows the operating-system theme on first launch and offers a persistent Light/Dark control in the header. Both modes render the same evidence; theme changes never alter run or benchmark data.
+
 Judge tour:
 
 1. Home: repository identity, language mix, freshness, indexed files/symbols, outcome, and lifecycle.

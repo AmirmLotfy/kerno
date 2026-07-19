@@ -1,0 +1,168 @@
+:root {
+  color-scheme: light;
+
+  --kerno-orange-50: #FFF3EC;
+  --kerno-orange-100: #FDE2D2;
+  --kerno-orange-200: #F9C3A5;
+  --kerno-orange-300: #F4A071;
+  --kerno-orange-400: #EE7A45;
+  --kerno-orange-500: #E85D2A;
+  --kerno-orange-600: #C9471C;
+  --kerno-orange-700: #A63818;
+  --kerno-orange-800: #7E2D1A;
+  --kerno-orange-900: #592318;
+
+  --kerno-graphite-950: #141312;
+  --kerno-graphite-900: #1C1B1A;
+  --kerno-graphite-800: #302D2A;
+  --kerno-graphite-700: #49443F;
+  --kerno-graphite-600: #615B55;
+
+  --kerno-ivory: #F7F3EC;
+  --kerno-surface: #FFFDF9;
+  --kerno-surface-muted: #F0EBE3;
+  --kerno-stone: #DCD4C9;
+  --kerno-stone-dark: #B9AEA1;
+  --kerno-text-muted: #746D65;
+
+  --kerno-aubergine-500: #673A52;
+  --kerno-aubergine-600: #532D41;
+  --kerno-aubergine-soft: #EFE3E9;
+
+  --semantic-success: #397052;
+  --semantic-success-soft: #E5F0E9;
+  --semantic-warning: #B56A18;
+  --semantic-warning-soft: #FAECD9;
+  --semantic-error: #B74236;
+  --semantic-error-soft: #F8E4E1;
+  --semantic-info: #59677D;
+  --semantic-info-soft: #E7EAF0;
+
+  --dark-background: #141312;
+  --dark-surface: #1C1B1A;
+  --dark-surface-raised: #272421;
+  --dark-border: #3A3531;
+  --dark-text: #F7F3EC;
+  --dark-text-muted: #AAA097;
+  --dark-primary: #F0703E;
+  --dark-primary-hover: #F58A5D;
+  --dark-secondary: #B77B98;
+
+  --chart-1: #E85D2A;
+  --chart-2: #673A52;
+  --chart-3: #D89545;
+  --chart-4: #8A5A44;
+  --chart-5: #746D65;
+  --chart-6: #B74236;
+  --chart-7: #9B7B62;
+  --chart-8: #302D2A;
+  --chart-baseline: #B9AEA1;
+  --chart-kerno: #E85D2A;
+
+  --color-background: var(--kerno-ivory);
+  --color-surface: var(--kerno-surface);
+  --color-surface-raised: var(--kerno-surface);
+  --color-surface-muted: var(--kerno-surface-muted);
+  --color-text-primary: var(--kerno-graphite-900);
+  --color-text-secondary: var(--kerno-graphite-700);
+  --color-text-muted: var(--kerno-text-muted);
+  --color-border: var(--kerno-stone);
+  --color-border-strong: var(--kerno-graphite-700);
+  --color-brand-primary: var(--kerno-orange-500);
+  --color-brand-primary-hover: var(--kerno-orange-600);
+  --color-brand-text: var(--kerno-orange-700);
+  --color-brand-primary-soft: var(--kerno-orange-50);
+  --color-brand-on-primary: var(--kerno-graphite-900);
+  --color-brand-secondary: var(--kerno-aubergine-500);
+  --color-brand-secondary-hover: var(--kerno-aubergine-600);
+  --color-brand-secondary-soft: var(--kerno-aubergine-soft);
+  --color-context-expansion: var(--kerno-orange-100);
+  --color-context-expansion-border: var(--kerno-orange-400);
+  --color-focus: var(--kerno-orange-600);
+  --color-success: var(--semantic-success);
+  --color-success-soft: var(--semantic-success-soft);
+  --color-warning: var(--semantic-warning);
+  --color-warning-soft: var(--semantic-warning-soft);
+  --color-error: var(--semantic-error);
+  --color-error-soft: var(--semantic-error-soft);
+  --color-info: var(--semantic-info);
+  --color-info-soft: var(--semantic-info-soft);
+  --color-shadow: rgb(20 19 18 / 8%);
+  --color-overlay: rgb(20 19 18 / 46%);
+  --color-disabled-surface: var(--kerno-surface-muted);
+  --color-disabled-text: var(--kerno-text-muted);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-background: var(--dark-background);
+  --color-surface: var(--dark-surface);
+  --color-surface-raised: var(--dark-surface-raised);
+  --color-surface-muted: var(--kerno-graphite-800);
+  --color-text-primary: var(--dark-text);
+  --color-text-secondary: var(--dark-text-muted);
+  --color-text-muted: var(--dark-text-muted);
+  --color-border: var(--dark-border);
+  --color-border-strong: var(--kerno-graphite-600);
+  --color-brand-primary: var(--dark-primary);
+  --color-brand-primary-hover: var(--dark-primary-hover);
+  --color-brand-text: var(--dark-primary-hover);
+  --color-brand-primary-soft: var(--kerno-orange-900);
+  --color-brand-on-primary: var(--kerno-graphite-950);
+  --color-brand-secondary: var(--dark-secondary);
+  --color-brand-secondary-hover: var(--kerno-aubergine-soft);
+  --color-brand-secondary-soft: var(--kerno-aubergine-600);
+  --color-context-expansion: var(--kerno-orange-900);
+  --color-context-expansion-border: var(--dark-primary);
+  --color-focus: var(--dark-primary-hover);
+  --color-success: #8DBA9B;
+  --color-success-soft: #203A2C;
+  --color-warning: #E3A458;
+  --color-warning-soft: #422E1B;
+  --color-error: #E57C72;
+  --color-error-soft: #442522;
+  --color-info: #A5B0C3;
+  --color-info-soft: #2A303B;
+  --color-shadow: rgb(0 0 0 / 24%);
+  --color-overlay: rgb(0 0 0 / 72%);
+  --color-disabled-surface: var(--kerno-graphite-800);
+  --color-disabled-text: var(--dark-text-muted);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --color-background: var(--dark-background);
+    --color-surface: var(--dark-surface);
+    --color-surface-raised: var(--dark-surface-raised);
+    --color-surface-muted: var(--kerno-graphite-800);
+    --color-text-primary: var(--dark-text);
+    --color-text-secondary: var(--dark-text-muted);
+    --color-text-muted: var(--dark-text-muted);
+    --color-border: var(--dark-border);
+    --color-border-strong: var(--kerno-graphite-600);
+    --color-brand-primary: var(--dark-primary);
+    --color-brand-primary-hover: var(--dark-primary-hover);
+    --color-brand-text: var(--dark-primary-hover);
+    --color-brand-primary-soft: var(--kerno-orange-900);
+    --color-brand-on-primary: var(--kerno-graphite-950);
+    --color-brand-secondary: var(--dark-secondary);
+    --color-brand-secondary-hover: var(--kerno-aubergine-soft);
+    --color-brand-secondary-soft: var(--kerno-aubergine-600);
+    --color-context-expansion: var(--kerno-orange-900);
+    --color-context-expansion-border: var(--dark-primary);
+    --color-focus: var(--dark-primary-hover);
+    --color-success: #8DBA9B;
+    --color-success-soft: #203A2C;
+    --color-warning: #E3A458;
+    --color-warning-soft: #422E1B;
+    --color-error: #E57C72;
+    --color-error-soft: #442522;
+    --color-info: #A5B0C3;
+    --color-info-soft: #2A303B;
+    --color-shadow: rgb(0 0 0 / 24%);
+    --color-overlay: rgb(0 0 0 / 72%);
+    --color-disabled-surface: var(--kerno-graphite-800);
+    --color-disabled-text: var(--dark-text-muted);
+  }
+}

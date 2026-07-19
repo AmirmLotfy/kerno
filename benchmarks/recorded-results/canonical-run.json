@@ -1,20 +1,20 @@
 {
   "schemaVersion": "1",
   "label": "DETERMINISTIC FIXTURE REPLAY",
-  "recordedAt": "2026-07-19T08:58:14.313Z",
+  "recordedAt": "2026-07-19T09:24:00.668Z",
   "source": {
     "fixture": "relaycart-ts",
     "task": "refund-debug"
   },
   "repository": {
-    "id": "repo_86ofsj",
+    "id": "repo_o14at3",
     "name": "relaycart-ts",
     "branch": "main",
     "head": "30766fe0a961b73e725e89545fe8716e21c23840",
     "dirty": false,
     "files": 7,
     "symbols": 47,
-    "indexFreshness": "2026-07-19T08:58:14.311Z",
+    "indexFreshness": "2026-07-19T09:24:00.666Z",
     "unchangedReparsed": 0,
     "languageBreakdown": {
       "text": 1,
@@ -24,9 +24,9 @@
     "invalidationCount": 1
   },
   "task": {
-    "id": "task_z1cdeb",
-    "repositoryId": "repo_86ofsj",
-    "snapshotId": "snapshot_zae76m",
+    "id": "task_4f440n",
+    "repositoryId": "repo_o14at3",
+    "snapshotId": "snapshot_19k3ttn",
     "taskText": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
     "intent": "change",
     "terms": [
@@ -67,19 +67,19 @@
       "migration": 0.1,
       "contextBreadth": 0.75
     },
-    "createdAt": "2026-07-19T08:58:13.732Z"
+    "createdAt": "2026-07-19T09:24:00.101Z"
   },
   "initialCapsule": {
-    "id": "capsule_10sqoya",
-    "taskAnalysisId": "task_z1cdeb",
-    "snapshotId": "snapshot_zae76m",
+    "id": "capsule_1sv30by",
+    "taskAnalysisId": "task_4f440n",
+    "snapshotId": "snapshot_19k3ttn",
     "phase": "targeted-retrieval",
     "budgetTokens": 2500,
     "estimatedTokens": 1094,
-    "createdAt": "2026-07-19T08:58:13.733Z",
+    "createdAt": "2026-07-19T09:24:00.103Z",
     "items": [
       {
-        "id": "item_xswouj",
+        "id": "item_1vmhmfd",
         "sourceType": "test",
         "locator": {
           "path": "tests/refund.integration.test.ts"
@@ -105,7 +105,7 @@
         "excerpt": "import assert from \"node:assert/strict\";\nimport test from \"node:test\";\nimport { MemoryIdempotencyStore } from \"../src/idempotency/idempotency-store.ts\";\nimport { MemoryLedger } from \"../src/ledger/ledger.ts\";\nimport { RefundHandler } from \"../src/webhooks/refund-handler.ts\";\n\nconst event = { id: \"evt_1\", type: \"refund.succeeded\" as const, customerId: \"cus_1\", amount: 500 };\n\ntest(\"concurrent duplicate deliveries across handlers credit exactly once\", async () => {\n  const ledger = new MemoryLedger(); const idempotency = new MemoryIdempotencyStore();\n  const first = new RefundHandler(ledger, idempotency); const second = new RefundHandler(ledger, idempotency);\n  await Promise.all([first.handle(event), second.handle(event)]);\n  assert.equal(ledger.entries.length, 1, \"TransactionBoundary is required to serialize duplicate deliveries\");\n});\n\ntest(\"public refund event shape is unchanged\", () => {\n  assert.deepEqual(Object.keys(event).sort(), [\"amount\", \"customerId\", \"id\", \"type\"]);\n});\n",
         "provenance": [
           {
-            "id": "ev_xswouj",
+            "id": "ev_1vmhmfd",
             "kind": "test",
             "path": "tests/refund.integration.test.ts",
             "contentHash": "6e9c949c11e4a22f6be0e8a4417bc8b713817875ca8219ea86f626b30e8291cf",
@@ -115,7 +115,7 @@
         "invalidationKeys": [
           {
             "kind": "repository",
-            "key": "repo_86ofsj"
+            "key": "repo_o14at3"
           },
           {
             "kind": "branch",
@@ -135,7 +135,7 @@
         "trust": "repository-data"
       },
       {
-        "id": "item_199jafg",
+        "id": "item_yidexe",
         "sourceType": "test",
         "locator": {
           "path": "tests/atomicity.integration.test.ts"
@@ -161,7 +161,7 @@
         "excerpt": "import assert from \"node:assert/strict\";\nimport test from \"node:test\";\nimport { MemoryIdempotencyStore } from \"../src/idempotency/idempotency-store.ts\";\nimport { MemoryLedger } from \"../src/ledger/ledger.ts\";\nimport { RefundHandler } from \"../src/webhooks/refund-handler.ts\";\n\ntest(\"write-ahead state survives a marker timeout and handler restart\", async () => {\n  const ledger = new MemoryLedger();\n  class FailingStore extends MemoryIdempotencyStore { override async mark(): Promise<void> { throw new Error(\"simulated timeout before marker commit\"); } }\n  const first = new RefundHandler(ledger, new FailingStore());\n  const event = { id: \"evt_1\", type: \"refund.succeeded\" as const, customerId: \"cus_1\", amount: 500 };\n  await assert.rejects(first.handle(event), /simulated timeout/);\n  // A new handler and marker store simulate process-local state loss; the ledger remains durable.\n  const restarted = new RefundHandler(ledger, new MemoryIdempotencyStore());\n  await restarted.handle(event);\n  assert.equal(ledger.entries.length, 1);\n\n  const freshLedger = new MemoryLedger(); const staleMarker = new MemoryIdempotencyStore();\n  await staleMarker.mark(\"evt_stale\");\n  await new RefundHandler(freshLedger, staleMarker).handle({ ...event, id: \"evt_stale\" });\n  assert.equal(freshLedger.entries.length, 1, \"a stale marker cannot suppress the durable ledger operation\");\n});\n",
         "provenance": [
           {
-            "id": "ev_199jafg",
+            "id": "ev_yidexe",
             "kind": "test",
             "path": "tests/atomicity.integration.test.ts",
             "contentHash": "da2c7981b77273f40c80be708acc0f9c811329277dc28d4334953413a0528bf3",
@@ -171,7 +171,7 @@
         "invalidationKeys": [
           {
             "kind": "repository",
-            "key": "repo_86ofsj"
+            "key": "repo_o14at3"
           },
           {
             "kind": "branch",
@@ -191,7 +191,7 @@
         "trust": "repository-data"
       },
       {
-        "id": "item_79mjeo",
+        "id": "item_1x1zim6",
         "sourceType": "file",
         "locator": {
           "path": "src/ledger/ledger.ts"
@@ -217,7 +217,7 @@
         "excerpt": "export type LedgerEntry = { customerId: string; amount: number; eventId: string };\n\nexport interface Ledger {\n  credit(entry: LedgerEntry): Promise<void>;\n  /** Durable atomic insert keyed by eventId; production implementations use a unique constraint. */\n  creditOnce(entry: LedgerEntry): Promise<\"applied\" | \"duplicate\">;\n}\n\nexport class MemoryLedger implements Ledger {\n  readonly entries: LedgerEntry[] = [];\n  private readonly eventIds = new Set<string>();\n  async credit(entry: LedgerEntry): Promise<void> {\n    this.entries.push(entry);\n  }\n  async creditOnce(entry: LedgerEntry): Promise<\"applied\" | \"duplicate\"> {\n    if (this.eventIds.has(entry.eventId)) return \"duplicate\";\n    this.eventIds.add(entry.eventId);\n    this.entries.push(entry);\n    return \"applied\";\n  }\n}\n",
         "provenance": [
           {
-            "id": "ev_79mjeo",
+            "id": "ev_1x1zim6",
             "kind": "file",
             "path": "src/ledger/ledger.ts",
             "contentHash": "27854c7e639d7842e08e6bd441b3f2cf1510a26907c9a1fb92e58d4ddc9d8bcf",
@@ -227,7 +227,7 @@
         "invalidationKeys": [
           {
             "kind": "repository",
-            "key": "repo_86ofsj"
+            "key": "repo_o14at3"
           },
           {
             "kind": "branch",
@@ -247,7 +247,7 @@
         "trust": "repository-data"
       },
       {
-        "id": "item_11gif7k",
+        "id": "item_1141tvm",
         "sourceType": "file",
         "locator": {
           "path": "src/webhooks/refund-handler.ts"
@@ -273,7 +273,7 @@
         "excerpt": "import type { IdempotencyStore } from \"../idempotency/idempotency-store.ts\";\nimport type { Ledger } from \"../ledger/ledger.ts\";\n\nexport type RefundSucceeded = {\n  id: string;\n  type: \"refund.succeeded\";\n  customerId: string;\n  amount: number;\n};\n\nexport class RefundHandler {\n  private readonly ledger: Ledger;\n  private readonly idempotency: IdempotencyStore;\n  constructor(ledger: Ledger, idempotency: IdempotencyStore) {\n    this.ledger = ledger;\n    this.idempotency = idempotency;\n  }\n\n  async handle(event: RefundSucceeded): Promise<void> {\n    if (await this.idempotency.has(event.id)) return;\n    await this.ledger.credit({ customerId: event.customerId, amount: event.amount, eventId: event.id });\n    // A timeout here allows the retry to credit the customer again.\n    await this.idempotency.mark(event.id);\n  }\n}\n",
         "provenance": [
           {
-            "id": "ev_11gif7k",
+            "id": "ev_1141tvm",
             "kind": "file",
             "path": "src/webhooks/refund-handler.ts",
             "contentHash": "ebe3d2b92399c44bb5eca758a3e8e621e7df47b7ace2efdd664a6d952e030a58",
@@ -283,7 +283,7 @@
         "invalidationKeys": [
           {
             "kind": "repository",
-            "key": "repo_86ofsj"
+            "key": "repo_o14at3"
           },
           {
             "kind": "branch",
@@ -303,7 +303,7 @@
         "trust": "repository-data"
       },
       {
-        "id": "item_fq2gc6",
+        "id": "item_1q3dj28",
         "sourceType": "file",
         "locator": {
           "path": "src/idempotency/idempotency-store.ts"
@@ -329,7 +329,7 @@
         "excerpt": "export interface IdempotencyStore {\n  has(eventId: string): Promise<boolean>;\n  mark(eventId: string): Promise<void>;\n}\n\nexport class MemoryIdempotencyStore implements IdempotencyStore {\n  readonly processed = new Set<string>();\n  async has(eventId: string): Promise<boolean> { return this.processed.has(eventId); }\n  async mark(eventId: string): Promise<void> { this.processed.add(eventId); }\n}\n",
         "provenance": [
           {
-            "id": "ev_fq2gc6",
+            "id": "ev_1q3dj28",
             "kind": "file",
             "path": "src/idempotency/idempotency-store.ts",
             "contentHash": "deb4ae420f062d2cc7ff500791e33068ad1053830971cd2a21a166f3408ff293",
@@ -339,7 +339,7 @@
         "invalidationKeys": [
           {
             "kind": "repository",
-            "key": "repo_86ofsj"
+            "key": "repo_o14at3"
           },
           {
             "kind": "branch",
@@ -374,27 +374,27 @@
     "status": "current"
   },
   "childCapsule": {
-    "id": "capsule_8fnfn2",
-    "taskAnalysisId": "task_z1cdeb",
-    "snapshotId": "snapshot_zae76m",
-    "parentCapsuleId": "capsule_10sqoya",
+    "id": "capsule_rkf6ud",
+    "taskAnalysisId": "task_4f440n",
+    "snapshotId": "snapshot_19k3ttn",
+    "parentCapsuleId": "capsule_1sv30by",
     "phase": "debugging",
     "budgetTokens": 1250,
     "estimatedTokens": 327,
-    "createdAt": "2026-07-19T08:58:13.886Z",
+    "createdAt": "2026-07-19T09:24:00.250Z",
     "triggerEvidence": {
-      "id": "artifact_rwbapz",
+      "id": "artifact_59yn6u",
       "kind": "test",
       "symbol": "TransactionBoundary",
-      "artifactId": "artifact_rwbapz",
-      "contentHash": "74f11133c440e070ad83a5cdf2ce02309f55a7107ccaf32164f41f52b7db0602",
+      "artifactId": "artifact_59yn6u",
+      "contentHash": "8eb798f8f19bbab44db1359fdfe81dca5df343965a2155720b2cdc7d5fb3d4ae",
       "note": "TransactionBoundary is required to atomically couple the ledger credit and idempotency marker",
       "text": "TransactionBoundary is required to atomically couple the ledger credit and idempotency marker",
       "verified": true
     },
     "items": [
       {
-        "id": "item_85wiqu",
+        "id": "item_1450l3g",
         "sourceType": "config",
         "locator": {
           "path": "src/transactions/transaction-boundary.ts"
@@ -420,7 +420,7 @@
         "excerpt": "import type { IdempotencyStore } from \"../idempotency/idempotency-store.ts\";\nimport type { Ledger, LedgerEntry } from \"../ledger/ledger.ts\";\n\n/** Governing contract: the durable ledger owns uniqueness; the marker is a repairable cache. */\nexport interface TransactionBoundary {\n  creditOnce(eventId: string, entry: LedgerEntry): Promise<\"applied\" | \"duplicate\">;\n}\n\nexport class MemoryTransactionBoundary implements TransactionBoundary {\n  private readonly ledger: Ledger;\n  private readonly idempotency: IdempotencyStore;\n  constructor(ledger: Ledger, idempotency: IdempotencyStore) {\n    this.ledger = ledger;\n    this.idempotency = idempotency;\n  }\n  async creditOnce(eventId: string, entry: LedgerEntry): Promise<\"applied\" | \"duplicate\"> {\n    // The durable ledger is authoritative. A marker may be missing or stale and must\n    // never suppress a legitimate ledger write.\n    const result = await this.ledger.creditOnce(entry);\n    if (!await this.idempotency.has(eventId)) await this.idempotency.mark(eventId);\n    return result;\n  }\n}\n\n/** Factory kept explicit so the handler depends on the governing transaction contract. */\nexport function transactionBoundaryFor(ledger: Ledger, idempotency: IdempotencyStore): TransactionBoundary {\n  return new MemoryTransactionBoundary(ledger, idempotency);\n}\n",
         "provenance": [
           {
-            "id": "ev_85wiqu",
+            "id": "ev_1450l3g",
             "kind": "file",
             "path": "src/transactions/transaction-boundary.ts",
             "contentHash": "88d947b29a835369bf9b647dcae539eaebd3d769e3a05a08e723d51998714f4c",
@@ -430,7 +430,7 @@
         "invalidationKeys": [
           {
             "kind": "repository",
-            "key": "repo_86ofsj"
+            "key": "repo_o14at3"
           },
           {
             "kind": "branch",
@@ -465,7 +465,7 @@
     "status": "current"
   },
   "route": {
-    "id": "route_1gze3f9",
+    "id": "route_ap8u7k",
     "phase": "implementation",
     "catalogSnapshotId": "catalog_replay_policy_example",
     "recommended": {
@@ -525,13 +525,13 @@
   "tests": {
     "before": {
       "passed": false,
-      "durationMs": 151,
-      "artifactHash": "74f11133c440e070ad83a5cdf2ce02309f55a7107ccaf32164f41f52b7db0602"
+      "durationMs": 146,
+      "artifactHash": "8eb798f8f19bbab44db1359fdfe81dca5df343965a2155720b2cdc7d5fb3d4ae"
     },
     "after": {
       "passed": true,
-      "durationMs": 154,
-      "artifactHash": "4d9acce958c94211452d7d662ff6ff7de29837ff2388d241ca3be549859eb30d"
+      "durationMs": 146,
+      "artifactHash": "7bcf9f689600bf89f6f01eea2c4576b53e8160da131db316c45b960733d6f290"
     }
   },
   "review": {
@@ -541,7 +541,7 @@
     "limitations": "A live Orchestrator Mode run uses a separate read-only Codex thread; this replay does not simulate one."
   },
   "invalidation": {
-    "capsuleId": "capsule_10sqoya",
+    "capsuleId": "capsule_1sv30by",
     "status": "stale",
     "changedFiles": [
       "src/webhooks/refund-handler.ts"
@@ -564,49 +564,49 @@
   "timeline": [
     {
       "type": "index.completed",
-      "at": "2026-07-19T08:58:13.449Z",
+      "at": "2026-07-19T09:23:59.839Z",
       "detail": "7 files parsed"
     },
     {
       "type": "index.incremental",
-      "at": "2026-07-19T08:58:13.730Z",
+      "at": "2026-07-19T09:24:00.100Z",
       "detail": "7 unchanged files reused; 0 reparsed"
     },
     {
       "type": "capsule.created",
-      "at": "2026-07-19T08:58:13.733Z",
+      "at": "2026-07-19T09:24:00.103Z",
       "detail": "5 items · 1094 estimated tokens"
     },
     {
       "type": "route.recommended",
-      "at": "2026-07-19T08:58:13.733Z",
+      "at": "2026-07-19T09:24:00.103Z",
       "detail": "catalog-default · medium; no runtime request in replay"
     },
     {
       "type": "test.failed",
-      "at": "2026-07-19T08:58:14.313Z",
+      "at": "2026-07-19T09:24:00.668Z",
       "detail": "TransactionBoundary evidence missing"
     },
     {
       "type": "capsule.expanded",
-      "at": "2026-07-19T08:58:13.886Z",
+      "at": "2026-07-19T09:24:00.250Z",
       "detail": "src/transactions/transaction-boundary.ts"
     },
     {
       "type": "test.passed",
-      "at": "2026-07-19T08:58:14.313Z",
+      "at": "2026-07-19T09:24:00.668Z",
       "detail": "3/3 pinned integration assertions passed"
     },
     {
       "type": "review.unavailable",
-      "at": "2026-07-19T08:58:14.313Z",
+      "at": "2026-07-19T09:24:00.668Z",
       "detail": "No independent Codex review ran in deterministic replay"
     },
     {
       "type": "context.invalidated",
-      "at": "2026-07-19T08:58:14.311Z",
+      "at": "2026-07-19T09:24:00.666Z",
       "detail": "Initial capsule is stale after handler hash changed"
     }
   ],
-  "artifactHash": "33b71d1b70ca5c13d05004599f6826ba5ff564e408e0f27d305099a990a135dd"
+  "artifactHash": "5d39c71d261667e766734bf2151fc37c25240d3bad7b26e7f931e418d64c742e"
 }

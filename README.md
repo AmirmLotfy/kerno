@@ -1,10 +1,15 @@
-# Kerno
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/brand/kerno-horizontal-dark.svg">
+  <img src="docs/assets/brand/kerno-horizontal-light.svg" alt="Kerno" width="240">
+</picture>
 
 **The context control plane for Codex.** Right context. Right model. Every task.
 
 Kerno asks one question before a coding agent acts: _what is the smallest, freshest, verified set of repository knowledge needed to complete this task correctly?_ It builds a bounded evidence capsule, explains every inclusion, expands only when tests or runtime evidence expose a gap, invalidates stale beliefs, and keeps model-routing claims tied to observable Codex events.
 
-![Kerno capsule and evidence dashboard](plugins/kerno/assets/screenshot.png)
+![Kerno capsule and evidence dashboard in the warm ivory theme](docs/assets/screenshots/dashboard-context-light.png)
+
+The Context Core identity uses nested repository, selected-context, and verified-core layers with an extracted oxide segment. See the [brand system](docs/BRAND_SYSTEM.md) and [repository-wide migration audit](docs/BRAND_AUDIT.md).
 
 ## The problem
 

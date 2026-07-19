@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" role="img" aria-label="Kerno Context Core micro icon">
+  <path d="M11.5 2.5H6A3.5 3.5 0 0 0 2.5 6v4A3.5 3.5 0 0 0 6 13.5h5.5" fill="none" stroke="#1C1B1A" stroke-width="2.5" stroke-linecap="round"/>
+  <rect x="6.25" y="6.25" width="3.5" height="3.5" rx=".8" fill="#1C1B1A"/>
+  <path d="M13.5 5.25v5.5" fill="none" stroke="#E85D2A" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

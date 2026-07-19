@@ -4,7 +4,7 @@ Validation date: July 19, 2026. Status: **local product and clean-clone gates pa
 
 ## Validated build
 
-- Code/evidence commit: `1b6955edc68b6092900cb3651c191a907764683c` (`fix: make refund proof durable under independent review`).
+- Validated base commit: `89d51fbff416e498b0f4a54960f411e47ba101f5`; the repository-wide brand change was validated in the working tree before its local commit.
 - Environment: macOS arm64, Node 22.13.1, npm 10.9.2, Codex CLI 0.145.0-alpha.18.
 - Plugin: `kerno@personal` version `0.1.0+codex.20260719085859`, installed from the repository-local marketplace.
 - The installed alpha CLI version is not treated as public API evidence; Kerno uses documented stable App Server methods and generated schemas.
@@ -12,20 +12,26 @@ Validation date: July 19, 2026. Status: **local product and clean-clone gates pa
 ## Passed gates
 
 - Formatting hygiene, ESLint, strict TypeScript.
-- 16 Vitest files / 33 tests: unit, schema, storage/migration/integrity, parser/indexer, context, memory/invalidation, MCP, CLI, hooks/security, HTTP/SSE, orchestrator adapter, Python fixture, and complete operational slice.
-- 2 Playwright tests: all 16 product states/six views at desktop and a 375×812 responsive/overflow flow.
-- All npm workspace builds; dashboard production bundle ~214.39 kB JS / ~67.01 kB gzip and ~14.73 kB CSS / ~3.77 kB gzip.
+- 17 Vitest files / 36 tests: unit, brand contract, schema, storage/migration/integrity, parser/indexer, context, memory/invalidation, MCP, CLI, hooks/security, HTTP/SSE, orchestrator adapter, Python fixture, and complete operational slice.
+- 4 Playwright tests: all 16 product states/six views, 375×812 responsive/overflow, light/dark theme control, image loading, 44 px targets, keyboard focus, and non-color truth/series labels.
+- All npm workspace builds; dashboard production bundle 216.64 kB JS / 67.67 kB gzip and 26.95 kB CSS / 5.49 kB gzip.
+- Brand asset generation and mirror validation; 20 required WCAG contrast pairs; SVG base-icon restrictions; favicon/launcher/social/Open Graph/Devpost dimensions; repository-wide obsolete-color and broken-reference audit.
 - Plugin creator validator; cache-busted plugin; 12-tool bundled MCP smoke with fixture indexing through portable persistence.
 - CLI doctor: Git, SQLite schema version 2/integrity, manifest, and MCP bundle healthy.
 - Deterministic judge replay, clean migration, canonical failure → expansion → passing test → invalidation flow.
 - Secret scan; 320 installed top-level/transitive packages passed permissive-license policy; `npm audit --audit-level=high` found zero vulnerabilities.
-- Actual non-hardlinked fresh macOS clone of `1b6955e`: `npm ci`, doctor, judge, tests, builds, audits, and E2E all passed.
+- The prior non-hardlinked fresh macOS clone of the base product passed. The current brand change passed the repository’s clean-room-equivalent local gate; a separate fresh clone of the final brand commit remains required before release.
 
 ## Artifact hashes
 
-- Plugin archive `dist/kerno-codex-plugin-0.1.0.tgz`: `046d80b0dd61e94b52a497d6d9eecf7f0f36fb157ab268059d64a2c1c6ee0266`.
-- Canonical replay JSON: `6782e19f808ad6c1cc155a36730ea48b9b3ddec92345066bc6c16dd3ccbd1747`.
-- Plugin screenshot: `0d4cbf41c9a2aaaf06d9043f8607c4d5c8d0b0f8cac66cfd60f84599d48a7cea`.
+- Plugin archive `dist/kerno-codex-plugin-0.1.0.tgz`: `67b641fef47fd84ccbee2002e8f90dccdedce28da1f10f99a7b3fd6409ccceb4`.
+- Canonical replay JSON: `b7dba4eea6b2eac4adc441a94770c4fc28b40c6e9c2b68fae6262685fe29a885`.
+- Canonical brand tokens: `ed9429ce10fc507ff9718fd5335e9b96083c7f504367cbe20689174c20a21a13`.
+- Context Core primary SVG: `d7f3822e5862b53f701537ef4712c80f4a9e6829772b80ac17c420988657f1a3`.
+- Light plugin screenshot: `195aaea09d19537803fd9980d41c9da164d045700e19ef9fc33acfebfbd75990`.
+- Dark plugin screenshot: `2672af9bad89ce224539922e29b04fd61f317608cab0f657c21cd8b4d929de36`.
+- Open Graph PNG: `d5b37ca72a3cbc70d0fb451a99c33c46c24336c8ad7be718bb7c4fb8bfc8d489`.
+- Devpost 3:2 PNG: `f71073b8c2b9c8873786d77b5db57fb96f7c5e5c5f6680fd6a9deaa00a63fc57`.
 - Benchmark report JSON: `2e2de79259df1d6e9c417b8734061ae8cbe57db1c1cd481ca290fa63fa0aca15`.
 - Latest Plain-Codex run JSON: `85af967ce0e0d0585e953172e6cd5e3f2edd181af3b0313aeab03992f045fa94`.
 - Latest Kerno run JSON: `6169cbdf4071e7afb533ceea7dbee4e42261daf69137478195c92e3e6abd00c2`.
@@ -43,7 +49,7 @@ Validation date: July 19, 2026. Status: **local product and clean-clone gates pa
 ## Remaining blockers
 
 1. Only one of three required paired benchmark tasks is recorded; the routing experiment is incomplete.
-2. Linux CI/clean-clone result has not run remotely; Windows is unverified and not claimed.
+2. A separate fresh clone of the final brand commit and remote Linux CI have not run; Windows is unverified and not claimed.
 3. The public repository URL, public `<3:00` YouTube URL, and signed-out verification do not exist yet.
 4. The primary `/feedback` Session ID must be captured from this root implementation task.
 5. Entrant/team eligibility and exact authenticated Devpost form labels require human/authenticated confirmation.

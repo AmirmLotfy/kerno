@@ -3,6 +3,9 @@ async function run(command: string, args: string[]): Promise<void> { const child
 await run("npm", ["run", "format:check"]);
 await run("npm", ["run", "typecheck"]);
 await run("npm", ["run", "lint"]);
+await run("npm", ["run", "brand:assets"]);
+await run("npm", ["run", "audit:brand"]);
+await run("npm", ["run", "audit:contrast"]);
 await run("npm", ["test"]);
 await run("npm", ["run", "build"]);
 await run("node", ["packages/cli/dist/main.cjs", "help"]);
