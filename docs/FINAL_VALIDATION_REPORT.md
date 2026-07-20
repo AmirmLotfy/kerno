@@ -1,14 +1,14 @@
 # Final validation report
 
-Validation refreshed: **July 20, 2026 at 2:18 PM PDT / July 21, 2026 at 12:18 AM Africa/Cairo / July 20, 2026 at 9:18 PM UTC**.
+Validation refreshed: **July 20, 2026 at 2:30 PM PDT / July 21, 2026 at 12:30 AM Africa/Cairo / July 20, 2026 at 9:30 PM UTC**.
 
 ## 1. Executive readiness result
 
-**PRODUCT RELEASE CANDIDATE: PASS. HACKATHON SUBMISSION: NOT READY.** The code, 16-tool plugin, embedded MCP Apps resource, MCP server, dashboard, deterministic judge path, signed-in App Server evidence, three-task evaluation, documentation, security gates, and fresh-clone validation pass. The remaining blockers are external or release actions: push local `main` through this validation report, observe/capture the embedded component in a fresh Codex task before claiming host rendering, record a public English-audio YouTube video shorter than three minutes, obtain the primary root-task `/feedback` Session ID, complete authenticated human form choices, and confirm entrant/team eligibility.
+**PRODUCT RELEASE CANDIDATE: PASS. HACKATHON SUBMISSION: NOT READY.** The code, 16-tool plugin, embedded MCP Apps resource, MCP server, dashboard, deterministic judge path, signed-in App Server evidence, three-task evaluation, documentation, security gates, and fresh-clone validation pass. Public GitHub and Vercel release actions now pass. The remaining blockers are external: observe/capture the embedded component in a fresh Codex task before claiming host rendering, record a public English-audio YouTube video shorter than three minutes, obtain the primary root-task `/feedback` Session ID, complete authenticated human form choices, and confirm entrant/team eligibility.
 
-No Devpost field, package, release, repository, deployment, or video was published in this pass. `https://itkerno.site` remains the canonical public replay URL, but the embedded-plugin upgrade exists only in local commits until an authorized push. The local judge flow is the authoritative reproduction path for this report.
+No Devpost field or video was published in this pass. The authorized GitHub push and Vercel production deployment completed: public `main` contains the embedded-plugin upgrade, and `https://itkerno.site` is backed by ready deployment `dpl_88z7ptmpqdAgWYVmHPM1dFVfDsAo`. The local judge flow remains the authoritative full reproduction path.
 
-Custom-domain deployment validation completed July 20, 2026 at 5:09 AM Africa/Cairo. Vercel deployment `dpl_2fj2a4hdYQpGqaG4FvZUPtzZK8Ri` is `Ready`; the apex returns HTTP 200, `www` returns a permanent HTTP 308 redirect to the apex, canonical/Open Graph metadata uses `https://itkerno.site`, and the public benchmark artifact contains the current 16 retained runs. No Devpost field was edited.
+The previous production deployment was superseded by `dpl_88z7ptmpqdAgWYVmHPM1dFVfDsAo` at July 21, 2026 12:27 AM Africa/Cairo. The apex returns HTTP 200, `www` returns a permanent HTTP 308 redirect, canonical/Open Graph metadata uses `https://itkerno.site`, and the public benchmark artifact contains 16 retained runs and five comparisons. No Devpost field was edited.
 
 ## 2. Exact commit tested
 
@@ -34,7 +34,7 @@ Custom-domain deployment validation completed July 20, 2026 at 5:09 AM Africa/Ca
 | Working project | Pass | Index → capsule → failing test → targeted expansion → pass → review → invalidation is automated and replayable |
 | Meaningful Codex/GPT-5.6 use | Pass, Session ID pending | Root implementation collaboration and live GPT-5.6 phase requests are documented; runtime truth labels remain conservative |
 | Public `<3:00` YouTube video with English audio | **Blocked externally** | Script, shot list, screenshots, and reset path exist; no video URL |
-| Repository and judge access | Partial until authorized push | `https://github.com/AmirmLotfy/kerno` and `https://itkerno.site` exist; local commits `3ff0572` and `6a8ab81` are not yet on GitHub |
+| Repository and judge access | Pass | Public `main` is current at `https://github.com/AmirmLotfy/kerno`; production replay is ready at `https://itkerno.site` |
 | README/setup/license | Pass | Setup, sample fixtures, no-build judge path, collaboration narrative, and Apache-2.0 license |
 | Primary `/feedback` Session ID | **Blocked externally** | User must run `/feedback` in this root implementation task |
 | Plugin installation/platform/test path | Pass locally; host capture pending | Marketplace install, validators, packaged bundle, 16-tool/resource smoke, embedded browser contract, quickstart, and replay/live paths |
@@ -162,7 +162,6 @@ README, LICENSE, SECURITY, CONTRIBUTING, architecture, decisions, threat model, 
 
 - `[REQUIRED PUBLIC YOUTUBE URL UNDER 3:00]`
 - `[REQUIRED PRIMARY /feedback SESSION ID]`
-- `[REQUIRED AUTHORIZED PUSH OF LOCAL MAIN THROUGH THIS VALIDATION REPORT]`
 - `[REQUIRED FRESH-TASK CODEX HOST CAPTURE BEFORE CLAIMING EMBEDDED RENDERING]`
 - `[REQUIRED AUTHENTICATED DEVPOST FIELD CHECK]`
 - `[REQUIRED ENTRANT/TEAM ELIGIBILITY CONFIRMATION]`
@@ -203,4 +202,4 @@ npm run judge:live
 
 ## 21. READY or NOT READY decision
 
-**NOT READY FOR DEVPOST SUBMISSION.** Kerno is an internally passing release candidate with no known blocking product, evaluation, security, documentation, or local judge-path defect. Submission remains blocked by an authorized push of the local release-candidate commits, fresh-task host capture before advertising the embedded visual, the public video, primary `/feedback` Session ID, authenticated human form choices, and eligibility/team confirmation. The working Vercel replay is not a rules blocker, but it does not contain this local plugin upgrade. Do not submit until those gates pass.
+**NOT READY FOR DEVPOST SUBMISSION.** Kerno is an internally passing and publicly accessible release candidate with no known blocking product, evaluation, security, documentation, repository, deployment, or local judge-path defect. Submission remains blocked by fresh-task host capture before advertising the embedded visual, the public video, primary `/feedback` Session ID, authenticated human form choices, and eligibility/team confirmation. Do not submit until those gates pass.

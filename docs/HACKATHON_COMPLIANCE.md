@@ -2,9 +2,9 @@
 
 ## Truth brief
 
-Latest refresh: **July 19, 2026 at 5:16 PM PDT / July 20, 2026 at 3:16 AM Africa/Cairo / July 20, 2026 at 12:16 AM UTC**. No substantive requirement changed from the prior grounding.
+Latest refresh: **July 20, 2026 at 2:30 PM PDT / July 21, 2026 at 12:30 AM Africa/Cairo / July 20, 2026 at 9:30 PM UTC**. No substantive requirement changed from the prior grounding. Approximately 26.5 hours remained before the controlling deadline.
 
-The selected Devpost Hackathons plugin was called first and returned fresh overview, announcements, rules, dates, criteria, resources, and submission-field data at `2026-07-20T00:16:38Z`. The official overview, Rules, Resources, and schedule were then cross-checked directly. The authenticated account remains registered and the existing Kerno draft remains unsubmitted. No project field was created, edited, uploaded, or submitted in this refresh.
+The named Devpost Hackathons plugin has no callable tool in this active task, so it could not be refreshed here. The official overview, Rules, Resources, updates, schedule, and FAQ were fetched directly; the official Rules remain controlling. The previous authenticated field read remains recorded below and was not treated as fresh. No project field was created, edited, uploaded, or submitted in this refresh.
 
 - Phase: registration and submissions open.
 - Controlling deadline: Tuesday, July 21, 2026 at 5:00 PM PDT / Wednesday, July 22, 2026 at 3:00 AM EEST.
@@ -34,12 +34,16 @@ No Devpost write was performed in this refresh. The existing draft remains unsub
 
 Global deliverables from the live form: video required; website not required; zip file not required.
 
-Custom-domain verification: **July 19, 2026 at 7:09 PM PDT / July 20, 2026 at 5:09 AM Africa/Cairo / July 20, 2026 at 2:09 AM UTC**. The Vercel project reports `itkerno.site` and `www.itkerno.site` as verified. The apex serves the current public replay with HTTP 200, `www` permanently redirects to the apex with HTTP 308, the Open Graph PNG returns HTTP 200, and the deployed benchmark artifact contains 16 retained runs, 5 comparisons, and 4 mechanically fairness-valid comparisons. These counts describe retained artifacts, not generalized performance claims.
+Custom-domain verification refreshed: **July 20, 2026 at 2:30 PM PDT / July 21, 2026 at 12:30 AM Africa/Cairo**. Production deployment `dpl_88z7ptmpqdAgWYVmHPM1dFVfDsAo` is `Ready`. The apex serves HTTP 200, `www` permanently redirects to the apex with HTTP 308, canonical/Open Graph metadata uses `https://itkerno.site`, and the deployed benchmark artifact contains 16 retained runs, 5 comparisons, and 4 mechanically fairness-valid comparisons. These counts describe retained artifacts, not generalized performance claims.
 
 ## Source table
 
 | Source | Retrieved | Use |
 |---|---:|---|
+| Devpost Hackathons plugin | Jul 20, 2:30 PM PDT / Jul 21, 12:30 AM Cairo | Not callable in this active task; no current plugin data claimed and no write attempted |
+| [Official Rules](https://openai.devpost.com/rules) | Jul 20, 2:30 PM PDT / Jul 21, 12:30 AM Cairo | Current controlling contractual source; deadline and requirements unchanged |
+| [Hackathon overview](https://openai.devpost.com/) | Same | Current phase, track, deliverables, judging criteria, and deadline |
+| [Resources](https://openai.devpost.com/resources), [updates](https://openai.devpost.com/updates), [FAQ](https://openai.devpost.com/details/faqs), and [schedule](https://openai.devpost.com/details/dates) | Same | Current secondary guidance and conflict cross-check |
 | Devpost Hackathons plugin | Jul 19, 5:16 PM PDT / Jul 20, 3:16 AM Cairo | Fresh overview, announcements, rules, dates, criteria, resources, and submission fields |
 | [Official Rules](https://openai.devpost.com/rules) | Jul 19, 5:18 PM PDT / Jul 20, 3:18 AM Cairo | Controlling contractual source for deadline, eligibility, deliverables, judging, testing, and prizes |
 | [Hackathon overview](https://openai.devpost.com/) | Same | Tracks, overview requirements, judging summary, and prizes |
@@ -65,6 +69,18 @@ Custom-domain verification: **July 19, 2026 at 7:09 PM PDT / July 20, 2026 at 5:
 | Submission fields | No change; exact authenticated fields remain available | Devpost plugin submission-requirements response | Map fields 27945–27951; keep human selections and external IDs unset |
 | Registration/project | Account is already registered; Kerno draft `1352517` exists but is empty and unsubmitted | Devpost plugin registration and project reads | Reuse the existing draft later; do not create a duplicate or write without authorization |
 | Devpost plugin | Selected plugin is callable | Devpost plugin plus FAQ; Rules/FAQ define it as optional | Use it for retrieval only in this pass; official Rules still control conflicts |
+
+## Final July 20/21 refresh log
+
+| Checked item | Change since prior brief | Controlling source | Resulting action |
+|---|---|---|---|
+| Current phase and deadline | No change; registration/submissions remain open until July 21 at 5:00 PM PDT | Official Rules and overview | Preserve July 21, 5:00 PM PDT / July 22, 3:00 AM Cairo deadline and submission buffer |
+| Rules, eligibility, and deliverables | No observed change | Official Rules | Keep human eligibility confirmation, public repository, public `<3:00` YouTube video, and `/feedback` ID gates |
+| Judging criteria | No observed change | Official overview and Rules | Preserve equal evidence for implementation, design, impact, and idea quality |
+| Resources and updates | No requirement-changing update observed | Official Resources and updates; Rules control conflicts | Do not assume event credits; keep replay independent of live capacity |
+| Submission fields | Authenticated field labels were not refreshed in this task | Previous authenticated plugin read; official prose for required deliverables | Retain fields 27945–27951 as previous evidence and recheck in the authenticated form before submission |
+| Repository and judge URL | Improved | GitHub and Vercel public verification | Public `main` is current; production deployment `dpl_88z7ptmpqdAgWYVmHPM1dFVfDsAo` is ready at `https://itkerno.site` |
+| Devpost plugin | Not callable in the active catalog | Official Rules remain authoritative | Record the limitation; do not invent plugin output or perform a write |
 
 ## Conflict log
 
