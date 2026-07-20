@@ -26,5 +26,5 @@ try {
   if (capsule.isError || !(capsule.structuredContent as any)?.data?.items?.length) throw new Error(`Bundled capsule tool failed: ${JSON.stringify(capsule.content)}`);
   const panel = await client.callTool({ name: "kerno_render_panel", arguments: { view: "context", repositoryId: repository.id, capsuleId: (capsule.structuredContent as any)?.data?.id } });
   if (panel.isError || (panel.structuredContent as any)?.data?.mode !== "live-local-state") throw new Error(`Bundled Kerno panel failed: ${JSON.stringify(panel.content)}`);
-  process.stdout.write(`Bundled plugin MCP exposed ${tools.tools.length} tools, one MCP Apps UI resource, and completed index → fresh status → task → capsule → interactive panel through its portable store.\n`);
+  process.stdout.write(`Bundled plugin MCP exposed ${tools.tools.length} tools, one MCP Apps component resource, and completed index → fresh status → task → capsule → structured panel state through its portable store.\n`);
 } finally { await client.close(); }

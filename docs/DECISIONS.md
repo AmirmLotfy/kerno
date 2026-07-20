@@ -126,10 +126,10 @@
 - Decision: Use `https://itkerno.site` as Kerno's canonical product and zero-install judge-replay URL. Keep `https://github.com/AmirmLotfy/kerno` as the canonical source repository and preserve Vercel-generated URLs only as operational fallbacks.
 - Consequence: Dashboard canonical/Open Graph metadata, package and plugin homepages, judge instructions, compliance evidence, and Devpost field drafts all use the owned domain. The `www` host permanently redirects to the apex with HTTP 308.
 
-## ADR-019 — Embedded MCP Apps evidence tracker
+## ADR-019 — MCP Apps evidence component and registration boundary
 
 - Date: 2026-07-20
-- Status: accepted
-- Decision: Add one self-contained MCP Apps resource and a decoupled `kerno_render_panel` tool for onboarding, context inspection, routing truth, timelines, and Kerno-owned settings. Keep the larger benchmark dashboard as a complementary web surface.
-- Consequence: Compatible Codex desktop hosts can render real Kerno UI inline or fullscreen; terminal and unsupported hosts retain structured text. Kerno does not claim a permanent custom sidebar, a Codex-global settings page, or automatic parent-model switching.
+- Status: accepted, app registration pending
+- Decision: Add one self-contained MCP Apps resource and a decoupled `kerno_render_panel` tool for onboarding, context inspection, routing truth, timelines, and Kerno-owned settings. Keep the larger benchmark dashboard as the current working web surface. Do not add an `.app.json` entry until ChatGPT developer mode assigns a real app ID to a reachable streaming MCP endpoint.
+- Consequence: The browser host harness validates the component and Codex receives structured tool state, but the installed plugin does not yet render inline/fullscreen UI. Real host UI requires a developer-mode app ID, manifest wiring, and reinstall. Kerno does not claim a permanent custom sidebar, a Codex-global settings page, or automatic parent-model switching.
 - Security: The component has an empty network CSP, escapes repository-derived values, reads only validated structured output, and persists only explicit local settings. Telemetry remains disabled by schema.

@@ -4,7 +4,7 @@ Validation refreshed: **July 20, 2026 at 2:30 PM PDT / July 21, 2026 at 12:30 AM
 
 ## 1. Executive readiness result
 
-**PRODUCT RELEASE CANDIDATE: PASS. HACKATHON SUBMISSION: NOT READY.** The code, 16-tool plugin, embedded MCP Apps resource, MCP server, dashboard, deterministic judge path, signed-in App Server evidence, three-task evaluation, documentation, security gates, and fresh-clone validation pass. Public GitHub and Vercel release actions now pass. The remaining blockers are external: observe/capture the embedded component in a fresh Codex task before claiming host rendering, record a public English-audio YouTube video shorter than three minutes, obtain the primary root-task `/feedback` Session ID, complete authenticated human form choices, and confirm entrant/team eligibility.
+**CORE/DASHBOARD RELEASE CANDIDATE: PASS. COMPLETE PLUGIN EXPERIENCE: PARTIAL. HACKATHON SUBMISSION: NOT READY.** The code, 16-tool skill/MCP plugin, component resource and browser harness, dashboard, deterministic judge path, signed-in App Server evidence, three-task evaluation, documentation, security gates, and fresh-clone validation pass. A clean reinstall at July 21, 2026 12:47 AM Africa/Cairo proved the installed manifest has no `apps` field or `.app.json`; its MCP server is local STDIO. Therefore Codex correctly shows structured tool output rather than inline onboarding/settings/tracking UI. Genuine inline UI remains blocked on a reachable streaming MCP endpoint, ChatGPT developer-mode app registration, a real `plugin_asdk_app…` ID, manifest wiring, reinstall, and host observation. External submission blockers also remain: the public English-audio YouTube video shorter than three minutes, primary root-task `/feedback` Session ID, authenticated human form choices, and entrant/team eligibility.
 
 No Devpost field or video was published in this pass. The authorized GitHub push and Vercel production deployment completed: public `main` contains the embedded-plugin upgrade, and `https://itkerno.site` is backed by ready deployment `dpl_88z7ptmpqdAgWYVmHPM1dFVfDsAo`. The local judge flow remains the authoritative full reproduction path.
 
@@ -37,7 +37,7 @@ The previous production deployment was superseded by `dpl_88z7ptmpqdAgWYVmHPM1dF
 | Repository and judge access | Pass | Public `main` is current at `https://github.com/AmirmLotfy/kerno`; production replay is ready at `https://itkerno.site` |
 | README/setup/license | Pass | Setup, sample fixtures, no-build judge path, collaboration narrative, and Apache-2.0 license |
 | Primary `/feedback` Session ID | **Blocked externally** | User must run `/feedback` in this root implementation task |
-| Plugin installation/platform/test path | Pass locally; host capture pending | Marketplace install, validators, packaged bundle, 16-tool/resource smoke, embedded browser contract, quickstart, and replay/live paths |
+| Plugin installation/platform/test path | Partial for inline UI; pass for skill/MCP | Marketplace install, validators, packaged bundle, 16-tool/resource smoke, component browser contract, quickstart, and replay/live paths pass. No developer-app ID or `apps` manifest is present. |
 | Authenticated submission fields | **Blocked on human action** | Drafts are complete; country/submitter/video/Session ID need human confirmation and authorized entry |
 | Eligibility/team authority | **Blocked on human confirmation** | Age, sanctions, conflicts, ownership, and representative facts are not machine-verifiable |
 
@@ -48,14 +48,14 @@ The controlling deadline remains Tuesday, July 21, 2026 at 5:00 PM PDT / Wednesd
 | Criterion | Evidence | Residual risk |
 |---|---|---|
 | Technological Implementation | Strict contracts/storage/indexer/MCP/plugin/App Server code; 72 deterministic tests; 16-tool bundle plus MCP Apps resource; real catalog, route, usage, tests, and review artifacts | Effective model identity is absent from runtime events and is labeled `requested-unconfirmed` |
-| Design | Warm Context Core identity; first-run onboarding; embedded evidence tracker/settings; complete dashboard state tour; nine browser and 20 contrast checks | Fresh-task Codex host rendering and final video still need capture |
+| Design | Warm Context Core identity; structured onboarding/settings; complete dashboard state tour; component harness; nine browser and 20 contrast checks | Inline Codex app registration is incomplete; current visual evidence is the dashboard, not the plugin chat surface |
 | Potential Impact | Specific repository-truth problem; three fairness-valid task pairs; correctness and unfavorable result shown first | One run per condition is a case study, not statistical proof |
 | Quality of the Idea | Falsifiable capsules, provenance, progressive expansion, conservative invalidation, phase routing, independent verification | Outcome utility learning remains intentionally neutral in P0 |
 
 ## 6. Functional validation
 
 - Clean install, doctor, schema-v3 SQLite integrity, migrations/WAL/leases, and all workspace builds pass.
-- First-run onboarding, owner-local settings, capsule provenance, route truth, event timeline, and fullscreen request pass in the embedded-component host harness. Settings change the real default capsule budget, expansion ceiling, and routing preference; telemetry remains schema-locked off.
+- First-run onboarding, owner-local settings, capsule provenance, route truth, event timeline, and fullscreen request pass in the component host harness. This is not an actual Codex-host result. Settings change the real default capsule budget, expansion ceiling, and routing preference; telemetry remains schema-locked off.
 - The seven-file/48-symbol TypeScript fixture reindexes unchanged code with zero reparses.
 - A 1,094-estimated-token initial capsule stays inside a 2,500-token budget and exposes provenance, reasons, scores, freshness, confidence, exclusions, and invalidation keys.
 - A genuine failed test creates one targeted 327-estimated-token transaction-contract child item; three pinned assertions then pass.
@@ -74,10 +74,10 @@ Generated timestamped replay/report files changed in the clone by design and wer
 
 - Installed and enabled as `kerno@personal`, version `0.1.0+codex.20260720210343`.
 - Manifest, Context skill, cache-portable MCP executable/config, optional reviewed hooks, license, warm Context Core assets, starter prompts, and screenshots are packaged.
-- Bundled MCP exposes 16 tools plus one self-contained `text/html;profile=mcp-app` resource and completes index → fresh status → task → capsule → interactive panel.
+- Bundled MCP exposes 16 tools plus one self-contained `text/html;profile=mcp-app` resource and completes index → fresh status → task → capsule → structured panel state; the browser harness renders that state.
 - The plugin metadata uses icon-only Context Core assets for `composerIcon`, `logo`, and `logoDark`; the existing real plugin-card capture remains at `docs/assets/submission/kerno-real-plugin-codex.png`.
 - Plugin and skill validators pass in the existing isolated validator environment; the source/bundle MCP hashes match after reinstall.
-- Two Playwright host-harness flows pass. Rendering inside an actual fresh Codex task has not yet been observed in this task, so no in-Codex tracker screenshot is claimed.
+- Two Playwright host-harness flows pass. A clean reinstall confirmed the current plugin manifest has `apps: null`, no `.app.json`, and only a local STDIO MCP transport. Rendering inside an actual Codex task cannot be claimed until developer-app registration and manifest wiring are completed.
 
 Clean-clone SHA-256:
 
@@ -202,4 +202,4 @@ npm run judge:live
 
 ## 21. READY or NOT READY decision
 
-**NOT READY FOR DEVPOST SUBMISSION.** Kerno is an internally passing and publicly accessible release candidate with no known blocking product, evaluation, security, documentation, repository, deployment, or local judge-path defect. Submission remains blocked by fresh-task host capture before advertising the embedded visual, the public video, primary `/feedback` Session ID, authenticated human form choices, and eligibility/team confirmation. Do not submit until those gates pass.
+**NOT READY FOR DEVPOST SUBMISSION.** Kerno’s core, dashboard, evaluation, security, documentation, public replay, and local judge path pass. The installed plugin’s skill and MCP tools work, but its advertised inline onboarding/settings/tracking experience is not registered with Codex and must not be claimed or pictured as live. Submission remains blocked by either completing the official developer-app registration path or removing inline UI from the promised scope, plus the public video, primary `/feedback` Session ID, authenticated human form choices, and eligibility/team confirmation. Do not submit until those gates pass.

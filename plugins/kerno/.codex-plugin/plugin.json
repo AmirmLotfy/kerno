@@ -1,6 +1,6 @@
 {
   "name": "kerno",
-  "version": "0.1.0+codex.20260720210343",
+  "version": "0.1.0+codex.20260720214902",
   "description": "Evidence-backed context capsules and observable phase routing for Codex.",
   "author": {
     "name": "Kerno contributors"
@@ -18,15 +18,15 @@
   "interface": {
     "displayName": "Kerno",
     "shortDescription": "Right context. Right model. Every task.",
-    "longDescription": "Kerno builds bounded, evidence-backed repository context capsules, expands them from test evidence, and renders an interactive local tracker for provenance, routing truth, onboarding, and settings without pretending a plugin can silently switch its parent model.",
+    "longDescription": "Kerno builds bounded, evidence-backed repository context capsules, expands them from test evidence, and returns structured provenance, routing truth, onboarding, and settings state without pretending a plugin can silently switch its parent model.",
     "developerName": "Kerno contributors",
     "category": "Developer Tools",
     "websiteURL": "https://itkerno.site",
     "capabilities": [
       "Context capsules",
       "Evidence-backed memory",
-      "Embedded evidence tracker",
-      "Local onboarding and settings",
+      "Structured evidence tracking",
+      "Local preferences",
       "Model recommendations",
       "Independent verification"
     ],

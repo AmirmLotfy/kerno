@@ -54,7 +54,7 @@ export const KERNO_TOOL_SPECS: ToolSpec[] = [
   { name: "kerno_compare_runs", title: "Compare runs", description: "Compare immutable baseline and Kerno runs after enforcing fairness fields; unavailable metrics remain null.", schema: compareRunsInputSchema, readOnly: false, run: (service, input) => service.compare(input) }
   ,{ name: "kerno_get_settings", title: "Read Kerno settings", description: "Read Kerno's local-first onboarding and experience settings. Returns defaults without persisting them when no settings record exists.", schema: getKernoSettingsInputSchema, readOnly: true, run: (service, input) => service.getSettings(input) }
   ,{ name: "kerno_update_settings", title: "Update Kerno settings", description: "Persist an explicit, validated Kerno settings patch in owner-controlled local state. Telemetry is fixed off and cannot be enabled by this tool.", schema: updateKernoSettingsInputSchema, readOnly: false, run: (service, input) => service.updateSettings(input) }
-  ,{ name: "kerno_render_panel", title: "Open Kerno tracker", description: "Render Kerno's first-run onboarding, context inspector, truthful routing view, event timeline, or local settings from real stored state. Use after data tools when a visual inspection materially helps.", schema: renderKernoPanelInputSchema, readOnly: true, rendersApp: true, run: (service, input) => service.panel(input) }
+  ,{ name: "kerno_render_panel", title: "Get Kerno tracker state", description: "Return Kerno's first-run onboarding, context inspector, truthful routing view, event timeline, or local settings from real stored state. A registered app surface may render this state; otherwise Codex presents structured tool output.", schema: renderKernoPanelInputSchema, readOnly: true, rendersApp: true, run: (service, input) => service.panel(input) }
 ];
 
 function contextFor(service: KernoService, input: any, data: any): { id: string; worktreeId: string; branch: string | null; head: string | null } {
@@ -72,12 +72,12 @@ export function createKernoMcpServer(service: KernoService): McpServer {
   const server = new McpServer({ name: "kerno", version: "0.1.0" });
   server.registerResource("kerno-run-panel", KERNO_APP_RESOURCE_URI, {
     title: "Kerno evidence tracker",
-    description: "Interactive local-first context, routing, timeline, onboarding, and settings interface.",
+    description: "Component resource for Kerno's local-first context, routing, timeline, onboarding, and settings interface.",
     mimeType: "text/html;profile=mcp-app",
     _meta: {
       ui: { prefersBorder: true, csp: { connectDomains: [], resourceDomains: [] } },
       "openai/widgetPrefersBorder": true,
-      "openai/widgetDescription": "Inspect Kerno's live local repository context, route evidence, timeline, onboarding, and settings."
+      "openai/widgetDescription": "Inspect Kerno's live local repository context, route evidence, timeline, onboarding, and settings when a registered app surface is available."
     }
   }, async () => ({
     contents: [{

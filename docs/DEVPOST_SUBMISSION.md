@@ -71,7 +71,7 @@ GPT-5.6 powered the main Codex implementation work and was discovered/requested 
 ## Accomplishments
 
 - One deterministic failure → targeted child capsule → passing patch → invalidation loop.
-- Sixteen strict MCP contracts, a self-contained interactive MCP Apps tracker, and a locally installable Codex plugin.
+- Sixteen strict MCP contracts, a locally installable Codex plugin, and a browser-tested MCP Apps component awaiting developer-app registration; the current visual judge experience is the evidence dashboard.
 - Live catalog discovery and explicit phase orchestration with honest route labels.
 - Evidence-first dashboard covering all empty/loading/success/failure states.
 - Three fairness-valid context-controlled pairs, one separate full-system routing pair, hash-bound raw artifacts, and retained unfavorable outcomes.

@@ -10,7 +10,7 @@ Kerno is a local context-intelligence service with two Codex integrations. Plugi
 plugin skill ─┐                           ┌─ SQLite/WAL daemon store
 CLI ─────────┼─> KernoService ──────────┼─ process-scoped plugin run store
 MCP STDIO ───┘       │                   ├─ durable local experience settings
-MCP Apps UI <────────┤                   └─ append-only normalized events
+MCP Apps component <─┤                   └─ append-only normalized events
                      ├─ safe indexer → symbols/edges/hashes
                      ├─ task/context/memory/invalidation
                      └─ route policy/catalog snapshots
@@ -84,9 +84,11 @@ Implementation may use workspace-write only within the user-authorized fixture/w
 
 The daemon binds `127.0.0.1`, generates an ephemeral bearer token, applies strict origin checks, and exposes read-only repository/capsule/run/comparison snapshots plus ordered SSE. The replay path uses the same UI schema and carries a persistent truth label, timestamp, source commit, and artifact hash.
 
-The plugin also registers `ui://kerno/run-panel.html` as a self-contained `text/html;profile=mcp-app` resource. Only `kerno_render_panel` attaches that template, keeping data tools decoupled from presentation. The component reads validated structured output, escapes all repository-derived text, makes no network requests, and can call only the explicit Kerno settings/render tools exposed by the host. It supports inline and host-provided fullscreen presentation. No documented extension point exists for an always-docked custom Codex sidebar or a Kerno page inside Codex's global Settings, so Kerno does not claim either.
+The MCP server registers `ui://kerno/run-panel.html` as a self-contained `text/html;profile=mcp-app` resource. Only `kerno_render_panel` advertises that template, keeping data tools decoupled from presentation. The component reads validated structured output, escapes all repository-derived text, makes no network requests, and can call only the explicit Kerno settings/render tools exposed by the host. Its browser host harness supports inline and host-provided fullscreen presentation.
 
-First-run completion and preferences are stored locally. Capsule budget, expansion limit, and routing preference feed real domain behavior; theme, density, and estimate visibility affect only the embedded component. Telemetry remains a schema-level literal `false`.
+That resource is not, by itself, a registered Codex app. The current plugin has no `.app.json` or `apps` manifest field because Kerno has not registered a ChatGPT developer-mode app and has no assigned `plugin_asdk_app…` ID. Its MCP transport is local STDIO rather than a deployed streaming HTTPS `/mcp` endpoint. Consequently the installed plugin currently exposes structured tool output inside Codex; the working visual surface is the React dashboard. No documented extension point exists for an always-docked custom Codex sidebar or a Kerno page inside Codex's global Settings, so Kerno does not claim either.
+
+First-run completion and preferences are stored locally. Capsule budget, expansion limit, and routing preference feed real domain behavior; theme, density, and estimate visibility affect only the component harness until the app registration path is completed. Telemetry remains a schema-level literal `false`.
 
 ## Failure handling
 
