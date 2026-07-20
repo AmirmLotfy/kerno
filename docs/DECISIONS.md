@@ -124,4 +124,4 @@
 - Date: 2026-07-20
 - Status: accepted
 - Decision: Use `https://itkerno.site` as Kerno's canonical product and zero-install judge-replay URL. Keep `https://github.com/AmirmLotfy/kerno` as the canonical source repository and preserve Vercel-generated URLs only as operational fallbacks.
-- Consequence: Dashboard canonical/Open Graph metadata, package and plugin homepages, judge instructions, compliance evidence, and Devpost field drafts all use the owned domain. The `www` host may serve the same read-only replay, while canonical metadata points to the apex.
+- Consequence: Dashboard canonical/Open Graph metadata, package and plugin homepages, judge instructions, compliance evidence, and Devpost field drafts all use the owned domain. The `www` host permanently redirects to the apex with HTTP 308.

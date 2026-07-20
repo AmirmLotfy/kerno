@@ -34,6 +34,8 @@ No Devpost write was performed in this refresh. The existing draft remains unsub
 
 Global deliverables from the live form: video required; website not required; zip file not required.
 
+Custom-domain verification: **July 19, 2026 at 7:09 PM PDT / July 20, 2026 at 5:09 AM Africa/Cairo / July 20, 2026 at 2:09 AM UTC**. The Vercel project reports `itkerno.site` and `www.itkerno.site` as verified. The apex serves the current public replay with HTTP 200, `www` permanently redirects to the apex with HTTP 308, the Open Graph PNG returns HTTP 200, and the deployed benchmark artifact contains 16 retained runs, 5 comparisons, and 4 mechanically fairness-valid comparisons. These counts describe retained artifacts, not generalized performance claims.
+
 ## Source table
 
 | Source | Retrieved | Use |

@@ -8,6 +8,8 @@ Validation refreshed: **July 19, 2026 at 5:32 PM PDT / July 20, 2026 at 3:32 AM 
 
 No Devpost field, package, release, or video was created or published in this pass. The already-authorized public GitHub repository was updated. `https://itkerno.site` is the canonical public replay URL; current source and the local judge flow remain the authoritative reproduction paths.
 
+Custom-domain deployment validation completed July 20, 2026 at 5:09 AM Africa/Cairo. Vercel deployment `dpl_2fj2a4hdYQpGqaG4FvZUPtzZK8Ri` is `Ready`; the apex returns HTTP 200, `www` returns a permanent HTTP 308 redirect to the apex, canonical/Open Graph metadata uses `https://itkerno.site`, and the public benchmark artifact contains the current 16 retained runs. No Devpost field was edited.
+
 ## 2. Exact commit tested
 
 - Release-candidate product commit: `1f71d4d0dbb0776313ef1b91d6ed6507cc83a790`.
