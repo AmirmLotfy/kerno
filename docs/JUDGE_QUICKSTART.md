@@ -112,7 +112,7 @@ node packages/cli/dist/main.cjs data-delete --root . --data .kerno --yes
 
 ## Clean-room record
 
-**Passed on July 19, 2026 at 5:32 PM PDT** from product commit `1f71d4d0dbb0776313ef1b91d6ed6507cc83a790` in a fresh, non-hardlinked macOS clone on Node 22.13.1. The clone ran:
+**Passed on July 20, 2026 at 2:18 PM PDT** from product commit `6a8ab81530a8f1001f487f4f9f2616d87ba1e0ba` in a fresh, non-hardlinked macOS clone on Node 22.13.1. The clone ran:
 
 ```bash
 npm ci
@@ -131,4 +131,4 @@ npm run plugin:smoke
 npm run demo:preflight
 ```
 
-Result: 354 packages installed with zero vulnerabilities; doctor/storage/plugin bundle passed; the judge replay built; 66 deterministic tests passed; seven full Playwright flows plus three focused accessibility flows passed; all workspaces built; brand, 20-pair contrast, secret, 320-package license, 30-file local-link, dependency, package, replay-preflight, and 13-tool MCP smoke gates passed. Generated replay/report files changed inside the isolated clone by design and were not copied back. Linux remains CI-configured but not locally exercised in this report.
+Result: 354 packages installed with zero vulnerabilities; schema-3 doctor/storage/plugin bundle passed; the judge replay built; 72 deterministic tests passed; nine Playwright flows (including two embedded-component host-harness flows) passed; all workspaces built; brand, 20-pair contrast, secret, 320-package license, 31-file local-link, dependency, package, replay-preflight, and 16-tool plus MCP Apps resource smoke gates passed. The first isolated run exposed and fixed a package-before-doctor ordering defect; this recorded second clone passed without source edits. Generated replay/report files changed inside the isolated clone by design and were not copied back. Actual tracker rendering inside a fresh Codex task still requires observation. Linux remains CI-configured but not locally exercised in this report.
