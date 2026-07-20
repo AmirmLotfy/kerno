@@ -100,7 +100,7 @@ export function createKernoMcpServer(service: KernoService): McpServer {
         const serialized = JSON.stringify(result, null, 2);
         if (Buffer.byteLength(serialized, "utf8") > MAX_MCP_OUTPUT_BYTES) throw new KernoError("BUDGET_EXCEEDED", "MCP tool output exceeds 4 MiB; narrow the request or lower the capsule budget");
         return {
-          content: [{ type: "text" as const, text: spec.rendersApp ? "Kerno's interactive tracker is ready. Its values come from owner-controlled local state; unavailable runtime evidence remains labeled unavailable." : serialized }],
+          content: [{ type: "text" as const, text: spec.rendersApp ? "Kerno tracker state is ready. A registered compatible host may render the attached component; otherwise use the structured result. Values come from owner-controlled local state, and unavailable runtime evidence remains labeled unavailable." : serialized }],
           structuredContent: result,
           ...(spec.rendersApp ? { _meta: { "openai/outputTemplate": KERNO_APP_RESOURCE_URI, ui: { resourceUri: KERNO_APP_RESOURCE_URI } } } : {})
         };

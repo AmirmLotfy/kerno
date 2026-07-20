@@ -11,5 +11,6 @@ Initial Kerno hackathon release candidate.
 - Added the warm Context Core brand system and responsive light/dark evidence dashboard.
 - Added deterministic judge replay, three fairness-valid context-controlled benchmark pairs, a separate phase-routing pair, and hash-bound artifact exports.
 - Added security, accessibility, license, link, secret, dependency, plugin, browser, and clean-clone validation gates.
+- Fixed both Codex MCP launch paths: the project-scoped bundle now selects the portable JSON store, and the installed plugin uses a cache-relative executable with plugin-owned data. Fresh CLI tasks in the Kerno repository and an unrelated repository both expose `kerno_render_panel` successfully.
 
 Known truth boundary: requested App Server models remain `requested-unconfirmed` unless the runtime emits effective-model or reroute evidence.

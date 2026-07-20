@@ -78,6 +78,7 @@ Generated timestamped replay/report files changed in the clone by design and wer
 - The plugin metadata uses icon-only Context Core assets for `composerIcon`, `logo`, and `logoDark`; the existing real plugin-card capture remains at `docs/assets/submission/kerno-real-plugin-codex.png`.
 - Plugin and skill validators pass in the existing isolated validator environment; the source/bundle MCP hashes match after reinstall.
 - Two Playwright host-harness flows pass. A clean reinstall confirmed the current plugin manifest has `apps: null`, no `.app.json`, and only a local STDIO MCP transport. Rendering inside an actual Codex task cannot be claimed until developer-app registration and manifest wiring are completed.
+- A later activation investigation found and fixed two independent MCP launcher defects: the project-scoped config omitted portable-store flags, and the plugin config passed a non-expanded `${PLUGIN_ROOT}` token as a Node argument. Plugin version `0.1.0+codex.20260720215729` now uses a cache-relative executable and portable state. Fresh `codex exec` tasks in both the Kerno repository and an unrelated temporary repository successfully called `kerno_render_panel` and received `mode: live-local-state` with the attached component resource. Desktop component rendering still requires a new post-reinstall task and remains unclaimed until observed.
 
 Clean-clone SHA-256:
 
