@@ -2,15 +2,17 @@
 
 ## Assets and trust boundaries
 
-Assets: source and secrets, Git metadata, Kerno state, verified memories, App Server events, benchmark evidence, plugin configuration, and the loopback bearer token.
+Assets: source and secrets, Git metadata, Kerno state, verified memories, App Server events, benchmark evidence, plugin configuration, embedded-component state, and the loopback bearer token.
 
-Boundaries: repository enrollment; filesystem discovery; parsers; Git subprocesses; MCP input/output; hook input; SQLite/portable state; App Server JSONL; dashboard HTTP/SSE; export/delete; recorded artifacts.
+Boundaries: repository enrollment; filesystem discovery; parsers; Git subprocesses; MCP input/output and the sandboxed MCP Apps iframe; hook input; SQLite/portable state; App Server JSONL; dashboard HTTP/SSE; export/delete; recorded artifacts.
 
 ## Adversaries and abuse cases
 
 - A malicious repository author uses traversal, symlinks, oversized/binary files, hostile branch names, or generated paths to escape scope or exhaust resources.
 - Source/test text contains prompt injection that attempts to change policy, approvals, routing, or tool behavior.
 - A malformed MCP caller sends unknown fields, oversized strings, invalid IDs, deep graphs, or command-like input.
+- Malicious repository, event, or settings text attempts script injection in the embedded component, or the component attempts undeclared network access.
+- A component caller attempts to use Kerno settings to enable telemetry, upload source, alter Codex account settings, or broaden sandbox policy.
 - A local process probes the loopback API or steals a bearer token from logs.
 - Hooks leak command output or block/alter task completion.
 - A benchmark artifact leaks credentials/private paths or represents requested routing as effective routing.
@@ -27,6 +29,8 @@ Boundaries: repository enrollment; filesystem discovery; parsers; Git subprocess
 | Command injection | Git via fixed `execFile` arguments; MCP has no command fields; indexing executes no scripts | contract and hostile-input tests |
 | Secret leakage | one recursive key/value sanitizer is applied at persistence, runtime-event, evidence, export, and recorded-artifact boundaries; `.env*`, private-key, package-auth, cloud-credential, and similar files have built-in index exclusions | redaction, direct-index exclusion, artifact sanitization, secret scan |
 | Resource exhaustion | MCP requests are capped at 64 KiB before execution and caller-controlled strings, arrays, graph depth, and response excerpts have explicit bounds | contract and MCP boundary tests |
+| Embedded UI injection / exfiltration | component is self-contained; dynamic values are HTML-escaped before DOM insertion; resource CSP declares no connect/resource domains; repository excerpts are never interpreted as instructions | component syntax/content and MCP resource contract tests |
+| Settings privilege confusion | strict schema permits only Kerno-owned capsule, expansion, routing, display, and estimate preferences; telemetry is the literal `false`; source upload and Codex account/sandbox controls do not exist | contract rejection and separate-store persistence tests |
 | Forged evidence | only trusted internal execution may mark an artifact verified; caller annotations, exit codes, and unknown IDs cannot prove outcomes | evidence/outcome tests |
 | Cross-branch stale memory | repository/worktree/branch/commit/file/symbol keys; conservative stale state | invalidation tests |
 | Loopback access | `127.0.0.1`, ephemeral bearer token, strict origin/CORS, no token logs | HTTP security tests |
@@ -38,7 +42,7 @@ Boundaries: repository enrollment; filesystem discovery; parsers; Git subprocess
 
 ## Data lifecycle
 
-No source upload or telemetry is enabled. State remains under the selected local data directory. `data-export --out PATH` exclusively creates owner-only redacted JSON and will not overwrite an existing target. `data-delete --yes` deletes only a verified Kerno-owned directory; plugin uninstall preserves data. Recorded benchmark exports are sanitized of home/workspace/temp paths and retain limitations.
+No source upload or telemetry is enabled. Run state and onboarding/settings state remain under the selected owner-local data directory; the plugin bundle separates process-scoped run evidence from its bounded settings store. `data-export --out PATH` exclusively creates owner-only redacted JSON and will not overwrite an existing target. `data-delete --yes` deletes only a verified Kerno-owned directory; plugin uninstall preserves data. Recorded benchmark exports are sanitized of home/workspace/temp paths and retain limitations.
 
 ## Residual risk
 

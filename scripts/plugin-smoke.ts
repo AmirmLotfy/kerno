@@ -7,7 +7,11 @@ const client = new Client({ name: "kerno-plugin-smoke", version: "0.1.0" });
 try {
   await client.connect(transport);
   const tools = await client.listTools();
-  if (tools.tools.length !== 13) throw new Error(`Expected 13 Kerno tools, got ${tools.tools.length}`);
+  if (tools.tools.length !== 16) throw new Error(`Expected 16 Kerno tools, got ${tools.tools.length}`);
+  const resources = await client.listResources();
+  if (!resources.resources.some((resource) => resource.uri === "ui://kerno/run-panel.html")) throw new Error("Bundled MCP does not expose the Kerno Apps UI resource");
+  const app = await client.readResource({ uri: "ui://kerno/run-panel.html" });
+  if (!String((app.contents[0] as any)?.text ?? "").includes("Unavailable values are never inferred")) throw new Error("Bundled Kerno Apps UI resource is invalid");
   const indexed = await client.callTool({ name: "kerno_index_repository", arguments: { root: resolve("fixtures/relaycart-ts/seed"), mode: "incremental" } });
   if (indexed.isError) throw new Error(`Bundled index tool failed: ${JSON.stringify(indexed.content)}`);
   const repository = (indexed.structuredContent as any)?.data?.repository;
@@ -20,5 +24,7 @@ try {
   const taskAnalysisId = (analyzed.structuredContent as any)?.data?.id;
   const capsule = await client.callTool({ name: "kerno_build_context_capsule", arguments: { taskAnalysisId, budgetTokens: 2500 } });
   if (capsule.isError || !(capsule.structuredContent as any)?.data?.items?.length) throw new Error(`Bundled capsule tool failed: ${JSON.stringify(capsule.content)}`);
-  process.stdout.write(`Bundled plugin MCP exposed ${tools.tools.length} tools and completed index → fresh status → task → capsule through its portable store.\n`);
+  const panel = await client.callTool({ name: "kerno_render_panel", arguments: { view: "context", repositoryId: repository.id, capsuleId: (capsule.structuredContent as any)?.data?.id } });
+  if (panel.isError || (panel.structuredContent as any)?.data?.mode !== "live-local-state") throw new Error(`Bundled Kerno panel failed: ${JSON.stringify(panel.content)}`);
+  process.stdout.write(`Bundled plugin MCP exposed ${tools.tools.length} tools, one MCP Apps UI resource, and completed index → fresh status → task → capsule → interactive panel through its portable store.\n`);
 } finally { await client.close(); }

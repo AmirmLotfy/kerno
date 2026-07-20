@@ -18,7 +18,7 @@ describe("storage migrations and integrity", () => {
     try {
       expect((await stat(root)).mode & 0o777).toBe(0o700); expect((await stat(join(root, "kerno.db"))).mode & 0o777).toBe(0o600);
       expect((await stat(join(root, "kerno.db-wal"))).mode & 0o777).toBe(0o600); expect((await stat(join(root, "kerno.db-shm"))).mode & 0o777).toBe(0o600);
-      expect(store.health()).toEqual({ ok: true, backend: "sqlite", schemaVersion: 2, integrity: "ok" });
+      expect(store.health()).toEqual({ ok: true, backend: "sqlite", schemaVersion: 3, integrity: "ok" });
       const snapshot = await indexRepository(fixture); store.saveSnapshot(snapshot);
       const names = (store.db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as Array<{ name: string }>).map((row) => row.name);
       expect(names).toEqual(expect.arrayContaining(["repositories", "worktrees", "file_snapshots", "symbols", "edges", "memories", "evidence", "invalidations", "runs", "benchmarks"]));

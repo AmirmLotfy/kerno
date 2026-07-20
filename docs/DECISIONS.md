@@ -53,8 +53,8 @@
 
 - Date: 2026-07-19
 - Status: accepted
-- Decision: SQLite/WAL is the normal embedded store; the self-contained plugin bundle uses a validated, process-scoped atomic JSON store because native-addon resolution is unreliable in plugin caches and multiple Codex hosts must not share a long-lived whole-file writer lock. Durable cross-task state belongs to the daemon SQLite store.
-- Consequence: Portable writes use temporary files, fsync, rename, and backup recovery; SQLite remains the richer daemon/CLI backend.
+- Decision: SQLite/WAL is the normal embedded store; the self-contained plugin bundle uses a validated, process-scoped atomic JSON run store because native-addon resolution is unreliable in plugin caches. A separate bounded-lifetime atomic settings store preserves onboarding and experience preferences across fresh tasks. Durable engineering memory belongs to the daemon SQLite store.
+- Consequence: Portable writes use temporary files, fsync, rename, lock ownership, and backup recovery; unrelated task run state is not merged merely to preserve UI preferences.
 
 ## ADR-009 — Industrial editorial visual direction
 
@@ -125,3 +125,11 @@
 - Status: accepted
 - Decision: Use `https://itkerno.site` as Kerno's canonical product and zero-install judge-replay URL. Keep `https://github.com/AmirmLotfy/kerno` as the canonical source repository and preserve Vercel-generated URLs only as operational fallbacks.
 - Consequence: Dashboard canonical/Open Graph metadata, package and plugin homepages, judge instructions, compliance evidence, and Devpost field drafts all use the owned domain. The `www` host permanently redirects to the apex with HTTP 308.
+
+## ADR-019 — Embedded MCP Apps evidence tracker
+
+- Date: 2026-07-20
+- Status: accepted
+- Decision: Add one self-contained MCP Apps resource and a decoupled `kerno_render_panel` tool for onboarding, context inspection, routing truth, timelines, and Kerno-owned settings. Keep the larger benchmark dashboard as a complementary web surface.
+- Consequence: Compatible Codex desktop hosts can render real Kerno UI inline or fullscreen; terminal and unsupported hosts retain structured text. Kerno does not claim a permanent custom sidebar, a Codex-global settings page, or automatic parent-model switching.
+- Security: The component has an empty network CSP, escapes repository-derived values, reads only validated structured output, and persists only explicit local settings. Telemetry remains disabled by schema.

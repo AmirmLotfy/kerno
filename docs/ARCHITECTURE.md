@@ -8,8 +8,9 @@ Kerno is a local context-intelligence service with two Codex integrations. Plugi
 
 ```text
 plugin skill ─┐                           ┌─ SQLite/WAL daemon store
-CLI ─────────┼─> KernoService ──────────┼─ portable atomic plugin store
-MCP STDIO ───┘       │                   └─ append-only normalized events
+CLI ─────────┼─> KernoService ──────────┼─ process-scoped plugin run store
+MCP STDIO ───┘       │                   ├─ durable local experience settings
+MCP Apps UI <────────┤                   └─ append-only normalized events
                      ├─ safe indexer → symbols/edges/hashes
                      ├─ task/context/memory/invalidation
                      └─ route policy/catalog snapshots
@@ -28,7 +29,7 @@ dashboard <──────── loopback HTTP/SSE or sanitized generated rep
 | `core` | Classification, candidate scoring, capsules, memory, invalidation, routing | Transport-specific behavior |
 | `storage` | Migrations, WAL, transactions, leases, FTS5, repository adapters | Recompute domain rules |
 | `daemon` | `KernoService`, loopback HTTP snapshots, ordered SSE | Expose mutation over P0 HTTP |
-| `mcp-server` | Thirteen strict STDIO tools and structured errors | Shell-command inputs or source writes |
+| `mcp-server` | Sixteen strict STDIO tools, one MCP Apps UI resource, and structured errors | Shell-command inputs, source writes, or invented runtime state |
 | `orchestrator` | App Server initialize/catalog/threads/turns/events/review | Assume catalog entries or claim unobserved effective models |
 | `cli` | Human operations, JSON output, explicit export/delete | Silent destructive actions |
 | `eval` | Fairness checks, metric derivation, JSON/CSV/Markdown/dashboard reports | Fill missing values with zero |
@@ -60,11 +61,11 @@ Token estimates use `ceil(characters / 4)` and remain labeled estimates. Stable 
 
 The daemon uses versioned SQLite migrations, foreign keys, WAL, bounded busy timeouts, and repository-scoped indexing leases. A snapshot becomes current only after file/symbol/edge changes and invalidations commit. Corruption/migration tests reject incompatible state rather than resetting silently.
 
-The plugin bundle uses a portable atomic JSON adapter because native module resolution from a copied plugin cache is unreliable. It writes a temporary file, flushes, renames, and maintains a recovery backup. Installed plugin MCP processes use process-scoped state files so concurrent Codex hosts cannot overwrite one shared JSON document; durable cross-task state remains the daemon's SQLite responsibility. This is a compatibility adapter, not a second domain model.
+The plugin bundle uses a portable atomic JSON adapter because native module resolution from a copied plugin cache is unreliable. It writes a temporary file, flushes, renames, and maintains a recovery backup. Installed plugin MCP processes use process-scoped run files so concurrent Codex hosts cannot overwrite one shared run document. Onboarding and experience preferences use a separate owner-controlled atomic settings file and are opened only for a bounded read or write, allowing those preferences to survive fresh tasks without merging unrelated run state. Durable cross-task engineering memory remains the daemon SQLite store's responsibility. These are compatibility adapters, not second domain models.
 
 ## MCP contract surface
 
-`kerno_index_repository`, `kerno_repository_status`, `kerno_analyze_task`, `kerno_build_context_capsule`, `kerno_expand_context`, `kerno_explain_context`, `kerno_impact_analysis`, `kerno_record_decision`, `kerno_record_outcome`, `kerno_invalidate_context`, `kerno_discover_models`, `kerno_route_task`, and `kerno_compare_runs` parse strict inputs, reject unknown fields, cap aggregate payloads, and return structured repository identity, data, and warnings.
+`kerno_index_repository`, `kerno_repository_status`, `kerno_analyze_task`, `kerno_build_context_capsule`, `kerno_expand_context`, `kerno_explain_context`, `kerno_impact_analysis`, `kerno_record_decision`, `kerno_record_outcome`, `kerno_invalidate_context`, `kerno_discover_models`, `kerno_route_task`, and `kerno_compare_runs` parse strict inputs, reject unknown fields, cap aggregate payloads, and return structured repository identity, data, and warnings. `kerno_get_settings`, `kerno_update_settings`, and `kerno_render_panel` add the explicit local experience surface.
 
 Read/write truth: indexing, analyses, capsules, memory/outcome/invalidation, routing logs, and comparisons write Kerno-local state only. Model discovery starts only the fixed local App Server command and may consume authenticated capacity. No MCP tool accepts a caller-supplied command or writes repository source.
 
@@ -82,6 +83,10 @@ Implementation may use workspace-write only within the user-authorized fixture/w
 ## HTTP and UI
 
 The daemon binds `127.0.0.1`, generates an ephemeral bearer token, applies strict origin checks, and exposes read-only repository/capsule/run/comparison snapshots plus ordered SSE. The replay path uses the same UI schema and carries a persistent truth label, timestamp, source commit, and artifact hash.
+
+The plugin also registers `ui://kerno/run-panel.html` as a self-contained `text/html;profile=mcp-app` resource. Only `kerno_render_panel` attaches that template, keeping data tools decoupled from presentation. The component reads validated structured output, escapes all repository-derived text, makes no network requests, and can call only the explicit Kerno settings/render tools exposed by the host. It supports inline and host-provided fullscreen presentation. No documented extension point exists for an always-docked custom Codex sidebar or a Kerno page inside Codex's global Settings, so Kerno does not claim either.
+
+First-run completion and preferences are stored locally. Capsule budget, expansion limit, and routing preference feed real domain behavior; theme, density, and estimate visibility affect only the embedded component. Telemetry remains a schema-level literal `false`.
 
 ## Failure handling
 

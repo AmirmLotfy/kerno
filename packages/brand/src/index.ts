@@ -33,3 +33,61 @@ export const chartPalette = [
 ] as const;
 
 export const comparisonPalette = { baseline: "#B9AEA1", kerno: "#E85D2A" } as const;
+
+/** Self-contained semantic tokens for sandboxed MCP Apps UI resources. */
+export const kernoAppTokenCss = `
+:root {
+  --background: ${kernoPalette.ivory};
+  --surface: ${kernoPalette.surface};
+  --surface-raised: ${kernoPalette.surface};
+  --surface-muted: ${kernoPalette.surfaceMuted};
+  --text-primary: ${kernoPalette.graphite[900]};
+  --text-secondary: ${kernoPalette.graphite[700]};
+  --text-muted: ${kernoPalette.textMuted};
+  --border: ${kernoPalette.stone};
+  --border-strong: ${kernoPalette.stoneDark};
+  --brand-primary: ${kernoPalette.orange[500]};
+  --brand-primary-hover: ${kernoPalette.orange[600]};
+  --brand-primary-soft: ${kernoPalette.orange[50]};
+  --on-brand-primary: ${kernoPalette.graphite[900]};
+  --brand-secondary: ${kernoPalette.aubergine[500]};
+  --brand-secondary-soft: ${kernoPalette.aubergine.soft};
+  --success: ${semanticPalette.success};
+  --success-soft: ${semanticPalette.successSoft};
+  --warning: ${semanticPalette.warning};
+  --warning-soft: ${semanticPalette.warningSoft};
+  --error: ${semanticPalette.error};
+  --error-soft: ${semanticPalette.errorSoft};
+  --info: ${semanticPalette.info};
+  --info-soft: ${semanticPalette.infoSoft};
+  --shadow: rgb(20 19 18 / 10%);
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --background: ${darkPalette.background};
+  --surface: ${darkPalette.surface};
+  --surface-raised: ${darkPalette.surfaceRaised};
+  --surface-muted: ${kernoPalette.graphite[800]};
+  --text-primary: ${darkPalette.text};
+  --text-secondary: ${darkPalette.textMuted};
+  --text-muted: ${darkPalette.textMuted};
+  --border: ${darkPalette.border};
+  --border-strong: ${kernoPalette.graphite[600]};
+  --brand-primary: ${darkPalette.primary};
+  --brand-primary-hover: ${darkPalette.primaryHover};
+  --brand-primary-soft: ${kernoPalette.orange[900]};
+  --on-brand-primary: ${kernoPalette.graphite[950]};
+  --brand-secondary: ${darkPalette.secondary};
+  --brand-secondary-soft: ${kernoPalette.aubergine[600]};
+  --success: ${darkPalette.success};
+  --success-soft: ${darkPalette.successSoft};
+  --warning: ${darkPalette.warning};
+  --warning-soft: ${darkPalette.warningSoft};
+  --error: ${darkPalette.error};
+  --error-soft: ${darkPalette.errorSoft};
+  --info: ${darkPalette.info};
+  --info-soft: ${darkPalette.infoSoft};
+  --shadow: rgb(0 0 0 / 28%);
+  color-scheme: dark;
+}
+`.trim();

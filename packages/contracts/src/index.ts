@@ -251,6 +251,81 @@ export const runEventSchema = z.object({
 }).strict();
 export type RunEvent = z.infer<typeof runEventSchema>;
 
+export const kernoThemeSchema = z.enum(["system", "light", "dark"]);
+export const kernoSettingsSchema = z.object({
+  id: idSchema,
+  schemaVersion: z.literal(SCHEMA_VERSION),
+  repositoryId: idSchema.nullable(),
+  onboardingVersion: z.number().int().nonnegative(),
+  onboardingCompletedAt: isoDateSchema.nullable(),
+  capsuleBudget: z.number().int().min(128).max(64_000),
+  maxAutomaticExpansions: z.number().int().min(0).max(3),
+  routingPreference: z.enum(["efficiency", "balanced", "depth"]),
+  telemetry: z.literal(false),
+  theme: kernoThemeSchema,
+  density: z.enum(["comfortable", "compact"]),
+  showEstimates: z.boolean(),
+  updatedAt: isoDateSchema
+}).strict();
+export type KernoSettings = z.infer<typeof kernoSettingsSchema>;
+
+export const kernoSettingsPatchSchema = kernoSettingsSchema.omit({
+  id: true, schemaVersion: true, repositoryId: true, updatedAt: true
+}).partial().strict();
+export const getKernoSettingsInputSchema = z.object({ repositoryId: idSchema.optional() }).strict();
+export const updateKernoSettingsInputSchema = z.object({
+  repositoryId: idSchema.optional(),
+  patch: kernoSettingsPatchSchema
+}).strict().refine((value) => Object.keys(value.patch).length > 0, "settings patch cannot be empty");
+
+export const kernoPanelViewSchema = z.enum(["onboarding", "overview", "context", "routing", "timeline", "settings"]);
+export const renderKernoPanelInputSchema = z.object({
+  view: kernoPanelViewSchema.default("overview"),
+  repositoryId: idSchema.optional(),
+  capsuleId: idSchema.optional(),
+  runId: idSchema.optional()
+}).strict();
+export type KernoPanelView = z.infer<typeof kernoPanelViewSchema>;
+
+export const kernoPanelDataSchema = z.object({
+  schemaVersion: z.literal(SCHEMA_VERSION),
+  generatedAt: isoDateSchema,
+  view: kernoPanelViewSchema,
+  mode: z.literal("live-local-state"),
+  onboarding: z.object({ completed: z.boolean(), currentVersion: z.number().int().positive() }).strict(),
+  settings: kernoSettingsSchema,
+  repository: z.object({
+    id: idSchema,
+    name: z.string().min(1).max(512),
+    branch: z.string().nullable(),
+    head: z.string().nullable(),
+    dirty: z.boolean(),
+    indexedAt: isoDateSchema,
+    files: z.number().int().nonnegative(),
+    symbols: z.number().int().nonnegative(),
+    edges: z.number().int().nonnegative(),
+    memoryCount: z.number().int().nonnegative(),
+    staleMemoryCount: z.number().int().nonnegative(),
+    invalidationCount: z.number().int().nonnegative()
+  }).strict().nullable(),
+  task: z.object({ id: idSchema, text: z.string(), intent: z.string(), createdAt: isoDateSchema }).strict().nullable(),
+  capsule: contextCapsuleSchema.nullable(),
+  route: routeDecisionSchema.nullable(),
+  runtimeTruth: z.object({
+    state: z.enum(["recommended-only", "requested-unconfirmed", "effective-observed", "unavailable"]),
+    recommendedModel: z.string().nullable(),
+    requestedModel: z.string().nullable(),
+    effectiveModel: z.string().nullable(),
+    reasoningEffort: z.string().nullable(),
+    tokenUsage: z.number().nonnegative().nullable(),
+    latencyMs: z.number().nonnegative().nullable()
+  }).strict(),
+  run: z.object({ id: idSchema, status: z.string(), testStatus: z.enum(["passed", "failed", "partial", "unavailable"]), reviewStatus: z.string(), eventCount: z.number().int().nonnegative() }).strict().nullable(),
+  events: z.array(runEventSchema).max(500),
+  limitations: z.array(z.string())
+}).strict();
+export type KernoPanelData = z.infer<typeof kernoPanelDataSchema>;
+
 const nullableMetric = z.number().nonnegative().nullable();
 export const benchmarkPhaseRouteSchema = z.object({ phase: taskPhaseSchema, requested: modelSelectionSchema.nullable(), effective: modelSelectionSchema.nullable(), truthLabel: z.enum(["not-requested", "requested-unconfirmed", "rerouted", "verified"]), outcome: z.string() }).strict();
 export const benchmarkRunSchema = z.object({

@@ -6,7 +6,8 @@ Initial Kerno hackathon release candidate.
 
 - Added Git/worktree-aware incremental JS/TS/Python repository indexing.
 - Added bounded evidence-backed context capsules, explanations, progressive expansion, memory, and conservative invalidation.
-- Added 13 strict MCP tools, a local Codex plugin/skill, CLI, SQLite daemon, App Server phase orchestration, and fresh independent review.
+- Added 16 strict MCP tools, a local Codex plugin/skill, CLI, SQLite daemon, App Server phase orchestration, and fresh independent review.
+- Added a self-contained MCP Apps evidence tracker with first-run onboarding, real local settings, capsule provenance, routing truth, and run timelines inside compatible Codex hosts.
 - Added the warm Context Core brand system and responsive light/dark evidence dashboard.
 - Added deterministic judge replay, three fairness-valid context-controlled benchmark pairs, a separate phase-routing pair, and hash-bound artifact exports.
 - Added security, accessibility, license, link, secret, dependency, plugin, browser, and clean-clone validation gates.

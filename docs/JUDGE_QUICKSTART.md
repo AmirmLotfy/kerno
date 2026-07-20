@@ -60,8 +60,7 @@ codex plugin add kerno@personal
 codex plugin list
 ```
 
-The plugin contains the skill and cache-portable MCP executable/configuration.
-Its process-scoped portable store prevents concurrent Codex hosts from overwriting one shared JSON file; durable cross-task state uses the daemon's SQLite store. The bundled smoke covers index → fresh status → task → capsule. Plugin Mode does not trust caller-supplied claims that tests passed; verified expansion in the judge replay is produced by the trusted local evaluation harness and is labeled as deterministic replay evidence. Orchestrator Mode binds phase/test/review events to retained App Server artifacts.
+The plugin contains the skill, cache-portable MCP executable/configuration, 16 structured tools, and one self-contained MCP Apps UI resource. Its process-scoped run store prevents concurrent Codex hosts from overwriting one shared run document; a separate atomic local settings store preserves onboarding and experience preferences across fresh tasks. Durable engineering memory uses the daemon's SQLite store. The bundled smoke covers index → fresh status → task → capsule → interactive panel. Plugin Mode does not trust caller-supplied claims that tests passed; verified expansion in the judge replay is produced by the trusted local evaluation harness and is labeled as deterministic replay evidence. Orchestrator Mode binds phase/test/review events to retained App Server artifacts.
 
 The reviewed hooks under `plugins/kerno/hooks/` are optional. Current plugin validation rejects an explicit manifest `hooks` field, so Kerno does not pretend they are auto-packaged. If cache-relative MCP execution fails, run:
 
@@ -74,6 +73,8 @@ Then follow the printed project-scoped MCP path. Ask Codex:
 > Use Kerno to diagnose this task with the smallest verified context. Explain every inclusion and expand only from test evidence.
 
 Plugin Mode recommends models only. It cannot silently switch the parent task; use `/model` and `/reasoning` transparently.
+
+On an MCP Apps-compatible Codex desktop surface, mentioning Kerno without a task opens first-run onboarding. A normal repository task ends with `kerno_render_panel`, which renders the live local overview or context inspector inline and can request fullscreen presentation. The embedded tracker includes Kerno-owned settings. It does not add a permanent Codex sidebar or modify Codex account settings. Terminal and unsupported hosts show the same structured result as text.
 
 ## Live Orchestrator path
 

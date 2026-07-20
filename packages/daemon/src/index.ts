@@ -1,24 +1,119 @@
 import { createHash, randomBytes } from "node:crypto";
 import { createServer, type Server } from "node:http";
-import { join } from "node:path";
-import type { BenchmarkRun, CatalogModel, ContextCapsule, DurableMemory, EvidenceArtifact, EvidenceRef, IndexSnapshot, RunEvent } from "@kerno/contracts";
+import { basename, join } from "node:path";
+import type { BenchmarkRun, CatalogModel, ContextCapsule, DurableMemory, EvidenceArtifact, EvidenceRef, IndexSnapshot, KernoPanelData, KernoSettings, RouteDecision, RunEvent, TaskAnalysis } from "@kerno/contracts";
 import {
   benchmarkRunSchema, KernoError, analyzeTaskInputSchema, buildCapsuleInputSchema, compareRunsInputSchema, expandContextInputSchema,
-  explainContextInputSchema, impactAnalysisInputSchema, indexRepositoryInputSchema, invalidateContextInputSchema,
-  recordDecisionInputSchema, recordOutcomeInputSchema, redactSensitiveValue, repositoryStatusInputSchema, routeTaskInputSchema, stableId
+  explainContextInputSchema, getKernoSettingsInputSchema, impactAnalysisInputSchema, indexRepositoryInputSchema, invalidateContextInputSchema,
+  kernoPanelDataSchema, kernoSettingsSchema, recordDecisionInputSchema, recordOutcomeInputSchema, redactSensitiveValue,
+  renderKernoPanelInputSchema, repositoryStatusInputSchema, routeTaskInputSchema, stableId, updateKernoSettingsInputSchema
 } from "@kerno/contracts";
 import { analyzeTask, buildContextCapsule, createMemory, expandContextCapsule, explainCapsule, hashArtifact, invalidateMemory, routeTask } from "@kerno/core";
 import { indexRepository, inspectRepository, readIndexableRepositoryFile, redactSecrets, type PreviousFile } from "@kerno/indexer";
 import { JsonStateStore, SqliteStateStore, type StateStore } from "@kerno/storage";
 
-export type KernoServiceOptions = { databasePath?: string; storage?: "sqlite" | "json" };
+export type KernoServiceOptions = { databasePath?: string; storage?: "sqlite" | "json"; settingsPath?: string };
+const KERNO_ONBOARDING_VERSION = 1;
 
 export class KernoService {
   readonly store: StateStore;
+  private readonly settingsPath: string | undefined;
   private roots = new Map<string, string>();
   private eventListeners = new Map<string, Set<(event: RunEvent) => void>>();
-  constructor(options: KernoServiceOptions = {}) { this.store = options.storage === "json" ? new JsonStateStore(options.databasePath ?? join(process.cwd(), ".kerno", "kerno-state.json")) : new SqliteStateStore(options.databasePath ?? ":memory:"); }
+  constructor(options: KernoServiceOptions = {}) {
+    this.store = options.storage === "json" ? new JsonStateStore(options.databasePath ?? join(process.cwd(), ".kerno", "kerno-state.json")) : new SqliteStateStore(options.databasePath ?? ":memory:");
+    this.settingsPath = options.settingsPath;
+  }
   close(): void { this.store.close(); }
+
+  private settingsId(repositoryId?: string): string { return stableId("settings", repositoryId ?? "global"); }
+  private storedSettings(id: string): KernoSettings | undefined {
+    if (!this.settingsPath) return this.store.get<KernoSettings>("settings", id);
+    const settingsStore = new JsonStateStore(this.settingsPath);
+    try { return settingsStore.get<KernoSettings>("settings", id); }
+    finally { settingsStore.close(); }
+  }
+  private persistSettings(settings: KernoSettings, repositoryId?: string): void {
+    if (!this.settingsPath) { this.store.put("settings", settings.id, settings, repositoryId); return; }
+    const settingsStore = new JsonStateStore(this.settingsPath);
+    try { settingsStore.put("settings", settings.id, settings, repositoryId); }
+    finally { settingsStore.close(); }
+  }
+  private defaultSettings(repositoryId?: string): KernoSettings {
+    const global = repositoryId ? this.storedSettings(this.settingsId()) : undefined;
+    return kernoSettingsSchema.parse({
+      id: this.settingsId(repositoryId), schemaVersion: "1", repositoryId: repositoryId ?? null,
+      onboardingVersion: global?.onboardingVersion ?? 0, onboardingCompletedAt: global?.onboardingCompletedAt ?? null,
+      capsuleBudget: global?.capsuleBudget ?? 2500,
+      maxAutomaticExpansions: global?.maxAutomaticExpansions ?? 3, routingPreference: global?.routingPreference ?? "balanced",
+      telemetry: false, theme: global?.theme ?? "system", density: global?.density ?? "comfortable",
+      showEstimates: global?.showEstimates ?? true, updatedAt: new Date().toISOString()
+    });
+  }
+
+  getSettings(input: unknown = {}): KernoSettings {
+    const { repositoryId } = getKernoSettingsInputSchema.parse(input);
+    const stored = this.storedSettings(this.settingsId(repositoryId));
+    return stored ? kernoSettingsSchema.parse(stored) : this.defaultSettings(repositoryId);
+  }
+
+  updateSettings(input: unknown): KernoSettings {
+    const parsed = updateKernoSettingsInputSchema.parse(input);
+    const current = this.getSettings({ ...(parsed.repositoryId ? { repositoryId: parsed.repositoryId } : {}) });
+    const next = kernoSettingsSchema.parse({ ...current, ...parsed.patch, telemetry: false, updatedAt: new Date().toISOString() });
+    this.persistSettings(next, parsed.repositoryId);
+    return next;
+  }
+
+  panel(input: unknown): KernoPanelData {
+    const parsed = renderKernoPanelInputSchema.parse(input);
+    const requestedCapsule = parsed.capsuleId ? this.store.capsule(parsed.capsuleId) : undefined;
+    const capsuleTask = requestedCapsule ? this.store.task(requestedCapsule.taskAnalysisId) : undefined;
+    const repositoryId = parsed.repositoryId ?? capsuleTask?.repositoryId ?? this.store.list<IndexSnapshot>("snapshot")[0]?.repository.id;
+    const snapshot = repositoryId ? this.store.latestSnapshot(repositoryId) : undefined;
+    const settings = this.getSettings({ ...(repositoryId ? { repositoryId } : {}) });
+    const capsule = requestedCapsule ?? (repositoryId ? this.store.capsules(repositoryId)[0] : undefined);
+    const task = capsule ? this.store.task(capsule.taskAnalysisId) : repositoryId ? this.store.list<TaskAnalysis>("task", repositoryId)[0] : undefined;
+    const route = repositoryId ? this.store.list<RouteDecision>("route", repositoryId)[0] : undefined;
+    const run = parsed.runId ? this.store.get<Record<string, any>>("run", parsed.runId) : repositoryId ? this.store.list<Record<string, any>>("run", repositoryId)[0] : this.store.list<Record<string, any>>("run")[0];
+    const runId = typeof run?.id === "string" ? run.id : undefined;
+    const events = runId ? this.store.events(runId).slice(-500) : [];
+    const observedEffective = typeof run?.model?.effective === "string" && ["verified", "rerouted"].includes(String(run?.model?.truthLabel)) ? run.model.effective : route?.effective?.model ?? null;
+    const requestedModel = typeof run?.model?.requested === "string" ? run.model.requested : route?.requested?.model ?? null;
+    const recommendedModel = route?.recommended.model ?? null;
+    const reasoningEffort = typeof run?.model?.reasoningEffort === "string" ? run.model.reasoningEffort : route?.effective?.reasoningEffort ?? route?.requested?.reasoningEffort ?? route?.recommended.reasoningEffort ?? null;
+    const runtimeState = observedEffective ? "effective-observed" : requestedModel ? "requested-unconfirmed" : recommendedModel ? "recommended-only" : "unavailable";
+    const testStatus = run?.tests?.passed === true ? "passed" : run?.tests?.passed === false ? "failed" : run?.finalStatus === "partial" ? "partial" : "unavailable";
+    const memories = repositoryId ? this.store.memories(repositoryId) : [];
+    const staleCapsules = repositoryId ? this.store.capsules(repositoryId).filter((item) => item.status === "stale") : [];
+    const panel = {
+      schemaVersion: "1" as const, generatedAt: new Date().toISOString(), view: parsed.view, mode: "live-local-state" as const,
+      onboarding: { completed: settings.onboardingVersion >= KERNO_ONBOARDING_VERSION, currentVersion: KERNO_ONBOARDING_VERSION }, settings,
+      repository: snapshot ? {
+        id: snapshot.repository.id, name: basename(snapshot.repository.canonicalRoot), branch: snapshot.worktree.branch,
+        head: snapshot.worktree.headCommit, dirty: snapshot.worktree.dirty, indexedAt: snapshot.indexedAt,
+        files: snapshot.files.length, symbols: snapshot.files.reduce((sum, file) => sum + file.symbols.length, 0), edges: snapshot.edges.length,
+        memoryCount: memories.length, staleMemoryCount: memories.filter((memory) => memory.status === "stale").length,
+        invalidationCount: staleCapsules.length + memories.filter((memory) => memory.status === "stale" || memory.status === "superseded").length
+      } : null,
+      task: task ? { id: task.id, text: task.taskText, intent: task.intent, createdAt: task.createdAt } : null,
+      capsule: capsule ?? null, route: route ?? null,
+      runtimeTruth: {
+        state: runtimeState, recommendedModel, requestedModel, effectiveModel: observedEffective, reasoningEffort,
+        tokenUsage: typeof run?.metrics?.totalTokens === "number" ? run.metrics.totalTokens : null,
+        latencyMs: typeof run?.metrics?.latencyMs === "number" ? run.metrics.latencyMs : null
+      },
+      run: runId ? { id: runId, status: String(run?.finalStatus ?? run?.status ?? "unknown"), testStatus, reviewStatus: String(run?.review?.status ?? "unavailable"), eventCount: events.length } : null,
+      events,
+      limitations: [
+        "Plugin Mode recommends models but cannot silently switch the active parent task model.",
+        ...(runtimeState === "requested-unconfirmed" ? ["The requested model is not independently confirmed by runtime evidence."] : []),
+        ...(runtimeState === "unavailable" ? ["No App Server route evidence is available for this local state."] : []),
+        "Token usage and latency are shown only when observed; unavailable values are not inferred."
+      ]
+    };
+    return kernoPanelDataSchema.parse(panel);
+  }
 
   private snapshotFor(repositoryId: string, worktreeId?: string): IndexSnapshot {
     const snapshot = this.store.latestSnapshot(repositoryId, worktreeId);
@@ -161,7 +256,8 @@ export class KernoService {
     const parsed = buildCapsuleInputSchema.parse(input);
     const { task, snapshot } = this.repositoryForTask(parsed.taskAnalysisId);
     if (!(await this.snapshotIsFresh(snapshot))) throw new KernoError("STALE_SNAPSHOT", "Repository changed after task analysis; re-index before building a capsule");
-    const capsule = buildContextCapsule(task, snapshot, { ...(parsed.phase ? { phase: parsed.phase } : {}), ...(parsed.budgetTokens ? { budgetTokens: parsed.budgetTokens } : {}), memories: this.currentMemories(snapshot) });
+    const settings = this.getSettings({ repositoryId: task.repositoryId });
+    const capsule = buildContextCapsule(task, snapshot, { ...(parsed.phase ? { phase: parsed.phase } : {}), budgetTokens: parsed.budgetTokens ?? settings.capsuleBudget, memories: this.currentMemories(snapshot) });
     this.store.saveCapsule(capsule, task.repositoryId); return capsule;
   }
   async expand(input: unknown): Promise<ContextCapsule> {
@@ -175,10 +271,11 @@ export class KernoService {
     if (!artifact.verified) throw new KernoError("UNVERIFIED_EVIDENCE", `Artifact ${artifact.id} was not created by a trusted execution boundary`);
     if (parsed.evidence.kind === "test_failure" && (artifact.exitCode === null || artifact.exitCode === undefined || artifact.exitCode === 0)) throw new KernoError("UNVERIFIED_EVIDENCE", `Artifact ${artifact.id} is not a failing test result`);
     if (parent.status !== "current") throw new KernoError("STALE_SNAPSHOT", `Cannot expand ${parent.status} capsule ${parent.id}`);
+    const { task, snapshot } = this.repositoryForTask(parent.taskAnalysisId);
+    const settings = this.getSettings({ repositoryId: task.repositoryId });
     let expansionDepth = 0; let ancestor: ContextCapsule | undefined = parent;
     while (ancestor.parentCapsuleId) { expansionDepth += 1; ancestor = this.store.capsule(ancestor.parentCapsuleId); if (!ancestor) break; }
-    if (expansionDepth >= 3) throw new KernoError("BUDGET_EXCEEDED", "Automatic context expansion is capped at three child capsules; human escalation is required");
-    const { task, snapshot } = this.repositoryForTask(parent.taskAnalysisId);
+    if (expansionDepth >= settings.maxAutomaticExpansions) throw new KernoError("BUDGET_EXCEEDED", `Automatic context expansion is capped at ${settings.maxAutomaticExpansions} child capsule${settings.maxAutomaticExpansions === 1 ? "" : "s"}; human escalation is required`);
     const latest = this.store.latestSnapshot(task.repositoryId, snapshot.worktree.id);
     if (latest?.id !== snapshot.id || !(await this.snapshotIsFresh(snapshot))) throw new KernoError("STALE_SNAPSHOT", "Repository changed after the parent capsule; re-index before expanding context");
     const safeArtifactText = artifact.redactedOutput.slice(0, 64_000);
@@ -261,7 +358,9 @@ export class KernoService {
     const parsed = routeTaskInputSchema.parse(input); const { task } = this.repositoryForTask(parsed.taskAnalysisId);
     const catalog = this.store.catalog<{ source: "app-server"; models: CatalogModel[] }>(parsed.catalogSnapshotId);
     if (!catalog || catalog.source !== "app-server") throw new KernoError("NO_COMPATIBLE_MODEL", `Unknown or untrusted catalog ${parsed.catalogSnapshotId}`);
-    const decision = routeTask(task, parsed.phase, parsed.catalogSnapshotId, catalog.models, parsed.preferences);
+    const configured = this.getSettings({ repositoryId: task.repositoryId }).routingPreference;
+    const preferences = parsed.preferences ?? { latency: configured === "efficiency" ? "fast" as const : configured === "depth" ? "depth" as const : "balanced" as const };
+    const decision = routeTask(task, parsed.phase, parsed.catalogSnapshotId, catalog.models, preferences);
     this.store.saveRoute(decision, task.repositoryId); return decision;
   }
   compare(input: unknown): unknown {

@@ -5,15 +5,17 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z, ZodError, type ZodTypeAny } from "zod";
 import {
   analyzeTaskInputSchema, buildCapsuleInputSchema, compareRunsInputSchema, expandContextInputSchema,
-  explainContextInputSchema, impactAnalysisInputSchema, indexRepositoryInputSchema, invalidateContextInputSchema,
-  KernoError, recordDecisionInputSchema, recordOutcomeInputSchema, repositoryStatusInputSchema, routeTaskInputSchema,
-  SCHEMA_VERSION, stableId
+  explainContextInputSchema, getKernoSettingsInputSchema, impactAnalysisInputSchema, indexRepositoryInputSchema, invalidateContextInputSchema,
+  KernoError, recordDecisionInputSchema, recordOutcomeInputSchema, renderKernoPanelInputSchema, repositoryStatusInputSchema,
+  routeTaskInputSchema, SCHEMA_VERSION, stableId, updateKernoSettingsInputSchema
 } from "@kerno/contracts";
 import { KernoService } from "@kerno/daemon";
 import { AppServerClient } from "@kerno/orchestrator";
+import { buildKernoAppHtml, KERNO_APP_RESOURCE_URI } from "./app-ui";
 
 type ToolSpec = {
   name: string; title: string; description: string; schema: ZodTypeAny; readOnly: boolean; destructive?: boolean;
+  rendersApp?: boolean;
   run: (service: KernoService, input: any) => unknown | Promise<unknown>;
 };
 
@@ -50,6 +52,9 @@ export const KERNO_TOOL_SPECS: ToolSpec[] = [
   } },
   { name: "kerno_route_task", title: "Recommend route", description: "Choose a model and reasoning effort from a catalog previously captured from App Server model/list. Caller-invented catalogs are rejected. This recommendation does not switch a Plugin Mode parent task.", schema: routeTaskInputSchema, readOnly: false, run: (service, input) => service.route(input) },
   { name: "kerno_compare_runs", title: "Compare runs", description: "Compare immutable baseline and Kerno runs after enforcing fairness fields; unavailable metrics remain null.", schema: compareRunsInputSchema, readOnly: false, run: (service, input) => service.compare(input) }
+  ,{ name: "kerno_get_settings", title: "Read Kerno settings", description: "Read Kerno's local-first onboarding and experience settings. Returns defaults without persisting them when no settings record exists.", schema: getKernoSettingsInputSchema, readOnly: true, run: (service, input) => service.getSettings(input) }
+  ,{ name: "kerno_update_settings", title: "Update Kerno settings", description: "Persist an explicit, validated Kerno settings patch in owner-controlled local state. Telemetry is fixed off and cannot be enabled by this tool.", schema: updateKernoSettingsInputSchema, readOnly: false, run: (service, input) => service.updateSettings(input) }
+  ,{ name: "kerno_render_panel", title: "Open Kerno tracker", description: "Render Kerno's first-run onboarding, context inspector, truthful routing view, event timeline, or local settings from real stored state. Use after data tools when a visual inspection materially helps.", schema: renderKernoPanelInputSchema, readOnly: true, rendersApp: true, run: (service, input) => service.panel(input) }
 ];
 
 function contextFor(service: KernoService, input: any, data: any): { id: string; worktreeId: string; branch: string | null; head: string | null } {
@@ -65,10 +70,28 @@ function contextFor(service: KernoService, input: any, data: any): { id: string;
 
 export function createKernoMcpServer(service: KernoService): McpServer {
   const server = new McpServer({ name: "kerno", version: "0.1.0" });
+  server.registerResource("kerno-run-panel", KERNO_APP_RESOURCE_URI, {
+    title: "Kerno evidence tracker",
+    description: "Interactive local-first context, routing, timeline, onboarding, and settings interface.",
+    mimeType: "text/html;profile=mcp-app",
+    _meta: {
+      ui: { prefersBorder: true, csp: { connectDomains: [], resourceDomains: [] } },
+      "openai/widgetPrefersBorder": true,
+      "openai/widgetDescription": "Inspect Kerno's live local repository context, route evidence, timeline, onboarding, and settings."
+    }
+  }, async () => ({
+    contents: [{
+      uri: KERNO_APP_RESOURCE_URI,
+      mimeType: "text/html;profile=mcp-app",
+      text: buildKernoAppHtml(),
+      _meta: { ui: { prefersBorder: true, csp: { connectDomains: [], resourceDomains: [] } }, "openai/widgetPrefersBorder": true }
+    }]
+  }));
   for (const spec of KERNO_TOOL_SPECS) {
     server.registerTool(spec.name, {
       title: spec.title, description: spec.description, inputSchema: spec.schema,
-      annotations: { title: spec.title, readOnlyHint: spec.readOnly, destructiveHint: spec.destructive ?? false, idempotentHint: spec.readOnly, openWorldHint: false }
+      annotations: { title: spec.title, readOnlyHint: spec.readOnly, destructiveHint: spec.destructive ?? false, idempotentHint: spec.readOnly, openWorldHint: false },
+      ...(spec.rendersApp ? { _meta: { "openai/outputTemplate": KERNO_APP_RESOURCE_URI, ui: { resourceUri: KERNO_APP_RESOURCE_URI } } } : {})
     }, async (input) => {
       try {
         if (Buffer.byteLength(JSON.stringify(input), "utf8") > MAX_MCP_INPUT_BYTES) throw new KernoError("INVALID_INPUT", "MCP tool input exceeds 64 KiB");
@@ -76,7 +99,11 @@ export function createKernoMcpServer(service: KernoService): McpServer {
         const result = { schemaVersion: SCHEMA_VERSION, requestId: stableId("request", `${spec.name}:${Date.now()}:${Math.random()}`), repository: contextFor(service, input, data), data, warnings: [] as Array<{ code: string; message: string }> };
         const serialized = JSON.stringify(result, null, 2);
         if (Buffer.byteLength(serialized, "utf8") > MAX_MCP_OUTPUT_BYTES) throw new KernoError("BUDGET_EXCEEDED", "MCP tool output exceeds 4 MiB; narrow the request or lower the capsule budget");
-        return { content: [{ type: "text" as const, text: serialized }], structuredContent: result };
+        return {
+          content: [{ type: "text" as const, text: spec.rendersApp ? "Kerno's interactive tracker is ready. Its values come from owner-controlled local state; unavailable runtime evidence remains labeled unavailable." : serialized }],
+          structuredContent: result,
+          ...(spec.rendersApp ? { _meta: { "openai/outputTemplate": KERNO_APP_RESOURCE_URI, ui: { resourceUri: KERNO_APP_RESOURCE_URI } } } : {})
+        };
       } catch (error) {
         const known = error instanceof KernoError ? error : error instanceof ZodError ? new KernoError("INVALID_INPUT", error.message) : new KernoError("INTERNAL_ERROR", error instanceof Error ? error.message : "Unknown error");
         const payload = { code: known.code, message: known.message, retryable: known.retryable, ...(known.details ? { details: known.details } : {}) };
@@ -107,13 +134,16 @@ export async function runStdioServer(): Promise<void> {
   chmodSync(marker, 0o600);
   const portableName = process.env.KERNO_STATE_SCOPE === "process" ? `kerno-state-${process.pid}.json` : "kerno-state.json";
   const databasePath = join(dataDir, portable ? portableName : "kerno.db");
-  for (const localPath of [databasePath, `${databasePath}.bak`, `${databasePath}-wal`, `${databasePath}-shm`, `${databasePath}-journal`]) {
+  const settingsPath = portable ? join(dataDir, "kerno-settings.json") : undefined;
+  for (const localPath of [databasePath, `${databasePath}.bak`, `${databasePath}-wal`, `${databasePath}-shm`, `${databasePath}-journal`, ...(settingsPath ? [settingsPath, `${settingsPath}.bak`, `${settingsPath}.lock`] : [])]) {
     if (!existsSync(localPath)) continue;
     const stat = lstatSync(localPath);
     if (stat.isSymbolicLink() || !stat.isFile() || stat.nlink !== 1 || (typeof process.getuid === "function" && stat.uid !== process.getuid())) throw new KernoError("SYMLINK_ESCAPE", `Refusing non-owner-controlled Kerno state file: ${localPath}`);
     chmodSync(localPath, 0o600);
   }
-  const service = new KernoService({ databasePath, ...(portable ? { storage: "json" as const } : {}) });
+  const service = new KernoService(portable
+    ? { databasePath, storage: "json", settingsPath: join(dataDir, "kerno-settings.json") }
+    : { databasePath });
   const server = createKernoMcpServer(service);
   await server.connect(new StdioServerTransport());
   const stop = async () => { await server.close(); service.close(); process.exit(0); };

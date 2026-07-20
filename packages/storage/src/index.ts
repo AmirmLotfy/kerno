@@ -4,7 +4,7 @@ import { dirname, join, parse, resolve, sep } from "node:path";
 import { KernoError, redactSensitiveValue } from "@kerno/contracts";
 import type { ContextCapsule, DurableMemory, IndexSnapshot, RouteDecision, RunEvent, TaskAnalysis } from "@kerno/contracts";
 
-export type EntityKind = "snapshot" | "task" | "capsule" | "memory" | "evidence" | "invalidation" | "route" | "outcome" | "run" | "benchmark" | "comparison" | "catalog" | "artifact";
+export type EntityKind = "snapshot" | "task" | "capsule" | "memory" | "evidence" | "invalidation" | "route" | "outcome" | "run" | "benchmark" | "comparison" | "catalog" | "artifact" | "settings";
 
 export interface StateStore {
   close(): void;
@@ -162,6 +162,7 @@ export class SqliteStateStore {
     `);
     this.db.prepare("INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES (1, ?)").run(new Date().toISOString());
     this.db.prepare("INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES (2, ?)").run(new Date().toISOString());
+    this.db.prepare("INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES (3, ?)").run(new Date().toISOString());
   }
 
   close(): void { this.db.close(); if (this.path !== ":memory:") hardenSqliteFiles(this.path); }

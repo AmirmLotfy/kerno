@@ -4,7 +4,7 @@ Kerno is local-first and uploads neither repository source nor telemetry by defa
 
 ## Supported security surface
 
-The current P0 protects the local indexer, SQLite/portable state, STDIO MCP boundary, App Server adapter, advisory hooks, loopback HTTP/SSE API, recorded artifacts, and data export/delete commands. Run `npm run test:security`, `npm run audit:secrets`, and `npm audit --audit-level=high` before reporting or releasing a fix.
+The current P0 protects the local indexer, SQLite/portable state, STDIO MCP boundary, embedded MCP Apps component, App Server adapter, advisory hooks, loopback HTTP/SSE API, recorded artifacts, and data export/delete commands. Run `npm run test:security`, `npm run audit:secrets`, and `npm audit --audit-level=high` before reporting or releasing a fix.
 
 ## Defaults
 
@@ -15,6 +15,8 @@ The current P0 protects the local indexer, SQLite/portable state, STDIO MCP boun
 - Strict Zod inputs, unknown-field rejection, length/output/depth bounds.
 - Secret redaction before storage, MCP output, logs, and checked replay artifacts.
 - Repository and test text labeled as untrusted evidence.
+- Self-contained embedded UI with an empty network CSP, HTML escaping for all state-derived text, explicit tool calls, and no source upload path.
+- Kerno settings are schema-constrained, owner-local, and cannot enable telemetry, change Codex account settings, or widen sandbox/approval policy.
 - Loopback-only HTTP, ephemeral bearer token, strict origins, no token logging.
 - Advisory hooks with short timeouts, fail-open behavior, and no source writes.
 - App Server local STDIO; no sandbox or approval widening.

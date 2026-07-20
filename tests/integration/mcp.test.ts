@@ -18,8 +18,16 @@ describe("MCP contract", () => {
     const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
     await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
     const tools = await client.listTools();
-    expect(tools.tools).toHaveLength(13);
+    expect(tools.tools).toHaveLength(16);
     expect(tools.tools.find((tool) => tool.name === "kerno_repository_status")?.annotations?.readOnlyHint).toBe(true);
+    expect((tools.tools.find((tool) => tool.name === "kerno_render_panel")?._meta as any)?.ui?.resourceUri).toBe("ui://kerno/run-panel.html");
+    const resourcesList = await client.listResources();
+    expect(resourcesList.resources).toEqual(expect.arrayContaining([expect.objectContaining({ uri: "ui://kerno/run-panel.html", mimeType: "text/html;profile=mcp-app" })]));
+    const appResource = await client.readResource({ uri: "ui://kerno/run-panel.html" });
+    const appHtml = (appResource.contents[0] as any)?.text as string;
+    expect(appHtml).toContain("Kerno run panel");
+    expect(appHtml).toContain("Unavailable values are never inferred");
+    expect(appHtml).not.toContain("https://");
     const indexed = await client.callTool({ name: "kerno_index_repository", arguments: { root: fixture, mode: "incremental" } });
     expect(indexed.isError).not.toBe(true);
     const envelope = indexed.structuredContent as any;
@@ -27,6 +35,15 @@ describe("MCP contract", () => {
     expect(envelope.data.stats.scanned).toBeGreaterThan(3);
     expect(envelope.data.files).toBeUndefined();
     expect(JSON.stringify(envelope.data)).not.toContain("A timeout here allows");
+
+    const panel = await client.callTool({ name: "kerno_render_panel", arguments: { view: "overview", repositoryId: envelope.data.repository.id } });
+    expect(panel.isError).not.toBe(true);
+    expect((panel.structuredContent as any)?.data).toMatchObject({ mode: "live-local-state", repository: { id: envelope.data.repository.id }, onboarding: { completed: false } });
+    const settings = await client.callTool({ name: "kerno_update_settings", arguments: { repositoryId: envelope.data.repository.id, patch: { onboardingVersion: 1, onboardingCompletedAt: "2026-07-20T00:00:00.000Z", capsuleBudget: 3200 } } });
+    expect(settings.isError).not.toBe(true);
+    expect((settings.structuredContent as any)?.data).toMatchObject({ onboardingVersion: 1, capsuleBudget: 3200, telemetry: false });
+    const updatedPanel = await client.callTool({ name: "kerno_render_panel", arguments: { view: "settings", repositoryId: envelope.data.repository.id } });
+    expect((updatedPanel.structuredContent as any)?.data).toMatchObject({ view: "settings", onboarding: { completed: true }, settings: { capsuleBudget: 3200 } });
   });
 
   it("compares CLI-importable artifact-derived run records through MCP", async () => {

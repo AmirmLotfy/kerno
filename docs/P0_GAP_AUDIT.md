@@ -7,7 +7,7 @@ Status meanings: **Pass** is exercised and evidenced; **Partial** has working fo
 | P0 area | Status at audit | Root cause / evidence | Required closure |
 |---|---|---|---|
 | Live compliance grounding | Pass | Official pages rechecked; no controlling change; plugin unavailable | Recheck immediately before authorized submission |
-| Installable plugin and local marketplace | Pass with validator caveat | Cachebuster, real reinstall, cache/source hash match, and 13-tool bundled MCP smoke pass; plugin-creator validator is unavailable because its host Python lacks PyYAML | Fresh isolated profile before video; do not claim validator pass |
+| Installable plugin and local marketplace | Pass with host-rendering caveat | Cachebuster, isolated plugin-creator and skill validators, real reinstall, cache/source hash match, 16-tool bundled MCP smoke, MCP Apps resource contract, and two embedded-component browser flows pass | Start a fresh Codex task and capture the component in the real host before using an in-Codex screenshot; do not claim host rendering until observed |
 | Core contracts and schema validation | Pass | Strict Zod contract tests pass | Maintain boundary tests |
 | SQLite migrations and portable store | Pass | Migration, integrity, recovery, WAL, lease, and normalized-table tests pass | Fresh database gate remains mandatory |
 | Safe incremental JS/TS/Python indexing | Pass | Parser, ignore, symlink, secret, branch, and zero-reparse tests pass | Do not overstate call-graph precision |
