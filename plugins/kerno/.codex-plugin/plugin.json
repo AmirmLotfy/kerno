@@ -1,6 +1,6 @@
 {
   "name": "kerno",
-  "version": "0.1.0+codex.20260720020146",
+  "version": "0.1.0+codex.20260720202933",
   "description": "Evidence-backed context capsules and observable phase routing for Codex.",
   "author": {
     "name": "Kerno contributors"
@@ -29,9 +29,9 @@
       "Independent verification"
     ],
     "brandColor": "#E85D2A",
-    "composerIcon": "./assets/launcher.svg",
-    "logo": "./assets/logo.svg",
-    "logoDark": "./assets/logo-dark.svg",
+    "composerIcon": "./assets/icon-micro.svg",
+    "logo": "./assets/icon.svg",
+    "logoDark": "./assets/icon-dark.svg",
     "screenshots": [
       "./assets/screenshot.png",
       "./assets/screenshot-dark.png"

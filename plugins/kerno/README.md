@@ -6,7 +6,7 @@ From the repository root run `npm install`, `npm run package:plugin`, then insta
 
 Uninstalling the plugin preserves local Kerno data. Use the repository CLI’s explicit export/delete commands to manage that data.
 
-Kerno’s Context Core launcher, light/dark wordmarks, monochrome marks, social/marketing art, and product screenshots are generated from the canonical `@kerno/brand` package. The manifest uses the contained launcher for the plugin surface and separate container-free horizontal marks for light and dark presentation.
+Kerno’s Context Core launcher, light/dark wordmarks, monochrome marks, social/marketing art, and product screenshots are generated from the canonical `@kerno/brand` package. Codex-facing plugin surfaces use only the container-free Context Core: the simplified micro icon in the composer and the full light/dark icon variants on the plugin card. Contained launcher assets remain reserved for launcher and favicon contexts.
 
 ## What appears inside Codex
 

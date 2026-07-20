@@ -31,4 +31,12 @@ describe("Kerno brand contract", () => {
     expect(html).toContain('property="og:image" content="https://itkerno.site/brand/kerno-open-graph.png"');
     await expect(readFile(`${dashboardRoot}public/brand/kerno-open-graph.png`)).resolves.toBeInstanceOf(Buffer);
   });
+
+  it("uses the container-free Context Core on every Codex plugin identity surface", async () => {
+    const manifestPath = fileURLToPath(new URL("../../plugins/kerno/.codex-plugin/plugin.json", import.meta.url));
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    expect(manifest.interface.composerIcon).toBe("./assets/icon-micro.svg");
+    expect(manifest.interface.logo).toBe("./assets/icon.svg");
+    expect(manifest.interface.logoDark).toBe("./assets/icon-dark.svg");
+  });
 });
