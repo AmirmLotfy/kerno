@@ -4,7 +4,7 @@ Validation refreshed: **July 20, 2026 at 2:18 PM PDT / July 21, 2026 at 12:18 AM
 
 ## 1. Executive readiness result
 
-**PRODUCT RELEASE CANDIDATE: PASS. HACKATHON SUBMISSION: NOT READY.** The code, 16-tool plugin, embedded MCP Apps resource, MCP server, dashboard, deterministic judge path, signed-in App Server evidence, three-task evaluation, documentation, security gates, and fresh-clone validation pass. The remaining blockers are external or release actions: push the two new local commits, observe/capture the embedded component in a fresh Codex task before claiming host rendering, record a public English-audio YouTube video shorter than three minutes, obtain the primary root-task `/feedback` Session ID, complete authenticated human form choices, and confirm entrant/team eligibility.
+**PRODUCT RELEASE CANDIDATE: PASS. HACKATHON SUBMISSION: NOT READY.** The code, 16-tool plugin, embedded MCP Apps resource, MCP server, dashboard, deterministic judge path, signed-in App Server evidence, three-task evaluation, documentation, security gates, and fresh-clone validation pass. The remaining blockers are external or release actions: push local `main` through this validation report, observe/capture the embedded component in a fresh Codex task before claiming host rendering, record a public English-audio YouTube video shorter than three minutes, obtain the primary root-task `/feedback` Session ID, complete authenticated human form choices, and confirm entrant/team eligibility.
 
 No Devpost field, package, release, repository, deployment, or video was published in this pass. `https://itkerno.site` remains the canonical public replay URL, but the embedded-plugin upgrade exists only in local commits until an authorized push. The local judge flow is the authoritative reproduction path for this report.
 
@@ -162,7 +162,7 @@ README, LICENSE, SECURITY, CONTRIBUTING, architecture, decisions, threat model, 
 
 - `[REQUIRED PUBLIC YOUTUBE URL UNDER 3:00]`
 - `[REQUIRED PRIMARY /feedback SESSION ID]`
-- `[REQUIRED AUTHORIZED PUSH OF LOCAL COMMITS 3ff0572 AND 6a8ab81]`
+- `[REQUIRED AUTHORIZED PUSH OF LOCAL MAIN THROUGH THIS VALIDATION REPORT]`
 - `[REQUIRED FRESH-TASK CODEX HOST CAPTURE BEFORE CLAIMING EMBEDDED RENDERING]`
 - `[REQUIRED AUTHENTICATED DEVPOST FIELD CHECK]`
 - `[REQUIRED ENTRANT/TEAM ELIGIBILITY CONFIRMATION]`
