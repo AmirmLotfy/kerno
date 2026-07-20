@@ -8,7 +8,7 @@
     "type": "git",
     "url": "git+https://github.com/AmirmLotfy/kerno.git"
   },
-  "homepage": "https://kerno-codex.vercel.app",
+  "homepage": "https://itkerno.site",
   "type": "module",
   "workspaces": [
     "packages/*",

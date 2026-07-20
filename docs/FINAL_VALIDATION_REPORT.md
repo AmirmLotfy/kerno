@@ -6,7 +6,7 @@ Validation refreshed: **July 19, 2026 at 5:32 PM PDT / July 20, 2026 at 3:32 AM 
 
 **PRODUCT RELEASE CANDIDATE: PASS. HACKATHON SUBMISSION: NOT READY.** The code, plugin, MCP server, dashboard, deterministic judge path, signed-in App Server path, three-task evaluation, documentation, security gates, and fresh-clone validation pass. The remaining blockers are external: a public English-audio YouTube video shorter than three minutes, the primary root-task `/feedback` Session ID, authenticated human form choices, and entrant/team eligibility confirmation.
 
-No Devpost field, package, release, or video was created or published in this pass. The already-authorized public GitHub repository was updated. The canonical Vercel URL is healthy but remains on the prior validated eight-run replay: three attempts to publish the current 16-run build remained indefinitely at Vercel `Initializing`, including a locally successful prebuilt deployment. The stuck deployments were removed and the last ready deployment was restored; current source/local judge flow remains authoritative.
+No Devpost field, package, release, or video was created or published in this pass. The already-authorized public GitHub repository was updated. `https://itkerno.site` is the canonical public replay URL; current source and the local judge flow remain the authoritative reproduction paths.
 
 ## 2. Exact commit tested
 
@@ -31,7 +31,7 @@ No Devpost field, package, release, or video was created or published in this pa
 | Working project | Pass | Index → capsule → failing test → targeted expansion → pass → review → invalidation is automated and replayable |
 | Meaningful Codex/GPT-5.6 use | Pass, Session ID pending | Root implementation collaboration and live GPT-5.6 phase requests are documented; runtime truth labels remain conservative |
 | Public `<3:00` YouTube video with English audio | **Blocked externally** | Script, shot list, screenshots, and reset path exist; no video URL |
-| Repository and judge access | Pass | `https://github.com/AmirmLotfy/kerno` and `https://kerno-codex.vercel.app` |
+| Repository and judge access | Pass | `https://github.com/AmirmLotfy/kerno` and `https://itkerno.site` |
 | README/setup/license | Pass | Setup, sample fixtures, no-build judge path, collaboration narrative, and Apache-2.0 license |
 | Primary `/feedback` Session ID | **Blocked externally** | User must run `/feedback` in this root implementation task |
 | Plugin installation/platform/test path | Pass | Marketplace install, packaged bundle, smoke, quickstart, and replay/live paths |
@@ -158,9 +158,7 @@ README, LICENSE, SECURITY, CONTRIBUTING, architecture, decisions, threat model, 
 - `[REQUIRED AUTHENTICATED DEVPOST FIELD CHECK]`
 - `[REQUIRED ENTRANT/TEAM ELIGIBILITY CONFIRMATION]`
 
-Complete URLs: `https://github.com/AmirmLotfy/kerno` and `https://kerno-codex.vercel.app`.
-
-Hosting freshness note: the Vercel URL is reachable and replay-only, but does not yet include the strengthened 16-run benchmark matrix. Retry deployment or promote a ready current build before using the hosted comparison scene; the local `npm run judge` path is current.
+Complete URLs: `https://github.com/AmirmLotfy/kerno` and `https://itkerno.site`.
 
 ## 20. Final reproduction commands
 

@@ -8,7 +8,7 @@ No registration, project creation, submission edit, or submission action is auth
 - **Tagline:** The context control plane for Codex.
 - **Category:** Developer Tools
 - **Repository:** `https://github.com/AmirmLotfy/kerno`
-- **Judge demo:** `https://kerno-codex.vercel.app`
+- **Judge demo:** `https://itkerno.site`
 - **Demo video:** `[REQUIRED PUBLIC YOUTUBE URL, UNDER 3:00]`
 - **Primary Codex Session ID:** `[REQUIRED — run /feedback in the root implementation task]`
 - **Built with:** TypeScript, Node.js, npm workspaces, Codex, GPT-5.6, Codex App Server, Codex plugins, MCP, SQLite, Zod, React, Vite, Vitest, Playwright, Git
@@ -88,7 +88,7 @@ Repeat the current three-task case study to improve statistical confidence, vali
 ## Judge test field
 
 ```text
-Zero-install replay: https://kerno-codex.vercel.app. It is a read-only deterministic replay with separately labeled real App Server evidence and receives no repository source. The hosted URL currently serves the prior validated comparison build; the current 16-run matrix is available through the local judge path. For local/plugin testing, use Node >=22.13 <25, npm, and Git; run npm install, npm run doctor, npm run judge, then open http://127.0.0.1:4173. Live mode requires a signed-in Codex CLI and is documented in docs/JUDGE_QUICKSTART.md. All replay/live/model/estimate/unavailable/fairness states are labeled in the UI.
+Zero-install replay: https://itkerno.site. It is a read-only deterministic replay with separately labeled real App Server evidence and receives no repository source. For local/plugin testing, use Node >=22.13 <25, npm, and Git; run npm install, npm run doctor, npm run judge, then open http://127.0.0.1:4173. Live mode requires a signed-in Codex CLI and is documented in docs/JUDGE_QUICKSTART.md. All replay/live/model/estimate/unavailable/fairness states are labeled in the UI.
 ```
 
 ## Plugin/developer-tool installation field
@@ -108,7 +108,7 @@ Tested locally on macOS with Node 22.13. CI targets macOS/Linux on Node 22 and 2
 - `[x]` Record exact authenticated field labels and IDs without editing the draft.
 - `[ ]` Select Submitter Type and Country of Residence from the live form based on human confirmation.
 - `[x]` Verify repository access signed out at `https://github.com/AmirmLotfy/kerno`.
-- `[x]` Verify the public judge replay signed out at `https://kerno-codex.vercel.app`.
+- `[x]` Verify the public judge replay signed out at `https://itkerno.site`.
 - `[ ]` Verify video public, signed out, English audio, and duration `< 3:00`.
 - `[ ]` Add primary `/feedback` Session ID.
 - `[ ]` Re-run clean-room and final validation from release commit.

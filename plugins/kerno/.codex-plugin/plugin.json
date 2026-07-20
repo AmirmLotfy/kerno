@@ -1,11 +1,11 @@
 {
   "name": "kerno",
-  "version": "0.1.0+codex.20260720002200",
+  "version": "0.1.0+codex.20260720020146",
   "description": "Evidence-backed context capsules and observable phase routing for Codex.",
   "author": {
     "name": "Kerno contributors"
   },
-  "homepage": "https://github.com/AmirmLotfy/kerno",
+  "homepage": "https://itkerno.site",
   "repository": "https://github.com/AmirmLotfy/kerno",
   "license": "Apache-2.0",
   "keywords": [
@@ -21,7 +21,7 @@
     "longDescription": "Kerno builds bounded, evidence-backed repository context capsules, expands them from test evidence, and makes phase routing observable without pretending a plugin can silently switch its parent model.",
     "developerName": "Kerno contributors",
     "category": "Developer Tools",
-    "websiteURL": "https://github.com/AmirmLotfy/kerno",
+    "websiteURL": "https://itkerno.site",
     "capabilities": [
       "Context capsules",
       "Evidence-backed memory",

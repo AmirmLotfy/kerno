@@ -118,3 +118,10 @@
 - Status: accepted; closes the fairness gap in ADR-015
 - Decision: Current benchmark runs use immutable pair IDs, auth-only temporary Codex profiles, task-manifest hashes, content hashes for events/diff/tests/review/receipt, and artifact-derived metrics. A pair/condition directory may never be overwritten; a retry requires a new pair ID.
 - Consequence: Three context-controlled pairs and one separate routing pair now pass the mechanical fairness gate. The one-run-per-condition sample remains a case study, the failed Python pair remains visible, and one pre-fix overwritten timeout is disclosed because its raw files cannot be reconstructed.
+
+## ADR-018 — Canonical public domain
+
+- Date: 2026-07-20
+- Status: accepted
+- Decision: Use `https://itkerno.site` as Kerno's canonical product and zero-install judge-replay URL. Keep `https://github.com/AmirmLotfy/kerno` as the canonical source repository and preserve Vercel-generated URLs only as operational fallbacks.
+- Consequence: Dashboard canonical/Open Graph metadata, package and plugin homepages, judge instructions, compliance evidence, and Devpost field drafts all use the owned domain. The `www` host may serve the same read-only replay, while canonical metadata points to the apex.

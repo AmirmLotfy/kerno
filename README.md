@@ -52,7 +52,7 @@ Every capsule item exposes its source, file or symbol, freshness, confidence, es
 
 Requirements: Git, npm, and Node.js `>=22.13 <25`. The replay needs no OpenAI API key, hosted service, or Codex authentication.
 
-Open the no-install judge replay: **[kerno-codex.vercel.app](https://kerno-codex.vercel.app)**. It is a read-only deployment reproducibly generated from the checked-in fixture and separately labeled retained App Server evidence. It never receives repository source and is not presented as a live Codex run. The canonical URL currently serves the prior validated replay while Vercel is holding the current 16-run build at `Initializing`; use the local commands below for the current comparison matrix.
+Open the no-install judge replay: **[itkerno.site](https://itkerno.site)**. It is a read-only deployment reproducibly generated from the checked-in fixture and separately labeled retained App Server evidence. It never receives repository source and is not presented as a live Codex run. The local commands below remain the authoritative path for reproducing the current comparison matrix.
 
 ```bash
 npm install

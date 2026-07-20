@@ -26,7 +26,9 @@ describe("Kerno brand contract", () => {
   it("publishes an absolute Open Graph image that exists in dashboard public assets", async () => {
     const dashboardRoot = fileURLToPath(new URL("../../apps/dashboard/", import.meta.url));
     const html = await readFile(`${dashboardRoot}index.html`, "utf8");
-    expect(html).toContain('property="og:image" content="https://kerno-codex.vercel.app/brand/kerno-open-graph.png"');
+    expect(html).toContain('rel="canonical" href="https://itkerno.site/"');
+    expect(html).toContain('property="og:url" content="https://itkerno.site/"');
+    expect(html).toContain('property="og:image" content="https://itkerno.site/brand/kerno-open-graph.png"');
     await expect(readFile(`${dashboardRoot}public/brand/kerno-open-graph.png`)).resolves.toBeInstanceOf(Buffer);
   });
 });

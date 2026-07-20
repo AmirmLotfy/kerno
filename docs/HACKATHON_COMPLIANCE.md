@@ -28,7 +28,7 @@ No Devpost write was performed in this refresh. The existing draft remains unsub
 | 27946 | Country of Residence | Yes | Human confirmation required; Egypt is present in the options and official eligibility list |
 | 27947 | Category | Yes | Developer Tools |
 | 27948 | Public or private code repository URL, README, and Codex/GPT-5.6 evidence | Yes | `https://github.com/AmirmLotfy/kerno` |
-| 27949 | Judge test URL and instructions | No | `https://kerno-codex.vercel.app`; signed-out replay verification passed |
+| 27949 | Judge test URL and instructions | No | `https://itkerno.site`; custom domain resolves through Vercel and serves the public replay |
 | 27950 | Primary `/feedback` Session ID | Yes | Still required from this root implementation task |
 | 27951 | Plugin/developer-tool install, platform, and testing instructions | Form says optional; prose requires it for this project type | Drafted in `docs/DEVPOST_SUBMISSION.md` |
 
@@ -100,7 +100,7 @@ Global deliverables from the live form: video required; website not required; zi
 | Meaningful Codex and GPT-5.6 use | Pass, evidence pending Session ID | The root implementation collaboration is documented; artifact-derived routing runs requested live-discovered GPT-5.6 phase routes while retaining the runtime's `requested-unconfirmed` truth label |
 | Installation, supported platforms, no-rebuild test path | Pass locally | `README.md`, `docs/JUDGE_QUICKSTART.md`, plugin archive, replay mode |
 | Repository access | Pass externally | Public repository is pushed and visible signed out at `https://github.com/AmirmLotfy/kerno` |
-| No-rebuild judge path | Pass externally | Public replay is visible signed out at `https://kerno-codex.vercel.app`; local/plugin paths remain documented |
+| No-rebuild judge path | Pass externally | Public replay is visible at `https://itkerno.site`; local/plugin paths remain documented |
 | README and license | Pass locally | Apache-2.0 repository and required setup/collaboration material exist |
 | Public YouTube video under 3:00 with English audio | Blocked externally | Script is complete; video has not been recorded, uploaded, or checked signed out |
 | Primary `/feedback` Session ID | Blocked externally | User must run `/feedback` in this root implementation task and record the returned ID |

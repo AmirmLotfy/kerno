@@ -3,7 +3,7 @@ import tseslint from "typescript-eslint";
 import globals from "globals";
 
 export default tseslint.config(
-  { ignores: ["**/dist/**", "node_modules/**", ".kerno/**", ".kerno-cache/**", "fixtures/**/seed/**", "fixtures/**/solution/**", "benchmarks/recorded-results/**", "apps/dashboard/public/**", "test-results/**", "playwright-report/**"] },
+  { ignores: ["**/dist/**", "node_modules/**", ".kerno/**", ".kerno-cache/**", ".vercel/**", "fixtures/**/seed/**", "fixtures/**/solution/**", "benchmarks/recorded-results/**", "apps/dashboard/public/**", "test-results/**", "playwright-report/**"] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

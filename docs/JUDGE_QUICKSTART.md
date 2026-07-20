@@ -15,7 +15,7 @@ Setup usually takes a few minutes on a warm npm cache; no duration is guaranteed
 
 ### Zero-install replay
 
-Open [https://kerno-codex.vercel.app](https://kerno-codex.vercel.app). This public deployment is a static, read-only rendering reproducibly generated from the checked-in fixture and separately labeled retained App Server evidence. It does not index a judge repository, execute Codex, upload source, or claim to be live. It currently serves the prior validated eight-run comparison build because Vercel left three current deployments indefinitely at `Initializing`; the local path below contains the current 16-run matrix.
+Open [https://itkerno.site](https://itkerno.site). This public deployment is a static, read-only rendering reproducibly generated from the checked-in fixture and separately labeled retained App Server evidence. It does not index a judge repository, execute Codex, upload source, or claim to be live. The local path below is the authoritative reproduction path for the current comparison matrix.
 
 ### Local product and plugin
 
