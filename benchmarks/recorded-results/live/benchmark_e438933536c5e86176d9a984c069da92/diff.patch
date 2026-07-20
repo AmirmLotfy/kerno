@@ -1,0 +1,18 @@
+diff --git a/src/webhooks/refund-handler.ts b/src/webhooks/refund-handler.ts
+index 137d95d..89f8cb9 100644
+--- a/src/webhooks/refund-handler.ts
++++ b/src/webhooks/refund-handler.ts
+@@ -17,9 +17,10 @@ export class RefundHandler {
+   }
+ 
+   async handle(event: RefundSucceeded): Promise<void> {
+-    if (await this.idempotency.has(event.id)) return;
+-    await this.ledger.credit({ customerId: event.customerId, amount: event.amount, eventId: event.id });
+-    // A timeout here allows the retry to credit the customer again.
++    // The durable ledger insert is the source of truth. Its eventId uniqueness
++    // makes concurrent deliveries and retries safe even when marker state is
++    // stale or was never committed.
++    await this.ledger.creditOnce({ customerId: event.customerId, amount: event.amount, eventId: event.id });
+     await this.idempotency.mark(event.id);
+   }
+ }

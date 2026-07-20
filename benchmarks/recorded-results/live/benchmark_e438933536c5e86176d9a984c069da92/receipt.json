@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "1",
+  "runId": "benchmark_e438933536c5e86176d9a984c069da92",
+  "pairId": "pair_routing_refund_20260720",
+  "recordedAt": "2026-07-20T00:00:51.256Z",
+  "experiment": "full-system",
+  "condition": "kerno-phase-routing",
+  "taskManifestHash": "8f638c23220400ee3014460def7719b1dc2c3b37f9db18423ec2218dd16769d6",
+  "task": {
+    "id": "refund-debug",
+    "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+    "repository": "relaycart-ts",
+    "license": "Apache-2.0",
+    "startingCommit": "06afe8c2b9366ccc9ec0756b24a473d751abb5b5",
+    "branch": "main",
+    "successCriteria": [
+      "all three pinned assertions pass",
+      "concurrent deliveries credit once",
+      "restart after marker timeout does not re-credit",
+      "public RefundSucceeded event shape is unchanged"
+    ],
+    "testCommands": [
+      "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+    ]
+  },
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v22.13.1",
+    "codex": "codex-cli 0.145.0-alpha.18",
+    "recordedFrom": "live-app-server",
+    "profileIsolation": "verified-clean",
+    "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+  },
+  "model": {
+    "requested": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "effective": null,
+    "truthLabel": "requested-unconfirmed"
+  },
+  "permissions": "workspace-write:no-network:never-approve",
+  "kernoConfiguration": {
+    "capsuleBudget": 2500,
+    "initialCapsuleId": "capsule_3ba859b4f7c3463d7c72db564a0ab807",
+    "childCapsuleId": null,
+    "routingPolicy": "full-system-live-phase-routing"
+  },
+  "implementation": {
+    "failureKind": null,
+    "route": {
+      "phase": "implementation",
+      "requested": {
+        "model": "gpt-5.6-sol",
+        "reasoningEffort": "low"
+      },
+      "effective": null,
+      "truthLabel": "requested-unconfirmed",
+      "outcome": "completed"
+    }
+  },
+  "test": {
+    "command": "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts",
+    "exitCode": 0,
+    "startedAt": "2026-07-19T23:59:38.092Z",
+    "completedAt": "2026-07-19T23:59:38.279Z"
+  },
+  "review": {
+    "failureKind": null,
+    "route": {
+      "phase": "final-verification",
+      "requested": {
+        "model": "gpt-5.6-sol",
+        "reasoningEffort": "ultra"
+      },
+      "effective": null,
+      "truthLabel": "requested-unconfirmed",
+      "outcome": "completed"
+    }
+  },
+  "timing": {
+    "startedAt": "2026-07-19T23:59:08.539Z",
+    "completedAt": "2026-07-20T00:00:51.256Z",
+    "totalLatencyMs": 102717
+  },
+  "contextExpansions": 0,
+  "artifactHashes": {
+    "events": "dd8e6866e4895d1f2800ce5d3f37921a58d2e1d20008bc3fd1fe670302166617",
+    "diff": "41b3676fb14c368bc470ee051b0dcea99c737cd7fafb786ea49bd111739a342e",
+    "tests": "73cb987079bda8d37b04174a0cc75c0d4f0b4d40000b24d1906e84aa0e7e3e92",
+    "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b"
+  }
+}

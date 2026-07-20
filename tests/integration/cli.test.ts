@@ -49,4 +49,10 @@ describe("Kerno CLI", () => {
       expect(errors.join("")).toContain("symlinked Kerno state file"); expect(await readFile(outside, "utf8")).toBe(original);
     } finally { if (previousStorage === undefined) delete process.env.KERNO_STORAGE; else process.env.KERNO_STORAGE = previousStorage; }
   });
+  it("requires an explicit condition, task, and immutable pair id for live benchmarks", async () => {
+    const root = await mkdtemp(join(tmpdir(), "kerno-benchmark-cli-")); cleanup.push(root);
+    const errors: string[] = [];
+    expect(await runCli(["benchmark", "--root", root, "--baseline"], { out: () => {}, err: (value) => errors.push(value) })).toBe(2);
+    expect(errors.join("")).toContain("--task <task-id> and --pair-id <stable-pair-id>");
+  });
 });

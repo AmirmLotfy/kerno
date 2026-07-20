@@ -1,0 +1,62 @@
+diff --git a/src/transactions/transaction-boundary.ts b/src/transactions/transaction-boundary.ts
+index 867a954..5366a7f 100644
+--- a/src/transactions/transaction-boundary.ts
++++ b/src/transactions/transaction-boundary.ts
+@@ -2,8 +2,10 @@ import type { IdempotencyStore } from "../idempotency/idempotency-store.ts";
+ import type { Ledger, LedgerEntry } from "../ledger/ledger.ts";
+ 
+ /** Governing contract: the durable ledger owns uniqueness; the marker is a repairable cache. */
++export type RefundReceipt = "applied" | "duplicate";
++
+ export interface TransactionBoundary {
+-  creditOnce(eventId: string, entry: LedgerEntry): Promise<"applied" | "duplicate">;
++  creditOnce(eventId: string, entry: LedgerEntry): Promise<RefundReceipt>;
+ }
+ 
+ export class MemoryTransactionBoundary implements TransactionBoundary {
+@@ -13,7 +15,7 @@ export class MemoryTransactionBoundary implements TransactionBoundary {
+     this.ledger = ledger;
+     this.idempotency = idempotency;
+   }
+-  async creditOnce(eventId: string, entry: LedgerEntry): Promise<"applied" | "duplicate"> {
++  async creditOnce(eventId: string, entry: LedgerEntry): Promise<RefundReceipt> {
+     // The durable ledger is authoritative. A marker may be missing or stale and must
+     // never suppress a legitimate ledger write.
+     const result = await this.ledger.creditOnce(entry);
+diff --git a/src/webhooks/refund-handler.ts b/src/webhooks/refund-handler.ts
+index 137d95d..145222b 100644
+--- a/src/webhooks/refund-handler.ts
++++ b/src/webhooks/refund-handler.ts
+@@ -1,5 +1,6 @@
+ import type { IdempotencyStore } from "../idempotency/idempotency-store.ts";
+ import type { Ledger } from "../ledger/ledger.ts";
++import { transactionBoundaryFor, type RefundReceipt, type TransactionBoundary } from "../transactions/transaction-boundary.ts";
+ 
+ export type RefundSucceeded = {
+   id: string;
+@@ -9,17 +10,16 @@ export type RefundSucceeded = {
+ };
+ 
+ export class RefundHandler {
+-  private readonly ledger: Ledger;
+-  private readonly idempotency: IdempotencyStore;
++  private readonly transaction: TransactionBoundary;
+   constructor(ledger: Ledger, idempotency: IdempotencyStore) {
+-    this.ledger = ledger;
+-    this.idempotency = idempotency;
++    this.transaction = transactionBoundaryFor(ledger, idempotency);
+   }
+ 
+-  async handle(event: RefundSucceeded): Promise<void> {
+-    if (await this.idempotency.has(event.id)) return;
+-    await this.ledger.credit({ customerId: event.customerId, amount: event.amount, eventId: event.id });
+-    // A timeout here allows the retry to credit the customer again.
+-    await this.idempotency.mark(event.id);
++  async handle(event: RefundSucceeded): Promise<RefundReceipt> {
++    return this.transaction.creditOnce(event.id, {
++      customerId: event.customerId,
++      amount: event.amount,
++      eventId: event.id,
++    });
+   }
+ }

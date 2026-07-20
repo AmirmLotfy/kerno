@@ -15,7 +15,7 @@ Setup usually takes a few minutes on a warm npm cache; no duration is guaranteed
 
 ### Zero-install replay
 
-Open [https://kerno-codex.vercel.app](https://kerno-codex.vercel.app). This public deployment is a static, read-only rendering of the checked-in replay and separately labeled retained App Server evidence. It does not index a judge repository, execute Codex, upload source, or claim to be live.
+Open [https://kerno-codex.vercel.app](https://kerno-codex.vercel.app). This public deployment is a static, read-only rendering reproducibly generated from the checked-in fixture and separately labeled retained App Server evidence. It does not index a judge repository, execute Codex, upload source, or claim to be live.
 
 ### Local product and plugin
 
@@ -35,7 +35,7 @@ Judge tour:
 2. Context: ranked items, excluded candidates, “Why included,” score breakdown, provenance, invalidation keys, and child capsule.
 3. Routing: policy recommendation plus explicit unavailable/requested/effective distinctions.
 4. Timeline: test failure, expansion, passing result, and stale capsule.
-5. Comparison: one retained same-task App Server pair whose missing isolation evidence is visibly labeled `FAIRNESS UNVERIFIED`.
+5. Comparison: three fairness-valid context pairs, the retained failed Python pair, and one separately labeled full-system routing pair.
 6. Limits: measured, estimated, experimental, unavailable, replay/live, and platform labels.
 7. Use `Judge state tour` to inspect every empty/loading/success/failure state.
 
@@ -61,7 +61,7 @@ codex plugin list
 ```
 
 The plugin contains the skill and cache-portable MCP executable/configuration.
-Its process-scoped portable store prevents concurrent Codex hosts from overwriting one shared JSON file; durable cross-task state uses the daemon's SQLite store. The bundled smoke covers index → fresh status → task → capsule. Plugin Mode currently has no sandbox-attested public ingress for converting a test command result into trusted Kerno evidence, so verified expansion in the judge replay is produced by the trusted local evaluation harness and is labeled as deterministic replay evidence.
+Its process-scoped portable store prevents concurrent Codex hosts from overwriting one shared JSON file; durable cross-task state uses the daemon's SQLite store. The bundled smoke covers index → fresh status → task → capsule. Plugin Mode does not trust caller-supplied claims that tests passed; verified expansion in the judge replay is produced by the trusted local evaluation harness and is labeled as deterministic replay evidence. Orchestrator Mode binds phase/test/review events to retained App Server artifacts.
 
 The reviewed hooks under `plugins/kerno/hooks/` are optional. Current plugin validation rejects an explicit manifest `hooks` field, so Kerno does not pretend they are auto-packaged. If cache-relative MCP execution fails, run:
 

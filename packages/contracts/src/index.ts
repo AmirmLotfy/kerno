@@ -252,9 +252,11 @@ export const runEventSchema = z.object({
 export type RunEvent = z.infer<typeof runEventSchema>;
 
 const nullableMetric = z.number().nonnegative().nullable();
+export const benchmarkPhaseRouteSchema = z.object({ phase: taskPhaseSchema, requested: modelSelectionSchema.nullable(), effective: modelSelectionSchema.nullable(), truthLabel: z.enum(["not-requested", "requested-unconfirmed", "rerouted", "verified"]), outcome: z.string() }).strict();
 export const benchmarkRunSchema = z.object({
   schemaVersion: z.literal(SCHEMA_VERSION),
   id: idSchema,
+  pairId: idSchema.nullable().default(null),
   recordedAt: isoDateSchema,
   experiment: z.enum(["context-controlled", "full-system"]),
   condition: z.enum(["plain-codex", "codex-with-kerno-capsule", "plain-default-workflow", "kerno-phase-routing"]),
@@ -268,6 +270,7 @@ export const benchmarkRunSchema = z.object({
     profileEvidenceHash: z.string().nullable().default(null)
   }).strict(),
   model: z.object({ requested: z.string().nullable(), reasoningEffort: z.string().nullable(), effective: z.string().nullable(), truthLabel: z.enum(["not-requested", "requested-unconfirmed", "rerouted", "verified"]) }).strict(),
+  phaseRoutes: z.array(benchmarkPhaseRouteSchema).default([]),
   permissions: z.string().min(1),
   kernoConfiguration: z.object({ capsuleBudget: z.number().int().positive(), initialCapsuleId: idSchema, childCapsuleId: idSchema.nullable(), routingPolicy: z.string() }).strict().nullable(),
   finalStatus: z.enum(["passed", "failed", "partial", "timeout", "unavailable"]),
@@ -278,8 +281,14 @@ export const benchmarkRunSchema = z.object({
     timeToFirstValidPatchMs: nullableMetric.default(null), unnecessaryChangedLines: nullableMetric, reviewerFindings: nullableMetric, staleContextMistakes: nullableMetric.default(null)
   }).strict(),
   review: z.object({ status: z.enum(["passed", "failed", "not-observed", "unavailable"]), artifactHash: z.string().nullable(), summary: z.string() }).strict(),
-  artifacts: z.object({ events: z.string().nullable(), diff: z.string().nullable(), tests: z.string(), review: z.string().nullable() }).strict(),
-  artifactHashes: z.object({ events: z.string().nullable(), diff: z.string().nullable(), tests: z.string().nullable(), review: z.string().nullable() }).strict().default({ events: null, diff: null, tests: null, review: null }),
+  artifacts: z.object({ events: z.string().nullable(), diff: z.string().nullable(), tests: z.string(), review: z.string().nullable(), receipt: z.string().nullable().default(null) }).strict(),
+  artifactHashes: z.object({ events: z.string().nullable(), diff: z.string().nullable(), tests: z.string().nullable(), review: z.string().nullable(), receipt: z.string().nullable().default(null) }).strict().default({ events: null, diff: null, tests: null, review: null, receipt: null }),
+  provenance: z.object({
+    mode: z.enum(["artifact-derived", "legacy-unverified"]),
+    receiptHash: z.string().length(64).nullable(),
+    taskManifestHash: z.string().length(64).nullable(),
+    derivedFields: z.array(z.enum(["finalStatus", "tests", "taskSuccess", "testsPassed", "totalTokens", "toolCalls", "latencyMs", "changedLines", "review", "reviewerFindings", "contextExpansions"]))
+  }).strict().default({ mode: "legacy-unverified", receiptHash: null, taskManifestHash: null, derivedFields: [] }),
   limitations: z.array(z.string())
 }).strict();
 export type BenchmarkRun = z.infer<typeof benchmarkRunSchema>;
@@ -287,7 +296,7 @@ export type BenchmarkRun = z.infer<typeof benchmarkRunSchema>;
 export const benchmarkReportSchema = z.object({
   schemaVersion: z.literal(SCHEMA_VERSION), generatedAt: isoDateSchema, runCount: z.number().int().nonnegative(), runs: z.array(benchmarkRunSchema),
   comparisons: z.array(z.object({
-    taskId: z.string(), experiment: z.string(), baselineRunId: idSchema.nullable(), kernoRunId: idSchema.nullable(),
+    pairId: idSchema.nullable(), taskId: z.string(), experiment: z.string(), baselineRunId: idSchema.nullable(), kernoRunId: idSchema.nullable(),
     fairness: z.object({ passed: z.boolean(), mismatches: z.array(z.string()) }).strict(),
     outcomes: z.object({
       baseline: z.object({ finalStatus: z.string(), testsPassed: z.boolean(), testArtifactHash: z.string(), reviewStatus: z.string(), reviewerFindings: z.number().nullable() }).strict().nullable(),

@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "1",
+  "id": "benchmark_155679cdfedd10341a6487e8fd6d81e0",
+  "pairId": "pair_queue_retry_20260720",
+  "recordedAt": "2026-07-19T23:44:50.756Z",
+  "experiment": "context-controlled",
+  "condition": "plain-codex",
+  "task": {
+    "id": "queue-retry-refactor",
+    "text": "Refactor retry policy selection so transient messages use the fast policy and throttled messages use the durable policy without changing exactly-once queue acknowledgement behavior.",
+    "repository": "gatehouse-python",
+    "license": "Apache-2.0",
+    "startingCommit": "a38369dba3251a7063ce8fc9e871879ebffe428f",
+    "branch": "main",
+    "successCriteria": [
+      "all tests pass",
+      "acknowledgement behavior remains exactly once",
+      "retry delays are selected by message kind"
+    ],
+    "testCommands": [
+      "python3 -m unittest discover -s tests -v"
+    ]
+  },
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v22.13.1",
+    "codex": "codex-cli 0.145.0-alpha.18",
+    "recordedFrom": "live-app-server",
+    "profileIsolation": "verified-clean",
+    "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+  },
+  "model": {
+    "requested": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "effective": null,
+    "truthLabel": "requested-unconfirmed"
+  },
+  "permissions": "workspace-write:no-network:never-approve",
+  "kernoConfiguration": null,
+  "finalStatus": "failed",
+  "tests": {
+    "passed": false,
+    "exitCode": 1,
+    "artifactHash": "5b703dc62676ad282b79b4478ca605a79e58dc442c6d81b2320519b9fc5363d6",
+    "outputTail": "\ntest_worker (unittest.loader._FailedTest) ... ERROR\n\n======================================================================\nERROR: test_worker (unittest.loader._FailedTest)\n----------------------------------------------------------------------\nImportError: Failed to import test module: test_worker\nTraceback (most recent call last):\n  File \"/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py\", line 436, in _find_test_path\n    module = self._get_module_from_name(name)\n  File \"/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py\", line 377, in _get_module_from_name\n    __import__(name)\n  File \"/private[WORKTREE]/tests/test_worker.py\", line 3, in <module>\n    from gatehouse.models import Message, ProcessingResult\n  File \"/private[WORKTREE]/gatehouse/__init__.py\", line 6, in <module>\n    from .worker import Worker\n  File \"/private[WORKTREE]/gatehouse/worker.py\", line 12, in <module>\n    class Worker:\n  File \"/private[WORKTREE]/gatehouse/worker.py\", line 17, in Worker\n    retry_policy: RetryPolicy | None = None,\nTypeError: unsupported operand type(s) for |: 'type' and 'NoneType'\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nFAILED (errors=1)\n"
+  },
+  "metrics": {
+    "taskSuccess": 0,
+    "testsPassed": 1,
+    "totalTokens": 103783,
+    "filesOpened": null,
+    "repeatedReads": null,
+    "toolCalls": 3,
+    "contextExpansions": 0,
+    "latencyMs": 79175,
+    "changedLines": 23,
+    "timeToFirstValidPatchMs": null,
+    "unnecessaryChangedLines": null,
+    "reviewerFindings": 1,
+    "staleContextMistakes": null
+  },
+  "review": {
+    "status": "failed",
+    "artifactHash": "00d58041869483a429f28b74950cdf34f9612d98ebe209b12c479625fbbbb827",
+    "summary": "{\"status\":\"failed\",\"findings\":[{\"severity\":\"high\",\"file\":\"gatehouse/worker.py:17\",\"message\":\"The acceptance command fails during test discovery on the repository's Python 3.9 runtime: `RetryPolicy | None` is evaluated at import time and raises TypeError because PEP 604 unions require Python 3.10+. Add `from __future__ import annotations` or use `Optional[RetryPolicy]`. No tests run, so the all-tests-pass acceptance criterion is unmet.\"}]}"
+  },
+  "artifacts": {
+    "events": "benchmarks/recorded-results/live/benchmark_155679cdfedd10341a6487e8fd6d81e0/events.json",
+    "diff": "benchmarks/recorded-results/live/benchmark_155679cdfedd10341a6487e8fd6d81e0/diff.patch",
+    "tests": "benchmarks/recorded-results/live/benchmark_155679cdfedd10341a6487e8fd6d81e0/tests.txt",
+    "review": "benchmarks/recorded-results/live/benchmark_155679cdfedd10341a6487e8fd6d81e0/review.txt",
+    "receipt": "benchmarks/recorded-results/live/benchmark_155679cdfedd10341a6487e8fd6d81e0/receipt.json"
+  },
+  "artifactHashes": {
+    "events": "8fb5217f4a736b8f9d89e5b73e4d42d4794444588d80c5e13b3d1f45c1134ed4",
+    "diff": "7bd31413193b2e4859aff2a32486aade4a3a26e0bc8b1b477911a0cc5e31829c",
+    "tests": "5b703dc62676ad282b79b4478ca605a79e58dc442c6d81b2320519b9fc5363d6",
+    "review": "00d58041869483a429f28b74950cdf34f9612d98ebe209b12c479625fbbbb827",
+    "receipt": "daa5cf509ec615084d8dec9b913d3a046d2750e03cf87f753fc5169acd92a993"
+  },
+  "provenance": {
+    "mode": "artifact-derived",
+    "receiptHash": "daa5cf509ec615084d8dec9b913d3a046d2750e03cf87f753fc5169acd92a993",
+    "taskManifestHash": "dc7e719d960972aa85c725cdc4c4e918d7205d1b029c9fbb6ca109b5b34df195",
+    "derivedFields": [
+      "finalStatus",
+      "tests",
+      "taskSuccess",
+      "testsPassed",
+      "totalTokens",
+      "toolCalls",
+      "latencyMs",
+      "changedLines",
+      "review",
+      "reviewerFindings",
+      "contextExpansions"
+    ]
+  },
+  "limitations": [
+    "Requested model was not independently confirmed by an effective-model or reroute event.",
+    "Files opened and repeated reads are unavailable because App Server events do not provide a defensible read signal.",
+    "Profile evidence hashes the pre-launch auth-only App Server profile; the auth contents are never exported.",
+    "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt."
+  ]
+}

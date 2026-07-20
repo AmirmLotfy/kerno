@@ -2,7 +2,7 @@ import { lstat, readdir, readFile, realpath, writeFile, mkdir } from "node:fs/pr
 import { createHash } from "node:crypto";
 import { join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { benchmarkCsv, benchmarkMarkdown, buildBenchmarkReport, normalizeRecordedRunMetrics } from "@kerno/eval";
+import { benchmarkCsv, benchmarkMarkdown, buildBenchmarkReport, normalizeRecordedRunFromArtifacts, normalizeRecordedRunMetrics, type BenchmarkArtifactBodies } from "@kerno/eval";
 import type { RunEvent } from "@kerno/contracts";
 
 const liveRoot = fileURLToPath(new URL("../benchmarks/recorded-results/live", import.meta.url));
@@ -28,8 +28,8 @@ for (const entry of await readdir(liveRoot, { withFileTypes: true }).catch(() =>
   const path = join(liveRoot, entry.name, "run.json");
   try {
     const raw = JSON.parse(await readVerifiedArtifact(path, "run"));
-    const bodies: Partial<Record<"events" | "diff" | "tests" | "review", string>> = {};
-    for (const kind of ["events", "diff", "tests", "review"] as const) {
+    const bodies: Partial<Record<"events" | "diff" | "tests" | "review" | "receipt", string>> = {};
+    for (const kind of ["events", "diff", "tests", "review", "receipt"] as const) {
       const relativePath = raw.artifacts?.[kind]; const expectedHash = raw.artifactHashes?.[kind];
       if (typeof expectedHash !== "string") continue;
       if (typeof relativePath !== "string") throw new Error(`${kind} artifact path is missing for its claimed hash`);
@@ -41,7 +41,15 @@ for (const entry of await readdir(liveRoot, { withFileTypes: true }).catch(() =>
     }
     if (raw.artifactHashes?.tests && raw.tests?.artifactHash !== raw.artifactHashes.tests) throw new Error("test result hash does not match the verified test artifact");
     if (raw.artifactHashes?.review && raw.review?.artifactHash !== raw.artifactHashes.review) throw new Error("review result hash does not match the verified review artifact");
-    const normalized = bodies.events ? normalizeRecordedRunMetrics(raw, JSON.parse(bodies.events) as RunEvent[]) : raw;
+    let normalized: unknown;
+    if (bodies.receipt) {
+      if (!bodies.events || bodies.diff === undefined || !bodies.tests || bodies.review === undefined) throw new Error("artifact-derived run is missing a required raw artifact");
+      const taskManifestPath = join(projectRoot, "benchmarks", "tasks", `${String(raw.task?.id ?? "")}.json`);
+      const taskManifestBody = await readVerifiedArtifact(taskManifestPath, "task manifest");
+      const taskManifest = JSON.parse(taskManifestBody);
+      if (taskManifest.id !== raw.task?.id) throw new Error("task manifest identity mismatch");
+      normalized = normalizeRecordedRunFromArtifacts(raw, bodies as BenchmarkArtifactBodies, { expectedTaskManifestHash: createHash("sha256").update(taskManifestBody).digest("hex") });
+    } else normalized = bodies.events ? normalizeRecordedRunMetrics(raw, JSON.parse(bodies.events) as RunEvent[]) : raw;
     runs.push(normalized);
   } catch (error) { process.stderr.write(`Skipped ${path}: ${error instanceof Error ? error.message : String(error)}\n`); }
 }

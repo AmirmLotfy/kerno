@@ -26,12 +26,14 @@ test("judge replay exposes every product state and the evidence views", async ({
   await page.getByRole("button", { name: "Routing" }).click();
   await expect(page.getByRole("heading", { name: "Recommendation, request, and runtime truth never collapse into one label." })).toBeVisible();
   await expect(page.getByText("Policy catalog example")).toBeVisible();
+  await expect(page.getByText("HASH-BOUND FULL-SYSTEM RUN")).toBeVisible();
+  await expect(page.getByText(/Final Verification/)).toBeVisible();
   await expect(page.getByText("RECORDED REAL APP SERVER RUN")).toBeVisible();
 
   await page.getByRole("button", { name: "Comparison" }).click();
-  await expect(page.getByRole("heading", { name: "Correctness first. Missing data stays missing." })).toBeVisible();
-  await expect(page.getByRole("heading", { name: /1 \/ 3 task pairs retained/ })).toBeVisible();
-  await expect(page.getByText("FAIRNESS UNVERIFIED.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Correct outcomes. Fair pair. Metrics unlocked." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /3 \/ 3 task pairs retained/ })).toBeVisible();
+  await expect(page.getByText(/3 \/ 3 fairness-valid; 2 \/ 3 correctness-passing/)).toBeVisible();
 
   await page.getByRole("button", { name: "Limits" }).click();
   await expect(page.getByRole("heading", { name: "Claims bounded by their evidence." })).toBeVisible();
@@ -61,5 +63,32 @@ test("judge views remain usable on a narrow viewport", async ({ page }) => {
   await expect(page.getByText("Why included")).toBeVisible();
   await expect(page.locator(".capsule-row .tokens").first()).toBeVisible();
   await page.getByRole("button", { name: "Comparison" }).click();
-  await expect(page.getByRole("heading", { name: "Correctness first. Missing data stays missing." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Correct outcomes. Fair pair. Metrics unlocked." })).toBeVisible();
+});
+
+test("optional benchmark and runtime artifacts preserve absent and failed truth states", async ({ page }) => {
+  await page.route("**/benchmark.json", async (route) => route.fulfill({ status: 500, body: "unavailable" }));
+  await page.route("**/runtime-evidence.json", async (route) => route.fulfill({ status: 404, body: "" }));
+  await page.goto("/?state=baseline-available");
+  await expect(page.getByText("The benchmark artifact failed to load: Benchmark request failed (500)")).toBeVisible();
+  await expect(page.getByText("LOAD FAILED")).toBeVisible();
+
+  await page.getByRole("button", { name: "Comparison" }).click();
+  await expect(page.getByRole("heading", { name: "Run matrix failed to load" })).toBeVisible();
+  await expect(page.getByText("0 / 3 task pairs retained")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Routing" }).click();
+  await expect(page.getByRole("heading", { name: "No retained runtime artifact." })).toBeVisible();
+
+  await page.getByRole("button", { name: "Limits" }).click();
+  await expect(page.getByText("Benchmark evidence failed to load: Benchmark request failed (500)", { exact: true })).toBeVisible();
+});
+
+test("optional artifacts do not report zero while still loading", async ({ page }) => {
+  await page.route("**/benchmark.json", async (route) => new Promise<void>((resolve) => setTimeout(() => route.fulfill({ status: 404, body: "" }).then(resolve), 1_500)));
+  await page.route("**/runtime-evidence.json", async (route) => new Promise<void>((resolve) => setTimeout(() => route.fulfill({ status: 404, body: "" }).then(resolve), 1_500)));
+  await page.goto("/");
+  await page.getByRole("button", { name: "Comparison" }).click();
+  await expect(page.getByRole("heading", { name: "Loading retained run matrix…" })).toBeVisible();
+  await expect(page.getByText("0 / 3 task pairs retained")).toHaveCount(0);
 });

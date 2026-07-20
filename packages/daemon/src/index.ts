@@ -1,9 +1,9 @@
 import { createHash, randomBytes } from "node:crypto";
 import { createServer, type Server } from "node:http";
 import { join } from "node:path";
-import type { CatalogModel, ContextCapsule, DurableMemory, EvidenceArtifact, EvidenceRef, IndexSnapshot, RunEvent } from "@kerno/contracts";
+import type { BenchmarkRun, CatalogModel, ContextCapsule, DurableMemory, EvidenceArtifact, EvidenceRef, IndexSnapshot, RunEvent } from "@kerno/contracts";
 import {
-  KernoError, analyzeTaskInputSchema, buildCapsuleInputSchema, compareRunsInputSchema, expandContextInputSchema,
+  benchmarkRunSchema, KernoError, analyzeTaskInputSchema, buildCapsuleInputSchema, compareRunsInputSchema, expandContextInputSchema,
   explainContextInputSchema, impactAnalysisInputSchema, indexRepositoryInputSchema, invalidateContextInputSchema,
   recordDecisionInputSchema, recordOutcomeInputSchema, redactSensitiveValue, repositoryStatusInputSchema, routeTaskInputSchema, stableId
 } from "@kerno/contracts";
@@ -265,13 +265,23 @@ export class KernoService {
     this.store.saveRoute(decision, task.repositoryId); return decision;
   }
   compare(input: unknown): unknown {
-    const parsed = compareRunsInputSchema.parse(input); const baseline = this.store.get<any>("run", parsed.baselineRunId); const kerno = this.store.get<any>("run", parsed.kernoRunId);
+    const parsed = compareRunsInputSchema.parse(input); const baselineRaw = this.store.get<BenchmarkRun>("run", parsed.baselineRunId); const kernoRaw = this.store.get<BenchmarkRun>("run", parsed.kernoRunId);
+    const baseline = baselineRaw ? benchmarkRunSchema.parse(baselineRaw) : undefined; const kerno = kernoRaw ? benchmarkRunSchema.parse(kernoRaw) : undefined;
     if (!baseline || !kerno) throw new KernoError("UNKNOWN_ID", "Both runs must exist");
-    const fairnessFields = ["taskId", "startingCommit", "permissions", "modelClass"];
-    const mismatches = fairnessFields.filter((field) => baseline.manifest?.[field] !== kerno.manifest?.[field]);
+    const fairnessFields: Array<[string, unknown, unknown]> = [
+      ["pair ID", baseline.pairId, kerno.pairId], ["experiment", baseline.experiment, kerno.experiment], ["task ID", baseline.task.id, kerno.task.id], ["task text", baseline.task.text, kerno.task.text],
+      ["starting commit", baseline.task.startingCommit, kerno.task.startingCommit], ["repository", baseline.task.repository, kerno.task.repository], ["permissions", baseline.permissions, kerno.permissions],
+      ["profile evidence", baseline.environment.profileEvidenceHash, kerno.environment.profileEvidenceHash], ["test commands", JSON.stringify(baseline.task.testCommands), JSON.stringify(kerno.task.testCommands)]
+    ];
+    if (baseline.experiment === "context-controlled") fairnessFields.push(["requested model", baseline.model.requested, kerno.model.requested], ["reasoning effort", baseline.model.reasoningEffort, kerno.model.reasoningEffort]);
+    const mismatches = fairnessFields.filter(([, left, right]) => left !== right).map(([field]) => field);
+    if (!baseline.pairId || !kerno.pairId) mismatches.push("immutable pair ID missing");
+    if (baseline.provenance.mode !== "artifact-derived" || kerno.provenance.mode !== "artifact-derived") mismatches.push("artifact-derived provenance missing");
+    if (baseline.provenance.taskManifestHash !== kerno.provenance.taskManifestHash) mismatches.push("task manifest provenance");
+    if (baseline.environment.profileIsolation !== "verified-clean" || kerno.environment.profileIsolation !== "verified-clean") mismatches.push("profile isolation unverified");
     if (mismatches.length) throw new KernoError("FAIRNESS_MISMATCH", `Run manifests differ: ${mismatches.join(", ")}`);
-    const metrics = ["taskSuccess", "testsPassed", "threadTokens", "filesOpened", "repeatedReads", "toolCalls", "timeToFirstValidPatchMs", "totalLatencyMs", "unnecessaryChangedLines", "reviewerFindings", "staleContextMistakes", "contextExpansionCount"];
-    const comparison = { id: stableId("comparison", `${baseline.id}:${kerno.id}`), createdAt: new Date().toISOString(), baselineRunId: baseline.id, kernoRunId: kerno.id, fairness: { passed: true, checked: fairnessFields }, metrics: Object.fromEntries(metrics.map((metric) => [metric, { baseline: baseline.metrics?.[metric] ?? null, kerno: kerno.metrics?.[metric] ?? null, evidence: [baseline.artifacts?.[metric], kerno.artifacts?.[metric]].filter(Boolean) }])) };
+    const metrics = ["taskSuccess", "testsPassed", "totalTokens", "filesOpened", "repeatedReads", "toolCalls", "contextExpansions", "timeToFirstValidPatchMs", "latencyMs", "changedLines", "unnecessaryChangedLines", "reviewerFindings", "staleContextMistakes"] as const;
+    const comparison = { id: stableId("comparison", `${baseline.id}:${kerno.id}`), createdAt: new Date().toISOString(), pairId: baseline.pairId, baselineRunId: baseline.id, kernoRunId: kerno.id, fairness: { passed: true, checked: fairnessFields.map(([field]) => field) }, outcomes: { baseline: { finalStatus: baseline.finalStatus, testsPassed: baseline.tests.passed, reviewStatus: baseline.review.status }, kerno: { finalStatus: kerno.finalStatus, testsPassed: kerno.tests.passed, reviewStatus: kerno.review.status } }, metrics: Object.fromEntries(metrics.map((metric) => [metric, { baseline: baseline.metrics[metric], kerno: kerno.metrics[metric], evidence: { baselineReceipt: baseline.provenance.receiptHash, kernoReceipt: kerno.provenance.receiptHash } }])) };
     this.store.put("comparison", comparison.id, comparison); return comparison;
   }
 

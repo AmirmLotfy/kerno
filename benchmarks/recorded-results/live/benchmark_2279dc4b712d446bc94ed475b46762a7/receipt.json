@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1",
+  "runId": "benchmark_2279dc4b712d446bc94ed475b46762a7",
+  "pairId": "pair_refund_receipt_20260720",
+  "recordedAt": "2026-07-19T23:43:13.815Z",
+  "experiment": "context-controlled",
+  "condition": "codex-with-kerno-capsule",
+  "taskManifestHash": "40512511643d70584dc4d8174ae010dfc0c72c81d1c48b6523b0e264de3e49cb",
+  "task": {
+    "id": "refund-transaction-change",
+    "text": "Add a transaction-boundary receipt describing whether a refund was newly applied or already completed, expose it to the webhook handler without changing the public RefundSucceeded event, and add focused tests.",
+    "repository": "relaycart-ts",
+    "license": "Apache-2.0",
+    "startingCommit": "1b08086b8ddfe8aae82f94ff4015153122761312",
+    "branch": "main",
+    "successCriteria": [
+      "all existing assertions pass",
+      "the handler returns applied for a new refund and duplicate for a completed refund",
+      "public RefundSucceeded event shape is unchanged"
+    ],
+    "testCommands": [
+      "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts tests/receipt.acceptance.test.ts"
+    ]
+  },
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v22.13.1",
+    "codex": "codex-cli 0.145.0-alpha.18",
+    "recordedFrom": "live-app-server",
+    "profileIsolation": "verified-clean",
+    "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+  },
+  "model": {
+    "requested": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "effective": null,
+    "truthLabel": "requested-unconfirmed"
+  },
+  "permissions": "workspace-write:no-network:never-approve",
+  "kernoConfiguration": {
+    "capsuleBudget": 2500,
+    "initialCapsuleId": "capsule_96bf49c49bcef460ddbec19a5599d86a",
+    "childCapsuleId": null,
+    "routingPolicy": "context-controlled-pinned-live-model-lowest-effort"
+  },
+  "implementation": {
+    "failureKind": null
+  },
+  "test": {
+    "command": "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts tests/receipt.acceptance.test.ts",
+    "exitCode": 0,
+    "startedAt": "2026-07-19T23:42:30.119Z",
+    "completedAt": "2026-07-19T23:42:30.312Z"
+  },
+  "review": {
+    "failureKind": null
+  },
+  "timing": {
+    "startedAt": "2026-07-19T23:42:02.162Z",
+    "completedAt": "2026-07-19T23:43:13.815Z",
+    "totalLatencyMs": 71652
+  },
+  "contextExpansions": 0,
+  "artifactHashes": {
+    "events": "f2d8dc335b0eedb31a62bdcf3f8b4ceeb5dd280295f512df60c1221e27610352",
+    "diff": "a7bcc2de4b8cacf3adb42003bd9b611625f528f23466857a1ac8bfb17d23e9e5",
+    "tests": "35c604eb4b10c03e0c7f1a1381ef259f6d09ab878e9c535e6e4c93766fc79e25",
+    "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b"
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "1",
+  "id": "benchmark_2279dc4b712d446bc94ed475b46762a7",
+  "pairId": "pair_refund_receipt_20260720",
+  "recordedAt": "2026-07-19T23:43:13.815Z",
+  "experiment": "context-controlled",
+  "condition": "codex-with-kerno-capsule",
+  "task": {
+    "id": "refund-transaction-change",
+    "text": "Add a transaction-boundary receipt describing whether a refund was newly applied or already completed, expose it to the webhook handler without changing the public RefundSucceeded event, and add focused tests.",
+    "repository": "relaycart-ts",
+    "license": "Apache-2.0",
+    "startingCommit": "1b08086b8ddfe8aae82f94ff4015153122761312",
+    "branch": "main",
+    "successCriteria": [
+      "all existing assertions pass",
+      "the handler returns applied for a new refund and duplicate for a completed refund",
+      "public RefundSucceeded event shape is unchanged"
+    ],
+    "testCommands": [
+      "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts tests/receipt.acceptance.test.ts"
+    ]
+  },
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v22.13.1",
+    "codex": "codex-cli 0.145.0-alpha.18",
+    "recordedFrom": "live-app-server",
+    "profileIsolation": "verified-clean",
+    "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+  },
+  "model": {
+    "requested": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "effective": null,
+    "truthLabel": "requested-unconfirmed"
+  },
+  "permissions": "workspace-write:no-network:never-approve",
+  "kernoConfiguration": {
+    "capsuleBudget": 2500,
+    "initialCapsuleId": "capsule_96bf49c49bcef460ddbec19a5599d86a",
+    "childCapsuleId": null,
+    "routingPolicy": "context-controlled-pinned-live-model-lowest-effort"
+  },
+  "finalStatus": "passed",
+  "tests": {
+    "passed": true,
+    "exitCode": 0,
+    "artifactHash": "35c604eb4b10c03e0c7f1a1381ef259f6d09ab878e9c535e6e4c93766fc79e25",
+    "outputTail": "TAP version 13\n# (node:88700) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.704\n  ...\n# (node:88701) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: the webhook handler exposes the transaction receipt without changing the event\nok 2 - the webhook handler exposes the transaction receipt without changing the event\n  ---\n  duration_ms: 0.769541\n  ...\n# (node:88702) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 3 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.50875\n  ...\n# Subtest: public refund event shape is unchanged\nok 4 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.497208\n  ...\n1..4\n# tests 4\n# suites 0\n# pass 4\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 105.661625\n\n(node:88472) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+  },
+  "metrics": {
+    "taskSuccess": 1,
+    "testsPassed": 4,
+    "totalTokens": 51768,
+    "filesOpened": null,
+    "repeatedReads": null,
+    "toolCalls": 1,
+    "contextExpansions": 0,
+    "latencyMs": 71652,
+    "changedLines": 13,
+    "timeToFirstValidPatchMs": null,
+    "unnecessaryChangedLines": null,
+    "reviewerFindings": 0,
+    "staleContextMistakes": null
+  },
+  "review": {
+    "status": "passed",
+    "artifactHash": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+    "summary": "{\"status\":\"passed\",\"findings\":[]}"
+  },
+  "artifacts": {
+    "events": "benchmarks/recorded-results/live/benchmark_2279dc4b712d446bc94ed475b46762a7/events.json",
+    "diff": "benchmarks/recorded-results/live/benchmark_2279dc4b712d446bc94ed475b46762a7/diff.patch",
+    "tests": "benchmarks/recorded-results/live/benchmark_2279dc4b712d446bc94ed475b46762a7/tests.txt",
+    "review": "benchmarks/recorded-results/live/benchmark_2279dc4b712d446bc94ed475b46762a7/review.txt",
+    "receipt": "benchmarks/recorded-results/live/benchmark_2279dc4b712d446bc94ed475b46762a7/receipt.json"
+  },
+  "artifactHashes": {
+    "events": "f2d8dc335b0eedb31a62bdcf3f8b4ceeb5dd280295f512df60c1221e27610352",
+    "diff": "a7bcc2de4b8cacf3adb42003bd9b611625f528f23466857a1ac8bfb17d23e9e5",
+    "tests": "35c604eb4b10c03e0c7f1a1381ef259f6d09ab878e9c535e6e4c93766fc79e25",
+    "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+    "receipt": "c4846160856602c5a77d4fc5ad21f08d837d868d87c28fd31bd89a47ce1b2993"
+  },
+  "provenance": {
+    "mode": "artifact-derived",
+    "receiptHash": "c4846160856602c5a77d4fc5ad21f08d837d868d87c28fd31bd89a47ce1b2993",
+    "taskManifestHash": "40512511643d70584dc4d8174ae010dfc0c72c81d1c48b6523b0e264de3e49cb",
+    "derivedFields": [
+      "finalStatus",
+      "tests",
+      "taskSuccess",
+      "testsPassed",
+      "totalTokens",
+      "toolCalls",
+      "latencyMs",
+      "changedLines",
+      "review",
+      "reviewerFindings",
+      "contextExpansions"
+    ]
+  },
+  "limitations": [
+    "Requested model was not independently confirmed by an effective-model or reroute event.",
+    "The verified failure named no candidate outside the initial capsule; Kerno recorded zero expansions instead of broadening context.",
+    "Files opened and repeated reads are unavailable because App Server events do not provide a defensible read signal.",
+    "Profile evidence hashes the pre-launch auth-only App Server profile; the auth contents are never exported.",
+    "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt."
+  ]
+}

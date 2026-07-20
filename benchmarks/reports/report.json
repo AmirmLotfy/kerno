@@ -1,11 +1,229 @@
 {
   "schemaVersion": "1",
-  "generatedAt": "2026-07-19T22:08:14.758Z",
-  "runCount": 8,
+  "generatedAt": "2026-07-20T00:28:51.897Z",
+  "runCount": 16,
   "runs": [
     {
       "schemaVersion": "1",
+      "id": "benchmark_155679cdfedd10341a6487e8fd6d81e0",
+      "pairId": "pair_queue_retry_20260720",
+      "recordedAt": "2026-07-19T23:44:50.756Z",
+      "experiment": "context-controlled",
+      "condition": "plain-codex",
+      "task": {
+        "id": "queue-retry-refactor",
+        "text": "Refactor retry policy selection so transient messages use the fast policy and throttled messages use the durable policy without changing exactly-once queue acknowledgement behavior.",
+        "repository": "gatehouse-python",
+        "license": "Apache-2.0",
+        "startingCommit": "a38369dba3251a7063ce8fc9e871879ebffe428f",
+        "branch": "main",
+        "successCriteria": [
+          "all tests pass",
+          "acknowledgement behavior remains exactly once",
+          "retry delays are selected by message kind"
+        ],
+        "testCommands": [
+          "python3 -m unittest discover -s tests -v"
+        ]
+      },
+      "environment": {
+        "platform": "darwin",
+        "architecture": "arm64",
+        "node": "v22.13.1",
+        "codex": "codex-cli 0.145.0-alpha.18",
+        "recordedFrom": "live-app-server",
+        "profileIsolation": "verified-clean",
+        "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+      },
+      "model": {
+        "requested": "gpt-5.6-sol",
+        "reasoningEffort": "low",
+        "effective": null,
+        "truthLabel": "requested-unconfirmed"
+      },
+      "phaseRoutes": [],
+      "permissions": "workspace-write:no-network:never-approve",
+      "kernoConfiguration": null,
+      "finalStatus": "failed",
+      "tests": {
+        "passed": false,
+        "exitCode": 1,
+        "artifactHash": "5b703dc62676ad282b79b4478ca605a79e58dc442c6d81b2320519b9fc5363d6",
+        "outputTail": "\ntest_worker (unittest.loader._FailedTest) ... ERROR\n\n======================================================================\nERROR: test_worker (unittest.loader._FailedTest)\n----------------------------------------------------------------------\nImportError: Failed to import test module: test_worker\nTraceback (most recent call last):\n  File \"/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py\", line 436, in _find_test_path\n    module = self._get_module_from_name(name)\n  File \"/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py\", line 377, in _get_module_from_name\n    __import__(name)\n  File \"/private[WORKTREE]/tests/test_worker.py\", line 3, in <module>\n    from gatehouse.models import Message, ProcessingResult\n  File \"/private[WORKTREE]/gatehouse/__init__.py\", line 6, in <module>\n    from .worker import Worker\n  File \"/private[WORKTREE]/gatehouse/worker.py\", line 12, in <module>\n    class Worker:\n  File \"/private[WORKTREE]/gatehouse/worker.py\", line 17, in Worker\n    retry_policy: RetryPolicy | None = None,\nTypeError: unsupported operand type(s) for |: 'type' and 'NoneType'\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nFAILED (errors=1)\n"
+      },
+      "metrics": {
+        "taskSuccess": 0,
+        "testsPassed": 1,
+        "totalTokens": 103783,
+        "filesOpened": null,
+        "repeatedReads": null,
+        "toolCalls": 3,
+        "contextExpansions": 0,
+        "latencyMs": 79175,
+        "changedLines": 23,
+        "timeToFirstValidPatchMs": null,
+        "unnecessaryChangedLines": null,
+        "reviewerFindings": 1,
+        "staleContextMistakes": null
+      },
+      "review": {
+        "status": "failed",
+        "artifactHash": "00d58041869483a429f28b74950cdf34f9612d98ebe209b12c479625fbbbb827",
+        "summary": "{\"status\":\"failed\",\"findings\":[{\"severity\":\"high\",\"file\":\"gatehouse/worker.py:17\",\"message\":\"The acceptance command fails during test discovery on the repository's Python 3.9 runtime: `RetryPolicy | None` is evaluated at import time and raises TypeError because PEP 604 unions require Python 3.10+. Add `from __future__ import annotations` or use `Optional[RetryPolicy]`. No tests run, so the all-tests-pass acceptance criterion is unmet.\"}]}"
+      },
+      "artifacts": {
+        "events": "benchmarks/recorded-results/live/benchmark_155679cdfedd10341a6487e8fd6d81e0/events.json",
+        "diff": "benchmarks/recorded-results/live/benchmark_155679cdfedd10341a6487e8fd6d81e0/diff.patch",
+        "tests": "benchmarks/recorded-results/live/benchmark_155679cdfedd10341a6487e8fd6d81e0/tests.txt",
+        "review": "benchmarks/recorded-results/live/benchmark_155679cdfedd10341a6487e8fd6d81e0/review.txt",
+        "receipt": "benchmarks/recorded-results/live/benchmark_155679cdfedd10341a6487e8fd6d81e0/receipt.json"
+      },
+      "artifactHashes": {
+        "events": "8fb5217f4a736b8f9d89e5b73e4d42d4794444588d80c5e13b3d1f45c1134ed4",
+        "diff": "7bd31413193b2e4859aff2a32486aade4a3a26e0bc8b1b477911a0cc5e31829c",
+        "tests": "5b703dc62676ad282b79b4478ca605a79e58dc442c6d81b2320519b9fc5363d6",
+        "review": "00d58041869483a429f28b74950cdf34f9612d98ebe209b12c479625fbbbb827",
+        "receipt": "daa5cf509ec615084d8dec9b913d3a046d2750e03cf87f753fc5169acd92a993"
+      },
+      "provenance": {
+        "mode": "artifact-derived",
+        "receiptHash": "daa5cf509ec615084d8dec9b913d3a046d2750e03cf87f753fc5169acd92a993",
+        "taskManifestHash": "dc7e719d960972aa85c725cdc4c4e918d7205d1b029c9fbb6ca109b5b34df195",
+        "derivedFields": [
+          "finalStatus",
+          "tests",
+          "taskSuccess",
+          "testsPassed",
+          "totalTokens",
+          "toolCalls",
+          "latencyMs",
+          "changedLines",
+          "review",
+          "reviewerFindings",
+          "contextExpansions"
+        ]
+      },
+      "limitations": [
+        "Requested model was not independently confirmed by an effective-model or reroute event.",
+        "Files opened and repeated reads are unavailable because App Server events do not provide a defensible read signal.",
+        "Profile evidence hashes the pre-launch auth-only App Server profile; the auth contents are never exported.",
+        "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt.",
+        "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt."
+      ]
+    },
+    {
+      "schemaVersion": "1",
+      "id": "benchmark_18d8e89f8d2f148f9fac43a81e725033",
+      "pairId": "pair_routing_refund_20260720",
+      "recordedAt": "2026-07-19T23:52:05.178Z",
+      "experiment": "full-system",
+      "condition": "plain-default-workflow",
+      "task": {
+        "id": "refund-debug",
+        "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+        "repository": "relaycart-ts",
+        "license": "Apache-2.0",
+        "startingCommit": "06afe8c2b9366ccc9ec0756b24a473d751abb5b5",
+        "branch": "main",
+        "successCriteria": [
+          "all three pinned assertions pass",
+          "concurrent deliveries credit once",
+          "restart after marker timeout does not re-credit",
+          "public RefundSucceeded event shape is unchanged"
+        ],
+        "testCommands": [
+          "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+        ]
+      },
+      "environment": {
+        "platform": "darwin",
+        "architecture": "arm64",
+        "node": "v22.13.1",
+        "codex": "codex-cli 0.145.0-alpha.18",
+        "recordedFrom": "live-app-server",
+        "profileIsolation": "verified-clean",
+        "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+      },
+      "model": {
+        "requested": "gpt-5.6-sol",
+        "reasoningEffort": "low",
+        "effective": null,
+        "truthLabel": "requested-unconfirmed"
+      },
+      "phaseRoutes": [],
+      "permissions": "workspace-write:no-network:never-approve",
+      "kernoConfiguration": null,
+      "finalStatus": "passed",
+      "tests": {
+        "passed": true,
+        "exitCode": 0,
+        "artifactHash": "009818879cfa49decedf682a5c4f1073fd29321d9ef354acec4c1b0c466f0a39",
+        "outputTail": "TAP version 13\n# (node:29463) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.723583\n  ...\n# (node:29464) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.475625\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.500041\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 100.003708\n\n(node:29236) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+      },
+      "metrics": {
+        "taskSuccess": 1,
+        "testsPassed": 3,
+        "totalTokens": 82053,
+        "filesOpened": null,
+        "repeatedReads": null,
+        "toolCalls": 3,
+        "contextExpansions": 0,
+        "latencyMs": 203095,
+        "changedLines": 16,
+        "timeToFirstValidPatchMs": null,
+        "unnecessaryChangedLines": null,
+        "reviewerFindings": 0,
+        "staleContextMistakes": null
+      },
+      "review": {
+        "status": "passed",
+        "artifactHash": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+        "summary": "{\"status\":\"passed\",\"findings\":[]}"
+      },
+      "artifacts": {
+        "events": "benchmarks/recorded-results/live/benchmark_18d8e89f8d2f148f9fac43a81e725033/events.json",
+        "diff": "benchmarks/recorded-results/live/benchmark_18d8e89f8d2f148f9fac43a81e725033/diff.patch",
+        "tests": "benchmarks/recorded-results/live/benchmark_18d8e89f8d2f148f9fac43a81e725033/tests.txt",
+        "review": "benchmarks/recorded-results/live/benchmark_18d8e89f8d2f148f9fac43a81e725033/review.txt",
+        "receipt": "benchmarks/recorded-results/live/benchmark_18d8e89f8d2f148f9fac43a81e725033/receipt.json"
+      },
+      "artifactHashes": {
+        "events": "29718be882eeed4c6045db6a1a8e5f7bb81bd46893480bf5fe142b41212c2fab",
+        "diff": "e3ac7d9b1d5adc532d602a319d88f3b5ec488f45e2b248b0dc94852ebd69e28b",
+        "tests": "009818879cfa49decedf682a5c4f1073fd29321d9ef354acec4c1b0c466f0a39",
+        "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+        "receipt": "2c4a2cc319b200364b54d634467d81bc137e69d20544fb095b741bf77d03f878"
+      },
+      "provenance": {
+        "mode": "artifact-derived",
+        "receiptHash": "2c4a2cc319b200364b54d634467d81bc137e69d20544fb095b741bf77d03f878",
+        "taskManifestHash": "8f638c23220400ee3014460def7719b1dc2c3b37f9db18423ec2218dd16769d6",
+        "derivedFields": [
+          "finalStatus",
+          "tests",
+          "taskSuccess",
+          "testsPassed",
+          "totalTokens",
+          "toolCalls",
+          "latencyMs",
+          "changedLines",
+          "review",
+          "reviewerFindings",
+          "contextExpansions"
+        ]
+      },
+      "limitations": [
+        "Requested model was not independently confirmed by an effective-model or reroute event.",
+        "Files opened and repeated reads are unavailable because App Server events do not provide a defensible read signal.",
+        "Profile evidence hashes the pre-launch auth-only App Server profile; the auth contents are never exported.",
+        "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt.",
+        "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt."
+      ]
+    },
+    {
+      "schemaVersion": "1",
       "id": "benchmark_19jkde7",
+      "pairId": null,
       "recordedAt": "2026-07-19T08:54:40.758Z",
       "experiment": "context-controlled",
       "condition": "codex-with-kerno-capsule",
@@ -41,6 +259,7 @@
         "effective": null,
         "truthLabel": "requested-unconfirmed"
       },
+      "phaseRoutes": [],
       "permissions": "workspace-write:no-network:never-approve",
       "kernoConfiguration": {
         "capsuleBudget": 2500,
@@ -79,21 +298,33 @@
         "events": "benchmarks/recorded-results/live/benchmark_19jkde7/events.json",
         "diff": "benchmarks/recorded-results/live/benchmark_19jkde7/diff.patch",
         "tests": "benchmarks/recorded-results/live/benchmark_19jkde7/tests.txt",
-        "review": "benchmarks/recorded-results/live/benchmark_19jkde7/review.txt"
+        "review": "benchmarks/recorded-results/live/benchmark_19jkde7/review.txt",
+        "receipt": null
       },
       "artifactHashes": {
         "events": "72ac8ca603d71c99f68a6b602acbe4264098c1da7daedff6a4d7561a5bc8a636",
         "diff": "1ab9f390f1e4528065bada6fddccdb706f776778c204513fdeec0d3dc1b71225",
         "tests": "9c822d55d2081672f1b2fbf992cffa93f8de8f295da5581a59cbbf291036101f",
-        "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b"
+        "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+        "receipt": null
+      },
+      "provenance": {
+        "mode": "legacy-unverified",
+        "receiptHash": null,
+        "taskManifestHash": null,
+        "derivedFields": [
+          "toolCalls"
+        ]
       },
       "limitations": [
-        "Requested model was not independently confirmed by an effective-model or reroute event."
+        "Requested model was not independently confirmed by an effective-model or reroute event.",
+        "Legacy run metadata was not derived from a hashed receipt."
       ]
     },
     {
       "schemaVersion": "1",
       "id": "benchmark_1crq47p",
+      "pairId": null,
       "recordedAt": "2026-07-19T08:50:19.464Z",
       "experiment": "context-controlled",
       "condition": "codex-with-kerno-capsule",
@@ -129,6 +360,7 @@
         "effective": null,
         "truthLabel": "requested-unconfirmed"
       },
+      "phaseRoutes": [],
       "permissions": "workspace-write:no-network:never-approve",
       "kernoConfiguration": {
         "capsuleBudget": 2500,
@@ -167,21 +399,33 @@
         "events": "benchmarks/recorded-results/live/benchmark_1crq47p/events.json",
         "diff": "benchmarks/recorded-results/live/benchmark_1crq47p/diff.patch",
         "tests": "benchmarks/recorded-results/live/benchmark_1crq47p/tests.txt",
-        "review": "benchmarks/recorded-results/live/benchmark_1crq47p/review.txt"
+        "review": "benchmarks/recorded-results/live/benchmark_1crq47p/review.txt",
+        "receipt": null
       },
       "artifactHashes": {
         "events": "2d5bb97a5f1eb8515d1e9edafd533193cd0f252e49d1e121fcd97c6b5faa6bed",
         "diff": "e3ac7d9b1d5adc532d602a319d88f3b5ec488f45e2b248b0dc94852ebd69e28b",
         "tests": "2652a5f8893005e6f22af43ae754ebd45d0ce956c1f0d32f7ee191fd68c881f6",
-        "review": "b97d884c5d0bebb2fdf895273a7099c3a753fe34d1cbc63e682be7631bd891e4"
+        "review": "b97d884c5d0bebb2fdf895273a7099c3a753fe34d1cbc63e682be7631bd891e4",
+        "receipt": null
+      },
+      "provenance": {
+        "mode": "legacy-unverified",
+        "receiptHash": null,
+        "taskManifestHash": null,
+        "derivedFields": [
+          "toolCalls"
+        ]
       },
       "limitations": [
-        "Requested model was not independently confirmed by an effective-model or reroute event."
+        "Requested model was not independently confirmed by an effective-model or reroute event.",
+        "Legacy run metadata was not derived from a hashed receipt."
       ]
     },
     {
       "schemaVersion": "1",
       "id": "benchmark_1dbgx40",
+      "pairId": null,
       "recordedAt": "2026-07-19T08:42:51.622Z",
       "experiment": "context-controlled",
       "condition": "plain-codex",
@@ -217,6 +461,7 @@
         "effective": null,
         "truthLabel": "requested-unconfirmed"
       },
+      "phaseRoutes": [],
       "permissions": "workspace-write:no-network:never-approve",
       "kernoConfiguration": null,
       "finalStatus": "partial",
@@ -250,22 +495,34 @@
         "events": "benchmarks/recorded-results/live/benchmark_1dbgx40/events.json",
         "diff": "benchmarks/recorded-results/live/benchmark_1dbgx40/diff.patch",
         "tests": "benchmarks/recorded-results/live/benchmark_1dbgx40/tests.txt",
-        "review": "benchmarks/recorded-results/live/benchmark_1dbgx40/review.txt"
+        "review": "benchmarks/recorded-results/live/benchmark_1dbgx40/review.txt",
+        "receipt": null
       },
       "artifactHashes": {
         "events": "97a5a92fbc77af55293f1964ccbc1fb07e61d0a1a8ccd99b119a381e718d0b92",
         "diff": "86e170d72a10f21deb7bd81c7505e2fef6259c894fb2fe9bfb9dafd09e693591",
         "tests": "6b28145f3d6459e1dd35c653a0aa614b6f40eef6b614b2f0bfbabdbfc4f7b8d0",
-        "review": "885388d9554ad56a50c327eae24f7a8b5d664a2170bed6bad317cacac7ff745a"
+        "review": "885388d9554ad56a50c327eae24f7a8b5d664a2170bed6bad317cacac7ff745a",
+        "receipt": null
+      },
+      "provenance": {
+        "mode": "legacy-unverified",
+        "receiptHash": null,
+        "taskManifestHash": null,
+        "derivedFields": [
+          "toolCalls"
+        ]
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event.",
-        "Baseline validity requires the Kerno plugin to be absent from the App Server profile; verify the run preflight."
+        "Baseline validity requires the Kerno plugin to be absent from the App Server profile; verify the run preflight.",
+        "Legacy run metadata was not derived from a hashed receipt."
       ]
     },
     {
       "schemaVersion": "1",
       "id": "benchmark_1dwiafn",
+      "pairId": null,
       "recordedAt": "2026-07-19T08:52:41.110Z",
       "experiment": "context-controlled",
       "condition": "plain-codex",
@@ -301,6 +558,7 @@
         "effective": null,
         "truthLabel": "requested-unconfirmed"
       },
+      "phaseRoutes": [],
       "permissions": "workspace-write:no-network:never-approve",
       "kernoConfiguration": null,
       "finalStatus": "passed",
@@ -334,22 +592,34 @@
         "events": "benchmarks/recorded-results/live/benchmark_1dwiafn/events.json",
         "diff": "benchmarks/recorded-results/live/benchmark_1dwiafn/diff.patch",
         "tests": "benchmarks/recorded-results/live/benchmark_1dwiafn/tests.txt",
-        "review": "benchmarks/recorded-results/live/benchmark_1dwiafn/review.txt"
+        "review": "benchmarks/recorded-results/live/benchmark_1dwiafn/review.txt",
+        "receipt": null
       },
       "artifactHashes": {
         "events": "b21b47e4b841a8e18ad4d82d3a3bd261f3b22dc199069b374b1157f9874bb417",
         "diff": "1ab9f390f1e4528065bada6fddccdb706f776778c204513fdeec0d3dc1b71225",
         "tests": "757836080830cf8cf5aeb8a83e113e8862fe4d3c2d8a5a83fa00ccc7eadc4416",
-        "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b"
+        "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+        "receipt": null
+      },
+      "provenance": {
+        "mode": "legacy-unverified",
+        "receiptHash": null,
+        "taskManifestHash": null,
+        "derivedFields": [
+          "toolCalls"
+        ]
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event.",
-        "Baseline validity requires the Kerno plugin to be absent from the App Server profile; verify the run preflight."
+        "Baseline validity requires the Kerno plugin to be absent from the App Server profile; verify the run preflight.",
+        "Legacy run metadata was not derived from a hashed receipt."
       ]
     },
     {
       "schemaVersion": "1",
       "id": "benchmark_1yh5ycw",
+      "pairId": null,
       "recordedAt": "2026-07-19T08:45:17.031Z",
       "experiment": "context-controlled",
       "condition": "codex-with-kerno-capsule",
@@ -385,6 +655,7 @@
         "effective": null,
         "truthLabel": "requested-unconfirmed"
       },
+      "phaseRoutes": [],
       "permissions": "workspace-write:no-network:never-approve",
       "kernoConfiguration": {
         "capsuleBudget": 2500,
@@ -423,21 +694,369 @@
         "events": "benchmarks/recorded-results/live/benchmark_1yh5ycw/events.json",
         "diff": "benchmarks/recorded-results/live/benchmark_1yh5ycw/diff.patch",
         "tests": "benchmarks/recorded-results/live/benchmark_1yh5ycw/tests.txt",
-        "review": "benchmarks/recorded-results/live/benchmark_1yh5ycw/review.txt"
+        "review": "benchmarks/recorded-results/live/benchmark_1yh5ycw/review.txt",
+        "receipt": null
       },
       "artifactHashes": {
         "events": "8ed57141766738908218df0e8c57b26029d9bed9f9ff3b28b50a4ce1ab407330",
         "diff": "e3ac7d9b1d5adc532d602a319d88f3b5ec488f45e2b248b0dc94852ebd69e28b",
         "tests": "7d3a82e341399da636d7cf94541623740f5d6c7edd24f26a2113adfde5cd24b2",
-        "review": "bbb45e1d242d8b9339226ce38da88914d389c01a86a4193b04a17815f7917ea2"
+        "review": "bbb45e1d242d8b9339226ce38da88914d389c01a86a4193b04a17815f7917ea2",
+        "receipt": null
+      },
+      "provenance": {
+        "mode": "legacy-unverified",
+        "receiptHash": null,
+        "taskManifestHash": null,
+        "derivedFields": [
+          "toolCalls"
+        ]
       },
       "limitations": [
-        "Requested model was not independently confirmed by an effective-model or reroute event."
+        "Requested model was not independently confirmed by an effective-model or reroute event.",
+        "Legacy run metadata was not derived from a hashed receipt."
+      ]
+    },
+    {
+      "schemaVersion": "1",
+      "id": "benchmark_2279dc4b712d446bc94ed475b46762a7",
+      "pairId": "pair_refund_receipt_20260720",
+      "recordedAt": "2026-07-19T23:43:13.815Z",
+      "experiment": "context-controlled",
+      "condition": "codex-with-kerno-capsule",
+      "task": {
+        "id": "refund-transaction-change",
+        "text": "Add a transaction-boundary receipt describing whether a refund was newly applied or already completed, expose it to the webhook handler without changing the public RefundSucceeded event, and add focused tests.",
+        "repository": "relaycart-ts",
+        "license": "Apache-2.0",
+        "startingCommit": "1b08086b8ddfe8aae82f94ff4015153122761312",
+        "branch": "main",
+        "successCriteria": [
+          "all existing assertions pass",
+          "the handler returns applied for a new refund and duplicate for a completed refund",
+          "public RefundSucceeded event shape is unchanged"
+        ],
+        "testCommands": [
+          "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts tests/receipt.acceptance.test.ts"
+        ]
+      },
+      "environment": {
+        "platform": "darwin",
+        "architecture": "arm64",
+        "node": "v22.13.1",
+        "codex": "codex-cli 0.145.0-alpha.18",
+        "recordedFrom": "live-app-server",
+        "profileIsolation": "verified-clean",
+        "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+      },
+      "model": {
+        "requested": "gpt-5.6-sol",
+        "reasoningEffort": "low",
+        "effective": null,
+        "truthLabel": "requested-unconfirmed"
+      },
+      "phaseRoutes": [],
+      "permissions": "workspace-write:no-network:never-approve",
+      "kernoConfiguration": {
+        "capsuleBudget": 2500,
+        "initialCapsuleId": "capsule_96bf49c49bcef460ddbec19a5599d86a",
+        "childCapsuleId": null,
+        "routingPolicy": "context-controlled-pinned-live-model-lowest-effort"
+      },
+      "finalStatus": "passed",
+      "tests": {
+        "passed": true,
+        "exitCode": 0,
+        "artifactHash": "35c604eb4b10c03e0c7f1a1381ef259f6d09ab878e9c535e6e4c93766fc79e25",
+        "outputTail": "TAP version 13\n# (node:88700) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.704\n  ...\n# (node:88701) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: the webhook handler exposes the transaction receipt without changing the event\nok 2 - the webhook handler exposes the transaction receipt without changing the event\n  ---\n  duration_ms: 0.769541\n  ...\n# (node:88702) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 3 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.50875\n  ...\n# Subtest: public refund event shape is unchanged\nok 4 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.497208\n  ...\n1..4\n# tests 4\n# suites 0\n# pass 4\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 105.661625\n\n(node:88472) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+      },
+      "metrics": {
+        "taskSuccess": 1,
+        "testsPassed": 4,
+        "totalTokens": 51768,
+        "filesOpened": null,
+        "repeatedReads": null,
+        "toolCalls": 1,
+        "contextExpansions": 0,
+        "latencyMs": 71652,
+        "changedLines": 13,
+        "timeToFirstValidPatchMs": null,
+        "unnecessaryChangedLines": null,
+        "reviewerFindings": 0,
+        "staleContextMistakes": null
+      },
+      "review": {
+        "status": "passed",
+        "artifactHash": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+        "summary": "{\"status\":\"passed\",\"findings\":[]}"
+      },
+      "artifacts": {
+        "events": "benchmarks/recorded-results/live/benchmark_2279dc4b712d446bc94ed475b46762a7/events.json",
+        "diff": "benchmarks/recorded-results/live/benchmark_2279dc4b712d446bc94ed475b46762a7/diff.patch",
+        "tests": "benchmarks/recorded-results/live/benchmark_2279dc4b712d446bc94ed475b46762a7/tests.txt",
+        "review": "benchmarks/recorded-results/live/benchmark_2279dc4b712d446bc94ed475b46762a7/review.txt",
+        "receipt": "benchmarks/recorded-results/live/benchmark_2279dc4b712d446bc94ed475b46762a7/receipt.json"
+      },
+      "artifactHashes": {
+        "events": "f2d8dc335b0eedb31a62bdcf3f8b4ceeb5dd280295f512df60c1221e27610352",
+        "diff": "a7bcc2de4b8cacf3adb42003bd9b611625f528f23466857a1ac8bfb17d23e9e5",
+        "tests": "35c604eb4b10c03e0c7f1a1381ef259f6d09ab878e9c535e6e4c93766fc79e25",
+        "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+        "receipt": "c4846160856602c5a77d4fc5ad21f08d837d868d87c28fd31bd89a47ce1b2993"
+      },
+      "provenance": {
+        "mode": "artifact-derived",
+        "receiptHash": "c4846160856602c5a77d4fc5ad21f08d837d868d87c28fd31bd89a47ce1b2993",
+        "taskManifestHash": "40512511643d70584dc4d8174ae010dfc0c72c81d1c48b6523b0e264de3e49cb",
+        "derivedFields": [
+          "finalStatus",
+          "tests",
+          "taskSuccess",
+          "testsPassed",
+          "totalTokens",
+          "toolCalls",
+          "latencyMs",
+          "changedLines",
+          "review",
+          "reviewerFindings",
+          "contextExpansions"
+        ]
+      },
+      "limitations": [
+        "Requested model was not independently confirmed by an effective-model or reroute event.",
+        "The verified failure named no candidate outside the initial capsule; Kerno recorded zero expansions instead of broadening context.",
+        "Files opened and repeated reads are unavailable because App Server events do not provide a defensible read signal.",
+        "Profile evidence hashes the pre-launch auth-only App Server profile; the auth contents are never exported.",
+        "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt.",
+        "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt."
+      ]
+    },
+    {
+      "schemaVersion": "1",
+      "id": "benchmark_241d4ecb22537b8de3bce91638935875",
+      "pairId": "pair_queue_retry_20260720",
+      "recordedAt": "2026-07-19T23:46:28.233Z",
+      "experiment": "context-controlled",
+      "condition": "codex-with-kerno-capsule",
+      "task": {
+        "id": "queue-retry-refactor",
+        "text": "Refactor retry policy selection so transient messages use the fast policy and throttled messages use the durable policy without changing exactly-once queue acknowledgement behavior.",
+        "repository": "gatehouse-python",
+        "license": "Apache-2.0",
+        "startingCommit": "a38369dba3251a7063ce8fc9e871879ebffe428f",
+        "branch": "main",
+        "successCriteria": [
+          "all tests pass",
+          "acknowledgement behavior remains exactly once",
+          "retry delays are selected by message kind"
+        ],
+        "testCommands": [
+          "python3 -m unittest discover -s tests -v"
+        ]
+      },
+      "environment": {
+        "platform": "darwin",
+        "architecture": "arm64",
+        "node": "v22.13.1",
+        "codex": "codex-cli 0.145.0-alpha.18",
+        "recordedFrom": "live-app-server",
+        "profileIsolation": "verified-clean",
+        "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+      },
+      "model": {
+        "requested": "gpt-5.6-sol",
+        "reasoningEffort": "low",
+        "effective": null,
+        "truthLabel": "requested-unconfirmed"
+      },
+      "phaseRoutes": [],
+      "permissions": "workspace-write:no-network:never-approve",
+      "kernoConfiguration": {
+        "capsuleBudget": 2500,
+        "initialCapsuleId": "capsule_be314b21062b5fe82d00843698281a92",
+        "childCapsuleId": null,
+        "routingPolicy": "context-controlled-pinned-live-model-lowest-effort"
+      },
+      "finalStatus": "failed",
+      "tests": {
+        "passed": false,
+        "exitCode": 1,
+        "artifactHash": "5b703dc62676ad282b79b4478ca605a79e58dc442c6d81b2320519b9fc5363d6",
+        "outputTail": "\ntest_worker (unittest.loader._FailedTest) ... ERROR\n\n======================================================================\nERROR: test_worker (unittest.loader._FailedTest)\n----------------------------------------------------------------------\nImportError: Failed to import test module: test_worker\nTraceback (most recent call last):\n  File \"/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py\", line 436, in _find_test_path\n    module = self._get_module_from_name(name)\n  File \"/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py\", line 377, in _get_module_from_name\n    __import__(name)\n  File \"/private[WORKTREE]/tests/test_worker.py\", line 3, in <module>\n    from gatehouse.models import Message, ProcessingResult\n  File \"/private[WORKTREE]/gatehouse/__init__.py\", line 6, in <module>\n    from .worker import Worker\n  File \"/private[WORKTREE]/gatehouse/worker.py\", line 12, in <module>\n    class Worker:\n  File \"/private[WORKTREE]/gatehouse/worker.py\", line 17, in Worker\n    retry_policy: RetryPolicy | None = None,\nTypeError: unsupported operand type(s) for |: 'type' and 'NoneType'\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nFAILED (errors=1)\n"
+      },
+      "metrics": {
+        "taskSuccess": 0,
+        "testsPassed": 1,
+        "totalTokens": 50757,
+        "filesOpened": null,
+        "repeatedReads": null,
+        "toolCalls": 1,
+        "contextExpansions": 0,
+        "latencyMs": 81317,
+        "changedLines": 15,
+        "timeToFirstValidPatchMs": null,
+        "unnecessaryChangedLines": null,
+        "reviewerFindings": 1,
+        "staleContextMistakes": null
+      },
+      "review": {
+        "status": "failed",
+        "artifactHash": "df1306a1f8f9e91411135cdf9aeb3a8a576329c7489b11edd0db60e9f857ee20",
+        "summary": "{\"status\":\"failed\",\"findings\":[{\"severity\":\"high\",\"file\":\"gatehouse/worker.py:17\",\"message\":\"The acceptance command fails during import under the repository's Python 3.9 runtime: `RetryPolicy | None` is evaluated at class definition and raises TypeError. Add `from __future__ import annotations` or use `Optional[RetryPolicy]`; the same issue also applies at line 19.\"}]}"
+      },
+      "artifacts": {
+        "events": "benchmarks/recorded-results/live/benchmark_241d4ecb22537b8de3bce91638935875/events.json",
+        "diff": "benchmarks/recorded-results/live/benchmark_241d4ecb22537b8de3bce91638935875/diff.patch",
+        "tests": "benchmarks/recorded-results/live/benchmark_241d4ecb22537b8de3bce91638935875/tests.txt",
+        "review": "benchmarks/recorded-results/live/benchmark_241d4ecb22537b8de3bce91638935875/review.txt",
+        "receipt": "benchmarks/recorded-results/live/benchmark_241d4ecb22537b8de3bce91638935875/receipt.json"
+      },
+      "artifactHashes": {
+        "events": "f8e1e9fdf9681f104c078b9583a9ac6ccc59ab9ab4dbaad7b5d7b257afb6fc16",
+        "diff": "4c720027cc691a2db78c71d12cdab2b5bacbfbee3498e527aadb495c64822e56",
+        "tests": "5b703dc62676ad282b79b4478ca605a79e58dc442c6d81b2320519b9fc5363d6",
+        "review": "df1306a1f8f9e91411135cdf9aeb3a8a576329c7489b11edd0db60e9f857ee20",
+        "receipt": "e6c9c5c40312b735a3fceddbe17c8ac4c5471858b38985f6215d1ff0496f461c"
+      },
+      "provenance": {
+        "mode": "artifact-derived",
+        "receiptHash": "e6c9c5c40312b735a3fceddbe17c8ac4c5471858b38985f6215d1ff0496f461c",
+        "taskManifestHash": "dc7e719d960972aa85c725cdc4c4e918d7205d1b029c9fbb6ca109b5b34df195",
+        "derivedFields": [
+          "finalStatus",
+          "tests",
+          "taskSuccess",
+          "testsPassed",
+          "totalTokens",
+          "toolCalls",
+          "latencyMs",
+          "changedLines",
+          "review",
+          "reviewerFindings",
+          "contextExpansions"
+        ]
+      },
+      "limitations": [
+        "Requested model was not independently confirmed by an effective-model or reroute event.",
+        "The verified failure named no candidate outside the initial capsule; Kerno recorded zero expansions instead of broadening context.",
+        "Files opened and repeated reads are unavailable because App Server events do not provide a defensible read signal.",
+        "Profile evidence hashes the pre-launch auth-only App Server profile; the auth contents are never exported.",
+        "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt.",
+        "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt."
+      ]
+    },
+    {
+      "schemaVersion": "1",
+      "id": "benchmark_a3fba40f3b886e3555cd281ec9beb493",
+      "pairId": "pair_refund_receipt_20260720",
+      "recordedAt": "2026-07-19T23:41:53.795Z",
+      "experiment": "context-controlled",
+      "condition": "plain-codex",
+      "task": {
+        "id": "refund-transaction-change",
+        "text": "Add a transaction-boundary receipt describing whether a refund was newly applied or already completed, expose it to the webhook handler without changing the public RefundSucceeded event, and add focused tests.",
+        "repository": "relaycart-ts",
+        "license": "Apache-2.0",
+        "startingCommit": "1b08086b8ddfe8aae82f94ff4015153122761312",
+        "branch": "main",
+        "successCriteria": [
+          "all existing assertions pass",
+          "the handler returns applied for a new refund and duplicate for a completed refund",
+          "public RefundSucceeded event shape is unchanged"
+        ],
+        "testCommands": [
+          "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts tests/receipt.acceptance.test.ts"
+        ]
+      },
+      "environment": {
+        "platform": "darwin",
+        "architecture": "arm64",
+        "node": "v22.13.1",
+        "codex": "codex-cli 0.145.0-alpha.18",
+        "recordedFrom": "live-app-server",
+        "profileIsolation": "verified-clean",
+        "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+      },
+      "model": {
+        "requested": "gpt-5.6-sol",
+        "reasoningEffort": "low",
+        "effective": null,
+        "truthLabel": "requested-unconfirmed"
+      },
+      "phaseRoutes": [],
+      "permissions": "workspace-write:no-network:never-approve",
+      "kernoConfiguration": null,
+      "finalStatus": "passed",
+      "tests": {
+        "passed": true,
+        "exitCode": 0,
+        "artifactHash": "8997033de0aa9439dfd36b0954f2605c526f23af163ca3d92eafd9dbce807b95",
+        "outputTail": "TAP version 13\n# (node:18030) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.771208\n  ...\n# (node:18031) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: the webhook handler exposes the transaction receipt without changing the event\nok 2 - the webhook handler exposes the transaction receipt without changing the event\n  ---\n  duration_ms: 0.973292\n  ...\n# (node:18032) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 3 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.490291\n  ...\n# Subtest: public refund event shape is unchanged\nok 4 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.528583\n  ...\n1..4\n# tests 4\n# suites 0\n# pass 4\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 105.553958\n\n(node:17803) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+      },
+      "metrics": {
+        "taskSuccess": 1,
+        "testsPassed": 4,
+        "totalTokens": 103661,
+        "filesOpened": null,
+        "repeatedReads": null,
+        "toolCalls": 4,
+        "contextExpansions": 0,
+        "latencyMs": 75879,
+        "changedLines": 24,
+        "timeToFirstValidPatchMs": null,
+        "unnecessaryChangedLines": null,
+        "reviewerFindings": 0,
+        "staleContextMistakes": null
+      },
+      "review": {
+        "status": "passed",
+        "artifactHash": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+        "summary": "{\"status\":\"passed\",\"findings\":[]}"
+      },
+      "artifacts": {
+        "events": "benchmarks/recorded-results/live/benchmark_a3fba40f3b886e3555cd281ec9beb493/events.json",
+        "diff": "benchmarks/recorded-results/live/benchmark_a3fba40f3b886e3555cd281ec9beb493/diff.patch",
+        "tests": "benchmarks/recorded-results/live/benchmark_a3fba40f3b886e3555cd281ec9beb493/tests.txt",
+        "review": "benchmarks/recorded-results/live/benchmark_a3fba40f3b886e3555cd281ec9beb493/review.txt",
+        "receipt": "benchmarks/recorded-results/live/benchmark_a3fba40f3b886e3555cd281ec9beb493/receipt.json"
+      },
+      "artifactHashes": {
+        "events": "b2ceb0b908dbee585fa00dde54df60c8d6b8d5e7e8ca2486bce329fddb25ea4c",
+        "diff": "73bec897c88ee15d9f0e7bb1856f8b4061a4ec98e96ff0460a697475fb690dfb",
+        "tests": "8997033de0aa9439dfd36b0954f2605c526f23af163ca3d92eafd9dbce807b95",
+        "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+        "receipt": "0c471a36b27c4b499522f3699436d2ba3549d93e6400da13fa1127232fa25ba1"
+      },
+      "provenance": {
+        "mode": "artifact-derived",
+        "receiptHash": "0c471a36b27c4b499522f3699436d2ba3549d93e6400da13fa1127232fa25ba1",
+        "taskManifestHash": "40512511643d70584dc4d8174ae010dfc0c72c81d1c48b6523b0e264de3e49cb",
+        "derivedFields": [
+          "finalStatus",
+          "tests",
+          "taskSuccess",
+          "testsPassed",
+          "totalTokens",
+          "toolCalls",
+          "latencyMs",
+          "changedLines",
+          "review",
+          "reviewerFindings",
+          "contextExpansions"
+        ]
+      },
+      "limitations": [
+        "Requested model was not independently confirmed by an effective-model or reroute event.",
+        "Files opened and repeated reads are unavailable because App Server events do not provide a defensible read signal.",
+        "Profile evidence hashes the pre-launch auth-only App Server profile; the auth contents are never exported.",
+        "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt.",
+        "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt."
       ]
     },
     {
       "schemaVersion": "1",
       "id": "benchmark_c5vvsi",
+      "pairId": null,
       "recordedAt": "2026-07-19T08:48:38.348Z",
       "experiment": "context-controlled",
       "condition": "plain-codex",
@@ -473,6 +1092,7 @@
         "effective": null,
         "truthLabel": "requested-unconfirmed"
       },
+      "phaseRoutes": [],
       "permissions": "workspace-write:no-network:never-approve",
       "kernoConfiguration": null,
       "finalStatus": "partial",
@@ -506,22 +1126,394 @@
         "events": "benchmarks/recorded-results/live/benchmark_c5vvsi/events.json",
         "diff": "benchmarks/recorded-results/live/benchmark_c5vvsi/diff.patch",
         "tests": "benchmarks/recorded-results/live/benchmark_c5vvsi/tests.txt",
-        "review": "benchmarks/recorded-results/live/benchmark_c5vvsi/review.txt"
+        "review": "benchmarks/recorded-results/live/benchmark_c5vvsi/review.txt",
+        "receipt": null
       },
       "artifactHashes": {
         "events": "46f2419d1820ee9b9ad5367cbb714f8bb305b9ccf89dfa0706f84e506bd4790a",
         "diff": "e3ac7d9b1d5adc532d602a319d88f3b5ec488f45e2b248b0dc94852ebd69e28b",
         "tests": "3927e08e9b16227556a5ba8ae130c3ddee93e111c57f8f5c4ed15f9571219532",
-        "review": "ba01b7875183e9dd1a3d7afc636b3d891c042e46a4c70d25519cd8aedceb356b"
+        "review": "ba01b7875183e9dd1a3d7afc636b3d891c042e46a4c70d25519cd8aedceb356b",
+        "receipt": null
+      },
+      "provenance": {
+        "mode": "legacy-unverified",
+        "receiptHash": null,
+        "taskManifestHash": null,
+        "derivedFields": [
+          "toolCalls"
+        ]
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event.",
-        "Baseline validity requires the Kerno plugin to be absent from the App Server profile; verify the run preflight."
+        "Baseline validity requires the Kerno plugin to be absent from the App Server profile; verify the run preflight.",
+        "Legacy run metadata was not derived from a hashed receipt."
+      ]
+    },
+    {
+      "schemaVersion": "1",
+      "id": "benchmark_e438933536c5e86176d9a984c069da92",
+      "pairId": "pair_routing_refund_20260720",
+      "recordedAt": "2026-07-20T00:00:51.256Z",
+      "experiment": "full-system",
+      "condition": "kerno-phase-routing",
+      "task": {
+        "id": "refund-debug",
+        "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+        "repository": "relaycart-ts",
+        "license": "Apache-2.0",
+        "startingCommit": "06afe8c2b9366ccc9ec0756b24a473d751abb5b5",
+        "branch": "main",
+        "successCriteria": [
+          "all three pinned assertions pass",
+          "concurrent deliveries credit once",
+          "restart after marker timeout does not re-credit",
+          "public RefundSucceeded event shape is unchanged"
+        ],
+        "testCommands": [
+          "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+        ]
+      },
+      "environment": {
+        "platform": "darwin",
+        "architecture": "arm64",
+        "node": "v22.13.1",
+        "codex": "codex-cli 0.145.0-alpha.18",
+        "recordedFrom": "live-app-server",
+        "profileIsolation": "verified-clean",
+        "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+      },
+      "model": {
+        "requested": "gpt-5.6-sol",
+        "reasoningEffort": "low",
+        "effective": null,
+        "truthLabel": "requested-unconfirmed"
+      },
+      "phaseRoutes": [
+        {
+          "phase": "implementation",
+          "requested": {
+            "model": "gpt-5.6-sol",
+            "reasoningEffort": "low"
+          },
+          "effective": null,
+          "truthLabel": "requested-unconfirmed",
+          "outcome": "completed"
+        },
+        {
+          "phase": "final-verification",
+          "requested": {
+            "model": "gpt-5.6-sol",
+            "reasoningEffort": "ultra"
+          },
+          "effective": null,
+          "truthLabel": "requested-unconfirmed",
+          "outcome": "completed"
+        }
+      ],
+      "permissions": "workspace-write:no-network:never-approve",
+      "kernoConfiguration": {
+        "capsuleBudget": 2500,
+        "initialCapsuleId": "capsule_3ba859b4f7c3463d7c72db564a0ab807",
+        "childCapsuleId": null,
+        "routingPolicy": "full-system-live-phase-routing"
+      },
+      "finalStatus": "passed",
+      "tests": {
+        "passed": true,
+        "exitCode": 0,
+        "artifactHash": "73cb987079bda8d37b04174a0cc75c0d4f0b4d40000b24d1906e84aa0e7e3e92",
+        "outputTail": "TAP version 13\n# (node:35793) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.69125\n  ...\n# (node:35794) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.500583\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.478375\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 98.887208\n\n(node:35566) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+      },
+      "metrics": {
+        "taskSuccess": 1,
+        "testsPassed": 3,
+        "totalTokens": 50800,
+        "filesOpened": null,
+        "repeatedReads": null,
+        "toolCalls": 1,
+        "contextExpansions": 0,
+        "latencyMs": 102717,
+        "changedLines": 7,
+        "timeToFirstValidPatchMs": null,
+        "unnecessaryChangedLines": null,
+        "reviewerFindings": 0,
+        "staleContextMistakes": null
+      },
+      "review": {
+        "status": "passed",
+        "artifactHash": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+        "summary": "{\"status\":\"passed\",\"findings\":[]}"
+      },
+      "artifacts": {
+        "events": "benchmarks/recorded-results/live/benchmark_e438933536c5e86176d9a984c069da92/events.json",
+        "diff": "benchmarks/recorded-results/live/benchmark_e438933536c5e86176d9a984c069da92/diff.patch",
+        "tests": "benchmarks/recorded-results/live/benchmark_e438933536c5e86176d9a984c069da92/tests.txt",
+        "review": "benchmarks/recorded-results/live/benchmark_e438933536c5e86176d9a984c069da92/review.txt",
+        "receipt": "benchmarks/recorded-results/live/benchmark_e438933536c5e86176d9a984c069da92/receipt.json"
+      },
+      "artifactHashes": {
+        "events": "dd8e6866e4895d1f2800ce5d3f37921a58d2e1d20008bc3fd1fe670302166617",
+        "diff": "41b3676fb14c368bc470ee051b0dcea99c737cd7fafb786ea49bd111739a342e",
+        "tests": "73cb987079bda8d37b04174a0cc75c0d4f0b4d40000b24d1906e84aa0e7e3e92",
+        "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+        "receipt": "2c898d89e66ac0cf20f9fb5af14f99e22eb88174785aef550254d9eb89ed0166"
+      },
+      "provenance": {
+        "mode": "artifact-derived",
+        "receiptHash": "2c898d89e66ac0cf20f9fb5af14f99e22eb88174785aef550254d9eb89ed0166",
+        "taskManifestHash": "8f638c23220400ee3014460def7719b1dc2c3b37f9db18423ec2218dd16769d6",
+        "derivedFields": [
+          "finalStatus",
+          "tests",
+          "taskSuccess",
+          "testsPassed",
+          "totalTokens",
+          "toolCalls",
+          "latencyMs",
+          "changedLines",
+          "review",
+          "reviewerFindings",
+          "contextExpansions"
+        ]
+      },
+      "limitations": [
+        "Requested model was not independently confirmed by an effective-model or reroute event.",
+        "The verified failure named no candidate outside the initial capsule; Kerno recorded zero expansions instead of broadening context.",
+        "Files opened and repeated reads are unavailable because App Server events do not provide a defensible read signal.",
+        "Profile evidence hashes the pre-launch auth-only App Server profile; the auth contents are never exported.",
+        "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt.",
+        "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt."
+      ]
+    },
+    {
+      "schemaVersion": "1",
+      "id": "benchmark_f2002f3691bab70a1276d6f5404f2df1",
+      "pairId": "pair_refund_debug_20260720",
+      "recordedAt": "2026-07-19T23:40:14.334Z",
+      "experiment": "context-controlled",
+      "condition": "codex-with-kerno-capsule",
+      "task": {
+        "id": "refund-debug",
+        "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+        "repository": "relaycart-ts",
+        "license": "Apache-2.0",
+        "startingCommit": "06afe8c2b9366ccc9ec0756b24a473d751abb5b5",
+        "branch": "main",
+        "successCriteria": [
+          "all three pinned assertions pass",
+          "concurrent deliveries credit once",
+          "restart after marker timeout does not re-credit",
+          "public RefundSucceeded event shape is unchanged"
+        ],
+        "testCommands": [
+          "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+        ]
+      },
+      "environment": {
+        "platform": "darwin",
+        "architecture": "arm64",
+        "node": "v22.13.1",
+        "codex": "codex-cli 0.145.0-alpha.18",
+        "recordedFrom": "live-app-server",
+        "profileIsolation": "verified-clean",
+        "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+      },
+      "model": {
+        "requested": "gpt-5.6-sol",
+        "reasoningEffort": "low",
+        "effective": null,
+        "truthLabel": "requested-unconfirmed"
+      },
+      "phaseRoutes": [],
+      "permissions": "workspace-write:no-network:never-approve",
+      "kernoConfiguration": {
+        "capsuleBudget": 2500,
+        "initialCapsuleId": "capsule_b7884fa4aa5df156ca240e81bdc1b0d5",
+        "childCapsuleId": null,
+        "routingPolicy": "context-controlled-pinned-live-model-lowest-effort"
+      },
+      "finalStatus": "passed",
+      "tests": {
+        "passed": true,
+        "exitCode": 0,
+        "artifactHash": "c7ec415db46d8706cff6899bd8d75eec09f8c91c362f19b6d3d48675ec60a8c5",
+        "outputTail": "TAP version 13\n# (node:18705) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.740667\n  ...\n# (node:18706) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.500458\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.479375\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 102.990209\n\n(node:18477) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+      },
+      "metrics": {
+        "taskSuccess": 1,
+        "testsPassed": 3,
+        "totalTokens": 33952,
+        "filesOpened": null,
+        "repeatedReads": null,
+        "toolCalls": 1,
+        "contextExpansions": 0,
+        "latencyMs": 44002,
+        "changedLines": 7,
+        "timeToFirstValidPatchMs": null,
+        "unnecessaryChangedLines": null,
+        "reviewerFindings": 0,
+        "staleContextMistakes": null
+      },
+      "review": {
+        "status": "passed",
+        "artifactHash": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+        "summary": "{\"status\":\"passed\",\"findings\":[]}"
+      },
+      "artifacts": {
+        "events": "benchmarks/recorded-results/live/benchmark_f2002f3691bab70a1276d6f5404f2df1/events.json",
+        "diff": "benchmarks/recorded-results/live/benchmark_f2002f3691bab70a1276d6f5404f2df1/diff.patch",
+        "tests": "benchmarks/recorded-results/live/benchmark_f2002f3691bab70a1276d6f5404f2df1/tests.txt",
+        "review": "benchmarks/recorded-results/live/benchmark_f2002f3691bab70a1276d6f5404f2df1/review.txt",
+        "receipt": "benchmarks/recorded-results/live/benchmark_f2002f3691bab70a1276d6f5404f2df1/receipt.json"
+      },
+      "artifactHashes": {
+        "events": "2a1af81956a42e4cc2a7369559d345c3c271d6760db7043ea25500d4b39e4df1",
+        "diff": "f11e675f3bef999dbc2471d691e23bb058ac2796704cfea37b30d8f8a4e0c198",
+        "tests": "c7ec415db46d8706cff6899bd8d75eec09f8c91c362f19b6d3d48675ec60a8c5",
+        "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+        "receipt": "ab3f5d3834f3eb9fe5c8b23719f7d4fcd45d6d312f53069f91230386999988ce"
+      },
+      "provenance": {
+        "mode": "artifact-derived",
+        "receiptHash": "ab3f5d3834f3eb9fe5c8b23719f7d4fcd45d6d312f53069f91230386999988ce",
+        "taskManifestHash": "8f638c23220400ee3014460def7719b1dc2c3b37f9db18423ec2218dd16769d6",
+        "derivedFields": [
+          "finalStatus",
+          "tests",
+          "taskSuccess",
+          "testsPassed",
+          "totalTokens",
+          "toolCalls",
+          "latencyMs",
+          "changedLines",
+          "review",
+          "reviewerFindings",
+          "contextExpansions"
+        ]
+      },
+      "limitations": [
+        "Requested model was not independently confirmed by an effective-model or reroute event.",
+        "The verified failure named no candidate outside the initial capsule; Kerno recorded zero expansions instead of broadening context.",
+        "Files opened and repeated reads are unavailable because App Server events do not provide a defensible read signal.",
+        "Profile evidence hashes the pre-launch auth-only App Server profile; the auth contents are never exported.",
+        "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt.",
+        "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt."
+      ]
+    },
+    {
+      "schemaVersion": "1",
+      "id": "benchmark_fd147c1a5358ee986ffaf2667e0680ff",
+      "pairId": "pair_refund_debug_20260720",
+      "recordedAt": "2026-07-19T23:38:42.412Z",
+      "experiment": "context-controlled",
+      "condition": "plain-codex",
+      "task": {
+        "id": "refund-debug",
+        "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+        "repository": "relaycart-ts",
+        "license": "Apache-2.0",
+        "startingCommit": "06afe8c2b9366ccc9ec0756b24a473d751abb5b5",
+        "branch": "main",
+        "successCriteria": [
+          "all three pinned assertions pass",
+          "concurrent deliveries credit once",
+          "restart after marker timeout does not re-credit",
+          "public RefundSucceeded event shape is unchanged"
+        ],
+        "testCommands": [
+          "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+        ]
+      },
+      "environment": {
+        "platform": "darwin",
+        "architecture": "arm64",
+        "node": "v22.13.1",
+        "codex": "codex-cli 0.145.0-alpha.18",
+        "recordedFrom": "live-app-server",
+        "profileIsolation": "verified-clean",
+        "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+      },
+      "model": {
+        "requested": "gpt-5.6-sol",
+        "reasoningEffort": "low",
+        "effective": null,
+        "truthLabel": "requested-unconfirmed"
+      },
+      "phaseRoutes": [],
+      "permissions": "workspace-write:no-network:never-approve",
+      "kernoConfiguration": null,
+      "finalStatus": "passed",
+      "tests": {
+        "passed": true,
+        "exitCode": 0,
+        "artifactHash": "c547f6f5f21ef3c3149d11563503400fae57774e3eb03a149f785c20500d869c",
+        "outputTail": "TAP version 13\n# (node:25643) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.719916\n  ...\n# (node:25644) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.471583\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.487208\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 100.954416\n\n(node:25416) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+      },
+      "metrics": {
+        "taskSuccess": 1,
+        "testsPassed": 3,
+        "totalTokens": 88788,
+        "filesOpened": null,
+        "repeatedReads": null,
+        "toolCalls": 3,
+        "contextExpansions": 0,
+        "latencyMs": 64083,
+        "changedLines": 17,
+        "timeToFirstValidPatchMs": null,
+        "unnecessaryChangedLines": null,
+        "reviewerFindings": 0,
+        "staleContextMistakes": null
+      },
+      "review": {
+        "status": "passed",
+        "artifactHash": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+        "summary": "{\"status\":\"passed\",\"findings\":[]}"
+      },
+      "artifacts": {
+        "events": "benchmarks/recorded-results/live/benchmark_fd147c1a5358ee986ffaf2667e0680ff/events.json",
+        "diff": "benchmarks/recorded-results/live/benchmark_fd147c1a5358ee986ffaf2667e0680ff/diff.patch",
+        "tests": "benchmarks/recorded-results/live/benchmark_fd147c1a5358ee986ffaf2667e0680ff/tests.txt",
+        "review": "benchmarks/recorded-results/live/benchmark_fd147c1a5358ee986ffaf2667e0680ff/review.txt",
+        "receipt": "benchmarks/recorded-results/live/benchmark_fd147c1a5358ee986ffaf2667e0680ff/receipt.json"
+      },
+      "artifactHashes": {
+        "events": "0e50f6caba0630fff9c16625eb900beda1a257c8f16400aef793706063ef45ad",
+        "diff": "86e170d72a10f21deb7bd81c7505e2fef6259c894fb2fe9bfb9dafd09e693591",
+        "tests": "c547f6f5f21ef3c3149d11563503400fae57774e3eb03a149f785c20500d869c",
+        "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+        "receipt": "e0530267f0097e5d99127ece38c1d202498a2ef09e96e5f26f02804a4687f0b1"
+      },
+      "provenance": {
+        "mode": "artifact-derived",
+        "receiptHash": "e0530267f0097e5d99127ece38c1d202498a2ef09e96e5f26f02804a4687f0b1",
+        "taskManifestHash": "8f638c23220400ee3014460def7719b1dc2c3b37f9db18423ec2218dd16769d6",
+        "derivedFields": [
+          "finalStatus",
+          "tests",
+          "taskSuccess",
+          "testsPassed",
+          "totalTokens",
+          "toolCalls",
+          "latencyMs",
+          "changedLines",
+          "review",
+          "reviewerFindings",
+          "contextExpansions"
+        ]
+      },
+      "limitations": [
+        "Requested model was not independently confirmed by an effective-model or reroute event.",
+        "Files opened and repeated reads are unavailable because App Server events do not provide a defensible read signal.",
+        "Profile evidence hashes the pre-launch auth-only App Server profile; the auth contents are never exported.",
+        "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt.",
+        "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt."
       ]
     },
     {
       "schemaVersion": "1",
       "id": "benchmark_jkyxs4",
+      "pairId": null,
       "recordedAt": "2026-07-19T08:19:22.791Z",
       "experiment": "context-controlled",
       "condition": "codex-with-kerno-capsule",
@@ -557,6 +1549,7 @@
         "effective": null,
         "truthLabel": "requested-unconfirmed"
       },
+      "phaseRoutes": [],
       "permissions": "workspace-write:no-network:never-approve",
       "kernoConfiguration": {
         "capsuleBudget": 2500,
@@ -595,21 +1588,33 @@
         "events": "benchmarks/recorded-results/live/benchmark_jkyxs4/events.json",
         "diff": "benchmarks/recorded-results/live/benchmark_jkyxs4/diff.patch",
         "tests": "benchmarks/recorded-results/live/benchmark_jkyxs4/tests.txt",
-        "review": "benchmarks/recorded-results/live/benchmark_jkyxs4/review.txt"
+        "review": "benchmarks/recorded-results/live/benchmark_jkyxs4/review.txt",
+        "receipt": null
       },
       "artifactHashes": {
         "events": "97befa7f11ae67c2e435c2adbe27764f0cb98d2eecd9661fbfa7c980cb1d98f2",
         "diff": "0c4cd66d69fc9010a2aebc90f4143b384117e4f023cd372a13d6cf9cda9e9729",
         "tests": "ffa18b053509c9531880559bb277022cde985162ee9f642919a05bf1fa22124c",
-        "review": "b476b4bbd44a2ea62e0ebca748736b895ba02438b65bb908192a4f0f23bb4a1e"
+        "review": "b476b4bbd44a2ea62e0ebca748736b895ba02438b65bb908192a4f0f23bb4a1e",
+        "receipt": null
+      },
+      "provenance": {
+        "mode": "legacy-unverified",
+        "receiptHash": null,
+        "taskManifestHash": null,
+        "derivedFields": [
+          "toolCalls"
+        ]
       },
       "limitations": [
-        "Requested model was not independently confirmed by an effective-model or reroute event."
+        "Requested model was not independently confirmed by an effective-model or reroute event.",
+        "Legacy run metadata was not derived from a hashed receipt."
       ]
     },
     {
       "schemaVersion": "1",
       "id": "benchmark_vqexyg",
+      "pairId": null,
       "recordedAt": "2026-07-19T08:17:15.662Z",
       "experiment": "context-controlled",
       "condition": "plain-codex",
@@ -645,6 +1650,7 @@
         "effective": null,
         "truthLabel": "requested-unconfirmed"
       },
+      "phaseRoutes": [],
       "permissions": "workspace-write:no-network:never-approve",
       "kernoConfiguration": null,
       "finalStatus": "partial",
@@ -678,22 +1684,196 @@
         "events": "benchmarks/recorded-results/live/benchmark_vqexyg/events.json",
         "diff": "benchmarks/recorded-results/live/benchmark_vqexyg/diff.patch",
         "tests": "benchmarks/recorded-results/live/benchmark_vqexyg/tests.txt",
-        "review": "benchmarks/recorded-results/live/benchmark_vqexyg/review.txt"
+        "review": "benchmarks/recorded-results/live/benchmark_vqexyg/review.txt",
+        "receipt": null
       },
       "artifactHashes": {
         "events": "ec972e7bdd61c119a75cd2bd7852ba1a68c549a0e64194083de1bd337ae49c39",
         "diff": "0c4cd66d69fc9010a2aebc90f4143b384117e4f023cd372a13d6cf9cda9e9729",
         "tests": "88daea9127c663f1edc9f51d7efdd6fc65aaf6b19501ccfe245252dfdd2bbf14",
-        "review": "2d158e24ddbc965de8a506104f16fea72bd57649cba1a1554ee6dbd4c5fccf89"
+        "review": "2d158e24ddbc965de8a506104f16fea72bd57649cba1a1554ee6dbd4c5fccf89",
+        "receipt": null
+      },
+      "provenance": {
+        "mode": "legacy-unverified",
+        "receiptHash": null,
+        "taskManifestHash": null,
+        "derivedFields": [
+          "toolCalls"
+        ]
       },
       "limitations": [
         "Requested model was not independently confirmed by an effective-model or reroute event.",
-        "Baseline validity requires the Kerno plugin to be absent from the App Server profile; verify the run preflight."
+        "Baseline validity requires the Kerno plugin to be absent from the App Server profile; verify the run preflight.",
+        "Legacy run metadata was not derived from a hashed receipt."
       ]
     }
   ],
   "comparisons": [
     {
+      "pairId": "pair_queue_retry_20260720",
+      "taskId": "queue-retry-refactor",
+      "experiment": "context-controlled",
+      "baselineRunId": "benchmark_155679cdfedd10341a6487e8fd6d81e0",
+      "kernoRunId": "benchmark_241d4ecb22537b8de3bce91638935875",
+      "fairness": {
+        "passed": true,
+        "mismatches": []
+      },
+      "outcomes": {
+        "baseline": {
+          "finalStatus": "failed",
+          "testsPassed": false,
+          "testArtifactHash": "5b703dc62676ad282b79b4478ca605a79e58dc442c6d81b2320519b9fc5363d6",
+          "reviewStatus": "failed",
+          "reviewerFindings": 1
+        },
+        "kerno": {
+          "finalStatus": "failed",
+          "testsPassed": false,
+          "testArtifactHash": "5b703dc62676ad282b79b4478ca605a79e58dc442c6d81b2320519b9fc5363d6",
+          "reviewStatus": "failed",
+          "reviewerFindings": 1
+        }
+      },
+      "metrics": {
+        "taskSuccess": {
+          "baseline": 0,
+          "kerno": 0
+        },
+        "testsPassed": {
+          "baseline": 1,
+          "kerno": 1
+        },
+        "totalTokens": {
+          "baseline": 103783,
+          "kerno": 50757
+        },
+        "filesOpened": {
+          "baseline": null,
+          "kerno": null
+        },
+        "repeatedReads": {
+          "baseline": null,
+          "kerno": null
+        },
+        "toolCalls": {
+          "baseline": 3,
+          "kerno": 1
+        },
+        "contextExpansions": {
+          "baseline": 0,
+          "kerno": 0
+        },
+        "timeToFirstValidPatchMs": {
+          "baseline": null,
+          "kerno": null
+        },
+        "latencyMs": {
+          "baseline": 79175,
+          "kerno": 81317
+        },
+        "changedLines": {
+          "baseline": 23,
+          "kerno": 15
+        },
+        "unnecessaryChangedLines": {
+          "baseline": null,
+          "kerno": null
+        },
+        "reviewerFindings": {
+          "baseline": 1,
+          "kerno": 1
+        },
+        "staleContextMistakes": {
+          "baseline": null,
+          "kerno": null
+        }
+      }
+    },
+    {
+      "pairId": "pair_routing_refund_20260720",
+      "taskId": "refund-debug",
+      "experiment": "full-system",
+      "baselineRunId": "benchmark_18d8e89f8d2f148f9fac43a81e725033",
+      "kernoRunId": "benchmark_e438933536c5e86176d9a984c069da92",
+      "fairness": {
+        "passed": true,
+        "mismatches": []
+      },
+      "outcomes": {
+        "baseline": {
+          "finalStatus": "passed",
+          "testsPassed": true,
+          "testArtifactHash": "009818879cfa49decedf682a5c4f1073fd29321d9ef354acec4c1b0c466f0a39",
+          "reviewStatus": "passed",
+          "reviewerFindings": 0
+        },
+        "kerno": {
+          "finalStatus": "passed",
+          "testsPassed": true,
+          "testArtifactHash": "73cb987079bda8d37b04174a0cc75c0d4f0b4d40000b24d1906e84aa0e7e3e92",
+          "reviewStatus": "passed",
+          "reviewerFindings": 0
+        }
+      },
+      "metrics": {
+        "taskSuccess": {
+          "baseline": 1,
+          "kerno": 1
+        },
+        "testsPassed": {
+          "baseline": 3,
+          "kerno": 3
+        },
+        "totalTokens": {
+          "baseline": 82053,
+          "kerno": 50800
+        },
+        "filesOpened": {
+          "baseline": null,
+          "kerno": null
+        },
+        "repeatedReads": {
+          "baseline": null,
+          "kerno": null
+        },
+        "toolCalls": {
+          "baseline": 3,
+          "kerno": 1
+        },
+        "contextExpansions": {
+          "baseline": 0,
+          "kerno": 0
+        },
+        "timeToFirstValidPatchMs": {
+          "baseline": null,
+          "kerno": null
+        },
+        "latencyMs": {
+          "baseline": 203095,
+          "kerno": 102717
+        },
+        "changedLines": {
+          "baseline": 16,
+          "kerno": 7
+        },
+        "unnecessaryChangedLines": {
+          "baseline": null,
+          "kerno": null
+        },
+        "reviewerFindings": {
+          "baseline": 0,
+          "kerno": 0
+        },
+        "staleContextMistakes": {
+          "baseline": null,
+          "kerno": null
+        }
+      }
+    },
+    {
+      "pairId": null,
       "taskId": "refund-debug",
       "experiment": "context-controlled",
       "baselineRunId": "benchmark_1dwiafn",
@@ -701,6 +1881,9 @@
       "fairness": {
         "passed": false,
         "mismatches": [
+          "immutable pair ID missing",
+          "duplicate condition in pair",
+          "artifact-derived provenance missing",
           "profile isolation unverified",
           "profile evidence missing"
         ]
@@ -761,6 +1944,168 @@
         "changedLines": {
           "baseline": 16,
           "kerno": 16
+        },
+        "unnecessaryChangedLines": {
+          "baseline": null,
+          "kerno": null
+        },
+        "reviewerFindings": {
+          "baseline": 0,
+          "kerno": 0
+        },
+        "staleContextMistakes": {
+          "baseline": null,
+          "kerno": null
+        }
+      }
+    },
+    {
+      "pairId": "pair_refund_receipt_20260720",
+      "taskId": "refund-transaction-change",
+      "experiment": "context-controlled",
+      "baselineRunId": "benchmark_a3fba40f3b886e3555cd281ec9beb493",
+      "kernoRunId": "benchmark_2279dc4b712d446bc94ed475b46762a7",
+      "fairness": {
+        "passed": true,
+        "mismatches": []
+      },
+      "outcomes": {
+        "baseline": {
+          "finalStatus": "passed",
+          "testsPassed": true,
+          "testArtifactHash": "8997033de0aa9439dfd36b0954f2605c526f23af163ca3d92eafd9dbce807b95",
+          "reviewStatus": "passed",
+          "reviewerFindings": 0
+        },
+        "kerno": {
+          "finalStatus": "passed",
+          "testsPassed": true,
+          "testArtifactHash": "35c604eb4b10c03e0c7f1a1381ef259f6d09ab878e9c535e6e4c93766fc79e25",
+          "reviewStatus": "passed",
+          "reviewerFindings": 0
+        }
+      },
+      "metrics": {
+        "taskSuccess": {
+          "baseline": 1,
+          "kerno": 1
+        },
+        "testsPassed": {
+          "baseline": 4,
+          "kerno": 4
+        },
+        "totalTokens": {
+          "baseline": 103661,
+          "kerno": 51768
+        },
+        "filesOpened": {
+          "baseline": null,
+          "kerno": null
+        },
+        "repeatedReads": {
+          "baseline": null,
+          "kerno": null
+        },
+        "toolCalls": {
+          "baseline": 4,
+          "kerno": 1
+        },
+        "contextExpansions": {
+          "baseline": 0,
+          "kerno": 0
+        },
+        "timeToFirstValidPatchMs": {
+          "baseline": null,
+          "kerno": null
+        },
+        "latencyMs": {
+          "baseline": 75879,
+          "kerno": 71652
+        },
+        "changedLines": {
+          "baseline": 24,
+          "kerno": 13
+        },
+        "unnecessaryChangedLines": {
+          "baseline": null,
+          "kerno": null
+        },
+        "reviewerFindings": {
+          "baseline": 0,
+          "kerno": 0
+        },
+        "staleContextMistakes": {
+          "baseline": null,
+          "kerno": null
+        }
+      }
+    },
+    {
+      "pairId": "pair_refund_debug_20260720",
+      "taskId": "refund-debug",
+      "experiment": "context-controlled",
+      "baselineRunId": "benchmark_fd147c1a5358ee986ffaf2667e0680ff",
+      "kernoRunId": "benchmark_f2002f3691bab70a1276d6f5404f2df1",
+      "fairness": {
+        "passed": true,
+        "mismatches": []
+      },
+      "outcomes": {
+        "baseline": {
+          "finalStatus": "passed",
+          "testsPassed": true,
+          "testArtifactHash": "c547f6f5f21ef3c3149d11563503400fae57774e3eb03a149f785c20500d869c",
+          "reviewStatus": "passed",
+          "reviewerFindings": 0
+        },
+        "kerno": {
+          "finalStatus": "passed",
+          "testsPassed": true,
+          "testArtifactHash": "c7ec415db46d8706cff6899bd8d75eec09f8c91c362f19b6d3d48675ec60a8c5",
+          "reviewStatus": "passed",
+          "reviewerFindings": 0
+        }
+      },
+      "metrics": {
+        "taskSuccess": {
+          "baseline": 1,
+          "kerno": 1
+        },
+        "testsPassed": {
+          "baseline": 3,
+          "kerno": 3
+        },
+        "totalTokens": {
+          "baseline": 88788,
+          "kerno": 33952
+        },
+        "filesOpened": {
+          "baseline": null,
+          "kerno": null
+        },
+        "repeatedReads": {
+          "baseline": null,
+          "kerno": null
+        },
+        "toolCalls": {
+          "baseline": 3,
+          "kerno": 1
+        },
+        "contextExpansions": {
+          "baseline": 0,
+          "kerno": 0
+        },
+        "timeToFirstValidPatchMs": {
+          "baseline": null,
+          "kerno": null
+        },
+        "latencyMs": {
+          "baseline": 64083,
+          "kerno": 44002
+        },
+        "changedLines": {
+          "baseline": 17,
+          "kerno": 7
         },
         "unnecessaryChangedLines": {
           "baseline": null,

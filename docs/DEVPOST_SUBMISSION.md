@@ -74,16 +74,16 @@ GPT-5.6 powered the main Codex implementation work and was discovered/requested 
 - Thirteen strict MCP contracts and a locally installable Codex plugin.
 - Live catalog discovery and explicit phase orchestration with honest route labels.
 - Evidence-first dashboard covering all empty/loading/success/failure states.
-- One retained real same-task pair with unfavorable observations and an explicit `FAIRNESS UNVERIFIED` result; no causal performance claim is made.
+- Three fairness-valid context-controlled pairs, one separate full-system routing pair, hash-bound raw artifacts, and retained unfavorable outcomes.
 - Local-first security controls and reproducible tests/artifacts.
 
 ## What was learned
 
-Context quality is falsifiable: a failing test can prove a capsule incomplete. “Requested model” and “effective model” must remain separate. Token reduction is not guaranteed. The first real same-task pair lacked final clean-profile provenance, so Kerno revoked its former fairness label rather than using raw observations as a causal claim. That correction improved the product’s honesty and evaluation design.
+Context quality is falsifiable: a failing test can prove a capsule incomplete. “Requested model” and “effective model” must remain separate. Token reduction is not guaranteed. Early runs lacked clean-profile provenance, so Kerno retained them as legacy-unverified evidence and rebuilt the matrix with auth-only profiles and hash-bound receipts. The Python task then failed in both strengthened conditions; keeping that result made the evaluation more honest.
 
 ## What is next
 
-Complete all three pre-registered paired tasks and routing experiment, validate Windows only if tested, then explore optional parsers and embeddings without weakening evidence/invalidation semantics.
+Repeat the current three-task case study to improve statistical confidence, validate Windows only if tested, and then explore optional parsers and embeddings without weakening evidence/invalidation semantics.
 
 ## Judge test field
 

@@ -52,7 +52,7 @@ Every capsule item exposes its source, file or symbol, freshness, confidence, es
 
 Requirements: Git, npm, and Node.js `>=22.13 <25`. The replay needs no OpenAI API key, hosted service, or Codex authentication.
 
-Open the no-install judge replay: **[kerno-codex.vercel.app](https://kerno-codex.vercel.app)**. It is a read-only deployment of the checked-in deterministic replay and separately labeled App Server evidence. It never receives repository source and is not presented as a live Codex run.
+Open the no-install judge replay: **[kerno-codex.vercel.app](https://kerno-codex.vercel.app)**. It is a read-only deployment reproducibly generated from the checked-in fixture and separately labeled retained App Server evidence. It never receives repository source and is not presented as a live Codex run.
 
 ```bash
 npm install
@@ -147,20 +147,11 @@ Kerno is a strict TypeScript/npm-workspaces monorepo using Zod, `better-sqlite3`
 
 ## Benchmark status
 
-One real same-task pair is checked in for `refund-debug`. Both latest conditions passed pinned tests and a fresh independent review with zero findings, and six earlier partial attempts remain retained because their reviews exposed fixture design defects. The historical pair predates profile-isolation and raw-artifact-hash enforcement, so the current validator correctly marks it **fairness unverified**. It is retained as operational evidence, not used for a causal Kerno-versus-baseline claim.
+Kerno retains three fairness-valid context-controlled pairs and one separate full-system routing pair. Each current condition uses an auth-only temporary Codex profile, immutable pair ID, matching task/commit/permissions/model/effort where required, hash-bound raw artifacts, pinned tests, and a fresh reviewer.
 
-Raw observations in that unverified pair:
+Correctness comes first: both conditions passed on `refund-debug` and `refund-transaction-change`; both conditions failed the Python `queue-retry-refactor` task and each received one reviewer finding. That unfavorable result remains in the report. Across the two correctness-passing context pairs, Kerno used fewer observed tokens, fewer completed tools, and fewer changed lines in these single-run case studies. The separate routing pair also passed in both conditions, but Kerno's requested phase models remain `requested-unconfirmed` because the runtime emitted no effective-model or reroute event.
 
-| Metric | Plain Codex | Codex + Kerno capsule |
-|---|---:|---:|
-| Total observed thread tokens | 93,670 | 95,383 |
-| Unique files observed | 6 | 2 |
-| Repeated observable reads | 2 | 0 |
-| Tool calls | 7 | 8 |
-| Latency | 71,922 ms | 107,289 ms |
-| Changed lines | 16 | 16 |
-
-Because the environment isolation and artifact provenance are incomplete, these values must not be compared causally. Exact cost is not reported. The required three-task benchmark matrix, verified-clean profiles, artifact hashes, and separate routing experiment remain release blockers; see [Benchmark](docs/BENCHMARK.md).
+These are real recorded observations, not generalized productivity claims. Files opened and repeated reads remain unavailable in the strengthened runs because the emitted events do not provide a defensible read signal. Exact cost is not reported. See [Benchmark](docs/BENCHMARK.md) for every number, retained failure, hash-bound artifact, reproduction command, and statistical limitation.
 
 ## Privacy and security
 

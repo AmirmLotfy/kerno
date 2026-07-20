@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "1",
+  "runId": "benchmark_155679cdfedd10341a6487e8fd6d81e0",
+  "pairId": "pair_queue_retry_20260720",
+  "recordedAt": "2026-07-19T23:44:50.756Z",
+  "experiment": "context-controlled",
+  "condition": "plain-codex",
+  "taskManifestHash": "dc7e719d960972aa85c725cdc4c4e918d7205d1b029c9fbb6ca109b5b34df195",
+  "task": {
+    "id": "queue-retry-refactor",
+    "text": "Refactor retry policy selection so transient messages use the fast policy and throttled messages use the durable policy without changing exactly-once queue acknowledgement behavior.",
+    "repository": "gatehouse-python",
+    "license": "Apache-2.0",
+    "startingCommit": "a38369dba3251a7063ce8fc9e871879ebffe428f",
+    "branch": "main",
+    "successCriteria": [
+      "all tests pass",
+      "acknowledgement behavior remains exactly once",
+      "retry delays are selected by message kind"
+    ],
+    "testCommands": [
+      "python3 -m unittest discover -s tests -v"
+    ]
+  },
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v22.13.1",
+    "codex": "codex-cli 0.145.0-alpha.18",
+    "recordedFrom": "live-app-server",
+    "profileIsolation": "verified-clean",
+    "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+  },
+  "model": {
+    "requested": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "effective": null,
+    "truthLabel": "requested-unconfirmed"
+  },
+  "permissions": "workspace-write:no-network:never-approve",
+  "kernoConfiguration": null,
+  "implementation": {
+    "failureKind": null
+  },
+  "test": {
+    "command": "python3 -m unittest discover -s tests -v",
+    "exitCode": 1,
+    "startedAt": "2026-07-19T23:44:26.546Z",
+    "completedAt": "2026-07-19T23:44:26.640Z"
+  },
+  "review": {
+    "failureKind": null
+  },
+  "timing": {
+    "startedAt": "2026-07-19T23:43:31.579Z",
+    "completedAt": "2026-07-19T23:44:50.756Z",
+    "totalLatencyMs": 79175
+  },
+  "contextExpansions": 0,
+  "artifactHashes": {
+    "events": "8fb5217f4a736b8f9d89e5b73e4d42d4794444588d80c5e13b3d1f45c1134ed4",
+    "diff": "7bd31413193b2e4859aff2a32486aade4a3a26e0bc8b1b477911a0cc5e31829c",
+    "tests": "5b703dc62676ad282b79b4478ca605a79e58dc442c6d81b2320519b9fc5363d6",
+    "review": "00d58041869483a429f28b74950cdf34f9612d98ebe209b12c479625fbbbb827"
+  }
+}

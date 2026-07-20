@@ -3,7 +3,7 @@ import { access, chmod, lstat, mkdir, readFile, realpath, rm, writeFile } from "
 import { homedir } from "node:os";
 import { basename, join, parse, relative, resolve, sep } from "node:path";
 import { promisify } from "node:util";
-import { KernoError, redactSensitiveValue } from "@kerno/contracts";
+import { benchmarkRunSchema, KernoError, redactSensitiveValue, stableId } from "@kerno/contracts";
 import { KernoService, startHttpServer } from "@kerno/daemon";
 import { inspectRepository } from "@kerno/indexer";
 
@@ -24,7 +24,7 @@ Commands:
   invalidate            Preview invalidation; add --apply to persist it
   serve                 Start the loopback read-only HTTP/SSE daemon
   demo                  Regenerate the deterministic judge replay
-  benchmark             Run a live --baseline or --kerno benchmark
+  benchmark             Run a live --baseline or --kerno benchmark with --task, --pair-id, and optional --experiment
   data-export           Export redacted local state
   data-delete           Delete only a verified Kerno-owned data directory
 
@@ -151,7 +151,19 @@ export async function runCli(argv: string[], io: CliIO = defaultIO): Promise<num
         await writeFile(out, `${JSON.stringify(safeExportValue(payload, root), null, 2)}\n`, { flag: "wx", mode: 0o600 }); await chmod(out, 0o600); emit(io, { exported: out }, json);
       } else if (command === "serve") { const handle = await startHttpServer(service, { port: Number(valueAfter(args, "--port") ?? 0) }); emit(io, { url: handle.url, token: handle.token }, true); await new Promise(() => {}); }
       else if (command === "demo") { await runFixedNpm(root, ["run", "demo:record"]); emit(io, { recorded: join(root, "benchmarks/recorded-results/canonical-run.json") }, json); }
-      else if (command === "benchmark") { const condition = args.includes("--kerno") ? "--kerno" : "--baseline"; await runFixedNpm(root, ["run", "benchmark:live", "--", condition]); emit(io, { completed: condition.slice(2) }, json); }
+      else if (command === "benchmark") {
+        if (args.includes("--kerno") === args.includes("--baseline")) throw new KernoError("INVALID_INPUT", "benchmark requires exactly one --baseline or --kerno");
+        const task = valueAfter(args, "--task"); const pairId = valueAfter(args, "--pair-id"); const experiment = valueAfter(args, "--experiment") ?? "context-controlled";
+        if (!task || !pairId) throw new KernoError("INVALID_INPUT", "benchmark requires --task <task-id> and --pair-id <stable-pair-id>");
+        const condition = args.includes("--kerno") ? "--kerno" : "--baseline";
+        await runFixedNpm(root, ["run", "benchmark:live", "--", condition, "--task", task, "--pair-id", pairId, "--experiment", experiment]);
+        const conditionName = experiment === "context-controlled" ? condition === "--kerno" ? "codex-with-kerno-capsule" : "plain-codex" : condition === "--kerno" ? "kerno-phase-routing" : "plain-default-workflow";
+        const runId = stableId("benchmark", `${pairId}:${conditionName}`);
+        const runPath = join(root, "benchmarks", "recorded-results", "live", runId, "run.json");
+        const run = benchmarkRunSchema.parse(JSON.parse(await readFile(runPath, "utf8")));
+        service.store.put("run", run.id, run);
+        emit(io, { completed: condition.slice(2), task, pairId, experiment, runId: run.id, comparisonReadyWith: condition === "--kerno" ? "baseline run ID" : "Kerno run ID" }, json);
+      }
       else throw new KernoError("INVALID_INPUT", `Unknown command: ${command}`);
       return 0;
     } finally { if (command !== "serve") service.close(); }

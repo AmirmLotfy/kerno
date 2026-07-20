@@ -1,0 +1,37 @@
+diff --git a/src/webhooks/refund-handler.ts b/src/webhooks/refund-handler.ts
+index 137d95d..dbd3dca 100644
+--- a/src/webhooks/refund-handler.ts
++++ b/src/webhooks/refund-handler.ts
+@@ -1,5 +1,6 @@
+ import type { IdempotencyStore } from "../idempotency/idempotency-store.ts";
+ import type { Ledger } from "../ledger/ledger.ts";
++import { transactionBoundaryFor, type TransactionBoundary } from "../transactions/transaction-boundary.ts";
+ 
+ export type RefundSucceeded = {
+   id: string;
+@@ -9,17 +10,17 @@ export type RefundSucceeded = {
+ };
+ 
+ export class RefundHandler {
+-  private readonly ledger: Ledger;
+-  private readonly idempotency: IdempotencyStore;
++  private readonly transaction: TransactionBoundary;
++
+   constructor(ledger: Ledger, idempotency: IdempotencyStore) {
+-    this.ledger = ledger;
+-    this.idempotency = idempotency;
++    this.transaction = transactionBoundaryFor(ledger, idempotency);
+   }
+ 
+   async handle(event: RefundSucceeded): Promise<void> {
+-    if (await this.idempotency.has(event.id)) return;
+-    await this.ledger.credit({ customerId: event.customerId, amount: event.amount, eventId: event.id });
+-    // A timeout here allows the retry to credit the customer again.
+-    await this.idempotency.mark(event.id);
++    await this.transaction.creditOnce(event.id, {
++      customerId: event.customerId,
++      amount: event.amount,
++      eventId: event.id,
++    });
+   }
+ }

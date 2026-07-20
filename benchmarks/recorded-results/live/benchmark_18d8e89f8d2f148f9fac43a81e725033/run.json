@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "1",
+  "id": "benchmark_18d8e89f8d2f148f9fac43a81e725033",
+  "pairId": "pair_routing_refund_20260720",
+  "recordedAt": "2026-07-19T23:52:05.178Z",
+  "experiment": "full-system",
+  "condition": "plain-default-workflow",
+  "task": {
+    "id": "refund-debug",
+    "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+    "repository": "relaycart-ts",
+    "license": "Apache-2.0",
+    "startingCommit": "06afe8c2b9366ccc9ec0756b24a473d751abb5b5",
+    "branch": "main",
+    "successCriteria": [
+      "all three pinned assertions pass",
+      "concurrent deliveries credit once",
+      "restart after marker timeout does not re-credit",
+      "public RefundSucceeded event shape is unchanged"
+    ],
+    "testCommands": [
+      "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+    ]
+  },
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v22.13.1",
+    "codex": "codex-cli 0.145.0-alpha.18",
+    "recordedFrom": "live-app-server",
+    "profileIsolation": "verified-clean",
+    "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+  },
+  "model": {
+    "requested": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "effective": null,
+    "truthLabel": "requested-unconfirmed"
+  },
+  "permissions": "workspace-write:no-network:never-approve",
+  "kernoConfiguration": null,
+  "finalStatus": "passed",
+  "tests": {
+    "passed": true,
+    "exitCode": 0,
+    "artifactHash": "009818879cfa49decedf682a5c4f1073fd29321d9ef354acec4c1b0c466f0a39",
+    "outputTail": "TAP version 13\n# (node:29463) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: write-ahead state survives a marker timeout and handler restart\nok 1 - write-ahead state survives a marker timeout and handler restart\n  ---\n  duration_ms: 0.723583\n  ...\n# (node:29464) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: concurrent duplicate deliveries across handlers credit exactly once\nok 2 - concurrent duplicate deliveries across handlers credit exactly once\n  ---\n  duration_ms: 0.475625\n  ...\n# Subtest: public refund event shape is unchanged\nok 3 - public refund event shape is unchanged\n  ---\n  duration_ms: 0.500041\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 100.003708\n\n(node:29236) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+  },
+  "metrics": {
+    "taskSuccess": 1,
+    "testsPassed": 3,
+    "totalTokens": 82053,
+    "filesOpened": null,
+    "repeatedReads": null,
+    "toolCalls": 3,
+    "contextExpansions": 0,
+    "latencyMs": 203095,
+    "changedLines": 16,
+    "timeToFirstValidPatchMs": null,
+    "unnecessaryChangedLines": null,
+    "reviewerFindings": 0,
+    "staleContextMistakes": null
+  },
+  "review": {
+    "status": "passed",
+    "artifactHash": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+    "summary": "{\"status\":\"passed\",\"findings\":[]}"
+  },
+  "artifacts": {
+    "events": "benchmarks/recorded-results/live/benchmark_18d8e89f8d2f148f9fac43a81e725033/events.json",
+    "diff": "benchmarks/recorded-results/live/benchmark_18d8e89f8d2f148f9fac43a81e725033/diff.patch",
+    "tests": "benchmarks/recorded-results/live/benchmark_18d8e89f8d2f148f9fac43a81e725033/tests.txt",
+    "review": "benchmarks/recorded-results/live/benchmark_18d8e89f8d2f148f9fac43a81e725033/review.txt",
+    "receipt": "benchmarks/recorded-results/live/benchmark_18d8e89f8d2f148f9fac43a81e725033/receipt.json"
+  },
+  "artifactHashes": {
+    "events": "29718be882eeed4c6045db6a1a8e5f7bb81bd46893480bf5fe142b41212c2fab",
+    "diff": "e3ac7d9b1d5adc532d602a319d88f3b5ec488f45e2b248b0dc94852ebd69e28b",
+    "tests": "009818879cfa49decedf682a5c4f1073fd29321d9ef354acec4c1b0c466f0a39",
+    "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b",
+    "receipt": "2c4a2cc319b200364b54d634467d81bc137e69d20544fb095b741bf77d03f878"
+  },
+  "provenance": {
+    "mode": "artifact-derived",
+    "receiptHash": "2c4a2cc319b200364b54d634467d81bc137e69d20544fb095b741bf77d03f878",
+    "taskManifestHash": "8f638c23220400ee3014460def7719b1dc2c3b37f9db18423ec2218dd16769d6",
+    "derivedFields": [
+      "finalStatus",
+      "tests",
+      "taskSuccess",
+      "testsPassed",
+      "totalTokens",
+      "toolCalls",
+      "latencyMs",
+      "changedLines",
+      "review",
+      "reviewerFindings",
+      "contextExpansions"
+    ]
+  },
+  "limitations": [
+    "Requested model was not independently confirmed by an effective-model or reroute event.",
+    "Files opened and repeated reads are unavailable because App Server events do not provide a defensible read signal.",
+    "Profile evidence hashes the pre-launch auth-only App Server profile; the auth contents are never exported.",
+    "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt."
+  ]
+}

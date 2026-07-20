@@ -8,6 +8,12 @@ const allowed = /\b(?:MIT|ISC|Apache-2\.0|BSD-2-Clause|BSD-3-Clause|CC0-1\.0|CC-
 const findings: string[] = [];
 let checked = 0;
 
+const [rootLicense, pluginLicense] = await Promise.all([
+  readFile(join(root, "LICENSE"), "utf8"),
+  readFile(join(root, "plugins/kerno/LICENSE"), "utf8")
+]);
+if (rootLicense !== pluginLicense) findings.push("plugins/kerno/LICENSE does not exactly match the repository Apache-2.0 license");
+
 for (const packagePath of Object.keys(lock.packages ?? {}).filter((path) => path.startsWith("node_modules/") && !path.includes("/node_modules/"))) {
   const lockEntry = lock.packages[packagePath];
   if (lockEntry?.link) continue;

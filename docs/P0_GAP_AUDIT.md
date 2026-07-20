@@ -50,15 +50,15 @@ Updated July 19, 2026 after the complete local gate.
 | Dashboard states and views | **Pass** | All 16 requested lifecycle states, six views, truth labels, desktop/mobile Playwright, and production build pass. |
 | Second substantial fixture | **Pass** | Original Apache-2.0 `gatehouse-python` has multiple modules, imports, interface refactor, failing seed, passing pinned solution, and indexer integration coverage. |
 | Benchmark exporter | **Pass** | Strict run schema plus JSON, CSV, Markdown, dashboard exports; missing values remain null. |
-| Three-task App Server matrix | **Fail / release blocker** | One historical `refund-debug` pair retained. Two more paired tasks and the separate routing experiment are not recorded. |
-| Fairness proof | **Fail / release blocker** | The historical pair lacks verified clean-profile evidence and raw artifact hashes; the strengthened validator correctly rejects it. |
+| Three-task App Server matrix | **Pass** | Three current context-controlled pairs and one separate full-system routing pair are retained; the failed Python pair remains visible. |
+| Fairness proof | **Pass with sample-size caveat** | Current pairs use immutable pair IDs, auth-only profiles, matching task/commit/model/effort where required, and hash-bound receipts/artifacts. Each task has one run per condition. |
 | Live writable phase / review | **Pass** | Latest same-task pair produced passing patches and fresh independent reviews with zero findings; earlier failed reviews remain retained and drove transaction-invariant corrections. |
 | Root doctor / judge path | **Pass locally** | `npm run doctor`, `npm run judge -- --check`, CLI/plugin/MCP/E2E paths pass. |
-| Actual fresh clone | **Pass on macOS** | Non-hardlinked clone of `1b6955e` passed `npm ci`, doctor, judge, 33 deterministic tests, builds, secret/license/dependency audits, and 2 browser tests. Linux remains remote-CI pending. |
+| Actual fresh clone | **Pending final RC rerun** | Earlier non-hardlinked clones passed. The final commit and exact current gate counts are recorded in `docs/FINAL_VALIDATION_REPORT.md` after the last release-candidate run. |
 | Documentation and submission drafts | **Pass for local content** | README, architecture, benchmark, security, collaboration, quickstart, Devpost draft, and timed demo script are complete and honest. External URLs/Session ID remain required. |
 | Attribution/license/secret/dependency audits | **Pass locally** | 320 installed packages resolved to allowed licenses, secret scan passed, and npm reported zero vulnerabilities. |
 | Dashboard technical audit | **Pass with P1 notes** | 18/20; no P0 finding. Formal screen-reader conformance remains P1. |
 | Demo assets | **Partial / release blocker** | Recording fixture, final screenshot, script, fallback, and checklists exist. Public `<3:00` video has not been recorded/uploaded. |
 | Submission identifiers and eligibility | **Blocked on external/human input** | Repository URL, video URL, primary `/feedback` ID, exact authenticated field labels, and entrant eligibility confirmation remain unavailable. |
 
-Kerno is locally operational and judge-demonstrable, but it is **not submission-ready** while effective-model identity remains unconfirmed, no benchmark pair passes the final fairness gate, the three-task matrix is incomplete, and the public video/URLs, Session ID, remote Linux result, and human eligibility/form checks remain incomplete.
+Kerno is internally operational and judge-demonstrable. Effective-model identity remains honestly `requested-unconfirmed`, not a broken acceptance claim: the supported interface accepted and completed the requested routes but emitted no stronger identity event. Submission remains blocked only by the public video, primary `/feedback` Session ID, authenticated human form choices, and entrant/team eligibility confirmation. Linux remains CI-configured but locally unverified; Windows is not claimed.

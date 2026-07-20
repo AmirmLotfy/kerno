@@ -2,9 +2,9 @@
 
 ## Truth brief
 
-Latest refresh: **July 19, 2026 at 2:21 PM PDT / July 20, 2026 at 12:21 AM Africa/Cairo / July 19, 2026 at 9:21 PM UTC**. Approximately 51 hours remained. No substantive requirement changed from the prior grounding.
+Latest refresh: **July 19, 2026 at 5:16 PM PDT / July 20, 2026 at 3:16 AM Africa/Cairo / July 20, 2026 at 12:16 AM UTC**. No substantive requirement changed from the prior grounding.
 
-The selected Devpost Hackathons plugin was called first and returned complete overview, announcements, rules, dates, criteria, prizes, registration, and submission-field data. Official Devpost pages were then cross-checked. The authenticated account is already registered, and an empty unsubmitted Kerno draft exists at `https://devpost.com/software/kerno`. No project field was created, edited, uploaded, or submitted in this refresh.
+The selected Devpost Hackathons plugin was called first and returned fresh overview, announcements, rules, dates, criteria, resources, and submission-field data at `2026-07-20T00:16:38Z`. The official overview, Rules, Resources, and schedule were then cross-checked directly. The authenticated account remains registered and the existing Kerno draft remains unsubmitted. No project field was created, edited, uploaded, or submitted in this refresh.
 
 - Phase: registration and submissions open.
 - Controlling deadline: Tuesday, July 21, 2026 at 5:00 PM PDT / Wednesday, July 22, 2026 at 3:00 AM EEST.
@@ -38,8 +38,8 @@ Global deliverables from the live form: video required; website not required; zi
 
 | Source | Retrieved | Use |
 |---|---:|---|
-| Devpost Hackathons plugin | Jul 19, 2:21 PM PDT / Jul 20, 12:21 AM Cairo | Authenticated retrieval of overview, announcements, registration state, project draft state, and exact submission fields |
-| [Official Rules](https://openai.devpost.com/rules) | Same | Controlling contractual source for deadline, eligibility, deliverables, judging, testing, and prizes |
+| Devpost Hackathons plugin | Jul 19, 5:16 PM PDT / Jul 20, 3:16 AM Cairo | Fresh overview, announcements, rules, dates, criteria, resources, and submission fields |
+| [Official Rules](https://openai.devpost.com/rules) | Jul 19, 5:18 PM PDT / Jul 20, 3:18 AM Cairo | Controlling contractual source for deadline, eligibility, deliverables, judging, testing, and prizes |
 | [Hackathon overview](https://openai.devpost.com/) | Same | Tracks, overview requirements, judging summary, and prizes |
 | [Resources](https://openai.devpost.com/resources) | Same | Credits, setup, support, and demo tips |
 | [Host updates](https://openai.devpost.com/updates) | Same | Current announcements |
@@ -54,7 +54,7 @@ Global deliverables from the live form: video required; website not required; zi
 
 | Checked item | Change since prior brief | Controlling source | Resulting action |
 |---|---|---|---|
-| Announcements | No newer requirement-changing announcement was visible; the Tuesday deadline correction remains the relevant update | Official host updates; Rules if an update conflicts | Keep the Tuesday deadline and four-hour submission buffer |
+| Announcements | No newer requirement-changing announcement was returned; the July 18 Tuesday-deadline reminder remains controlling guidance | Official host updates; Rules if an update conflicts | Keep the Tuesday deadline and four-hour submission buffer |
 | Rules and eligibility | No observed change | Official Rules | No scope change; human eligibility confirmation remains required |
 | Dates | No observed change to submission deadline; Rules/schedule judging-period conflict remains | Official Rules | Deadline remains July 21, 5:00 PM PDT / July 22, 3:00 AM Cairo |
 | Judging criteria | No observed change | Official Rules and overview | Preserve equal alignment to implementation, design, impact, and idea quality |
@@ -96,8 +96,8 @@ Global deliverables from the live form: video required; website not required; zi
 
 | Requirement | State | Evidence or blocker |
 |---|---|---|
-| Working Developer Tools project | Partial | Deterministic service slice, plugin index/capsule path, MCP, dashboard, and tests exist; a public trusted test-artifact handoff into Plugin Mode remains missing |
-| Meaningful Codex and GPT-5.6 use | Partial | Root implementation collaboration is documented; retained App Server evidence requested a live-discovered GPT-5.6 model but did not independently confirm the effective model |
+| Working Developer Tools project | Pass internally | Incremental index, task capsule, selective expansion, invalidation, MCP/plugin, live catalog routing requests, fresh review, dashboard, benchmark, and tests are implemented; Plugin Mode recommendations remain truthfully separate from Orchestrator Mode |
+| Meaningful Codex and GPT-5.6 use | Pass, evidence pending Session ID | The root implementation collaboration is documented; artifact-derived routing runs requested live-discovered GPT-5.6 phase routes while retaining the runtime's `requested-unconfirmed` truth label |
 | Installation, supported platforms, no-rebuild test path | Pass locally | `README.md`, `docs/JUDGE_QUICKSTART.md`, plugin archive, replay mode |
 | Repository access | Pass externally | Public repository is pushed and visible signed out at `https://github.com/AmirmLotfy/kerno` |
 | No-rebuild judge path | Pass externally | Public replay is visible signed out at `https://kerno-codex.vercel.app`; local/plugin paths remain documented |
@@ -107,4 +107,4 @@ Global deliverables from the live form: video required; website not required; zi
 | Authenticated submission fields | Partial | Exact labels are recorded; human submitter/country choices, `/feedback`, video, and final authorized write remain |
 | Entrant/team eligibility | Blocked on human confirmation | Residence list includes Egypt, but age, sanctions, ownership, conflicts, and representative authority are not machine-verifiable |
 
-**Compliance decision:** locally and publicly demonstrable, but **NOT READY for submission** until the video, Session-ID, human form choices, eligibility confirmation, and evaluation blockers are resolved. The account and Kerno draft pre-existed this refresh; no Devpost project creation, edit, upload, or submission occurred during this validation.
+**Compliance decision:** product, repository, replay, documentation, and strengthened three-task evaluation are internally release-candidate quality, but **NOT READY for submission** until the public video, primary Session ID, human form choices, and eligibility confirmation are complete. The account and Kerno draft pre-existed this refresh; no Devpost project creation, edit, upload, or submission occurred during this validation.

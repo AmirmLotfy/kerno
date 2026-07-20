@@ -1,0 +1,47 @@
+diff --git a/gatehouse/worker.py b/gatehouse/worker.py
+index e481647..ad8b94d 100644
+--- a/gatehouse/worker.py
++++ b/gatehouse/worker.py
+@@ -1,6 +1,6 @@
+ """Worker orchestration before the benchmark refactor."""
+ 
+-from collections.abc import Callable
++from collections.abc import Callable, Mapping
+ 
+ from .models import Message, ProcessingResult
+ from .queue import InMemoryQueue
+@@ -10,10 +10,26 @@ Handler = Callable[[Message], ProcessingResult]
+ 
+ 
+ class Worker:
+-    def __init__(self, queue: InMemoryQueue, handler: Handler, retry_policy: RetryPolicy) -> None:
++    def __init__(
++        self,
++        queue: InMemoryQueue,
++        handler: Handler,
++        retry_policy: RetryPolicy | None = None,
++        *,
++        policies: Mapping[str, RetryPolicy] | None = None,
++    ) -> None:
+         self._queue = queue
+         self._handler = handler
++        if (retry_policy is None) == (policies is None):
++            raise ValueError("provide exactly one retry policy or policy mapping")
+         self._retry_policy = retry_policy
++        self._policies = policies
++
++    def _policy_for(self, message: Message) -> RetryPolicy:
++        if self._policies is not None:
++            return self._policies[message.kind]
++        assert self._retry_policy is not None
++        return self._retry_policy
+ 
+     def process(self, message: Message) -> None:
+         result = self._handler(message)
+@@ -22,4 +38,5 @@ class Worker:
+         elif result is ProcessingResult.DROP:
+             self._queue.drop(message)
+         else:
+-            self._queue.retry(message, self._retry_policy.delay_for(message.attempts))
++            policy = self._policy_for(message)
++            self._queue.retry(message, policy.delay_for(message.attempts))

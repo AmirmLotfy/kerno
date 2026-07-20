@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "1",
+  "runId": "benchmark_a3fba40f3b886e3555cd281ec9beb493",
+  "pairId": "pair_refund_receipt_20260720",
+  "recordedAt": "2026-07-19T23:41:53.795Z",
+  "experiment": "context-controlled",
+  "condition": "plain-codex",
+  "taskManifestHash": "40512511643d70584dc4d8174ae010dfc0c72c81d1c48b6523b0e264de3e49cb",
+  "task": {
+    "id": "refund-transaction-change",
+    "text": "Add a transaction-boundary receipt describing whether a refund was newly applied or already completed, expose it to the webhook handler without changing the public RefundSucceeded event, and add focused tests.",
+    "repository": "relaycart-ts",
+    "license": "Apache-2.0",
+    "startingCommit": "1b08086b8ddfe8aae82f94ff4015153122761312",
+    "branch": "main",
+    "successCriteria": [
+      "all existing assertions pass",
+      "the handler returns applied for a new refund and duplicate for a completed refund",
+      "public RefundSucceeded event shape is unchanged"
+    ],
+    "testCommands": [
+      "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts tests/receipt.acceptance.test.ts"
+    ]
+  },
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v22.13.1",
+    "codex": "codex-cli 0.145.0-alpha.18",
+    "recordedFrom": "live-app-server",
+    "profileIsolation": "verified-clean",
+    "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+  },
+  "model": {
+    "requested": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "effective": null,
+    "truthLabel": "requested-unconfirmed"
+  },
+  "permissions": "workspace-write:no-network:never-approve",
+  "kernoConfiguration": null,
+  "implementation": {
+    "failureKind": null
+  },
+  "test": {
+    "command": "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts tests/receipt.acceptance.test.ts",
+    "exitCode": 0,
+    "startedAt": "2026-07-19T23:41:27.937Z",
+    "completedAt": "2026-07-19T23:41:28.133Z"
+  },
+  "review": {
+    "failureKind": null
+  },
+  "timing": {
+    "startedAt": "2026-07-19T23:40:37.916Z",
+    "completedAt": "2026-07-19T23:41:53.795Z",
+    "totalLatencyMs": 75879
+  },
+  "contextExpansions": 0,
+  "artifactHashes": {
+    "events": "b2ceb0b908dbee585fa00dde54df60c8d6b8d5e7e8ca2486bce329fddb25ea4c",
+    "diff": "73bec897c88ee15d9f0e7bb1856f8b4061a4ec98e96ff0460a697475fb690dfb",
+    "tests": "8997033de0aa9439dfd36b0954f2605c526f23af163ca3d92eafd9dbce807b95",
+    "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b"
+  }
+}

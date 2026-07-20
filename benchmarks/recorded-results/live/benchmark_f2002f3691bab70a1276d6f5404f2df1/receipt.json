@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "1",
+  "runId": "benchmark_f2002f3691bab70a1276d6f5404f2df1",
+  "pairId": "pair_refund_debug_20260720",
+  "recordedAt": "2026-07-19T23:40:14.334Z",
+  "experiment": "context-controlled",
+  "condition": "codex-with-kerno-capsule",
+  "taskManifestHash": "8f638c23220400ee3014460def7719b1dc2c3b37f9db18423ec2218dd16769d6",
+  "task": {
+    "id": "refund-debug",
+    "text": "A retried refund.succeeded webhook can credit a customer twice if the first delivery commits the ledger entry but times out before the idempotency marker. Make handling exactly-once at the application boundary without changing the public API.",
+    "repository": "relaycart-ts",
+    "license": "Apache-2.0",
+    "startingCommit": "06afe8c2b9366ccc9ec0756b24a473d751abb5b5",
+    "branch": "main",
+    "successCriteria": [
+      "all three pinned assertions pass",
+      "concurrent deliveries credit once",
+      "restart after marker timeout does not re-credit",
+      "public RefundSucceeded event shape is unchanged"
+    ],
+    "testCommands": [
+      "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts"
+    ]
+  },
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v22.13.1",
+    "codex": "codex-cli 0.145.0-alpha.18",
+    "recordedFrom": "live-app-server",
+    "profileIsolation": "verified-clean",
+    "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+  },
+  "model": {
+    "requested": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "effective": null,
+    "truthLabel": "requested-unconfirmed"
+  },
+  "permissions": "workspace-write:no-network:never-approve",
+  "kernoConfiguration": {
+    "capsuleBudget": 2500,
+    "initialCapsuleId": "capsule_b7884fa4aa5df156ca240e81bdc1b0d5",
+    "childCapsuleId": null,
+    "routingPolicy": "context-controlled-pinned-live-model-lowest-effort"
+  },
+  "implementation": {
+    "failureKind": null
+  },
+  "test": {
+    "command": "node --test --experimental-strip-types tests/refund.integration.test.ts tests/atomicity.integration.test.ts",
+    "exitCode": 0,
+    "startedAt": "2026-07-19T23:39:53.475Z",
+    "completedAt": "2026-07-19T23:39:53.669Z"
+  },
+  "review": {
+    "failureKind": null
+  },
+  "timing": {
+    "startedAt": "2026-07-19T23:39:30.331Z",
+    "completedAt": "2026-07-19T23:40:14.334Z",
+    "totalLatencyMs": 44002
+  },
+  "contextExpansions": 0,
+  "artifactHashes": {
+    "events": "2a1af81956a42e4cc2a7369559d345c3c271d6760db7043ea25500d4b39e4df1",
+    "diff": "f11e675f3bef999dbc2471d691e23bb058ac2796704cfea37b30d8f8a4e0c198",
+    "tests": "c7ec415db46d8706cff6899bd8d75eec09f8c91c362f19b6d3d48675ec60a8c5",
+    "review": "593c4a4fb60380d0592c7d4d831802439493e8a3e032f4f6880fbb788bb44d5b"
+  }
+}

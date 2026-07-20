@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "1",
+  "id": "benchmark_241d4ecb22537b8de3bce91638935875",
+  "pairId": "pair_queue_retry_20260720",
+  "recordedAt": "2026-07-19T23:46:28.233Z",
+  "experiment": "context-controlled",
+  "condition": "codex-with-kerno-capsule",
+  "task": {
+    "id": "queue-retry-refactor",
+    "text": "Refactor retry policy selection so transient messages use the fast policy and throttled messages use the durable policy without changing exactly-once queue acknowledgement behavior.",
+    "repository": "gatehouse-python",
+    "license": "Apache-2.0",
+    "startingCommit": "a38369dba3251a7063ce8fc9e871879ebffe428f",
+    "branch": "main",
+    "successCriteria": [
+      "all tests pass",
+      "acknowledgement behavior remains exactly once",
+      "retry delays are selected by message kind"
+    ],
+    "testCommands": [
+      "python3 -m unittest discover -s tests -v"
+    ]
+  },
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v22.13.1",
+    "codex": "codex-cli 0.145.0-alpha.18",
+    "recordedFrom": "live-app-server",
+    "profileIsolation": "verified-clean",
+    "profileEvidenceHash": "69c35a2bf735ca7b30971b773d23925483312e7ef5c3682597e0f3ce50e2b19f"
+  },
+  "model": {
+    "requested": "gpt-5.6-sol",
+    "reasoningEffort": "low",
+    "effective": null,
+    "truthLabel": "requested-unconfirmed"
+  },
+  "permissions": "workspace-write:no-network:never-approve",
+  "kernoConfiguration": {
+    "capsuleBudget": 2500,
+    "initialCapsuleId": "capsule_be314b21062b5fe82d00843698281a92",
+    "childCapsuleId": null,
+    "routingPolicy": "context-controlled-pinned-live-model-lowest-effort"
+  },
+  "finalStatus": "failed",
+  "tests": {
+    "passed": false,
+    "exitCode": 1,
+    "artifactHash": "5b703dc62676ad282b79b4478ca605a79e58dc442c6d81b2320519b9fc5363d6",
+    "outputTail": "\ntest_worker (unittest.loader._FailedTest) ... ERROR\n\n======================================================================\nERROR: test_worker (unittest.loader._FailedTest)\n----------------------------------------------------------------------\nImportError: Failed to import test module: test_worker\nTraceback (most recent call last):\n  File \"/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py\", line 436, in _find_test_path\n    module = self._get_module_from_name(name)\n  File \"/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py\", line 377, in _get_module_from_name\n    __import__(name)\n  File \"/private[WORKTREE]/tests/test_worker.py\", line 3, in <module>\n    from gatehouse.models import Message, ProcessingResult\n  File \"/private[WORKTREE]/gatehouse/__init__.py\", line 6, in <module>\n    from .worker import Worker\n  File \"/private[WORKTREE]/gatehouse/worker.py\", line 12, in <module>\n    class Worker:\n  File \"/private[WORKTREE]/gatehouse/worker.py\", line 17, in Worker\n    retry_policy: RetryPolicy | None = None,\nTypeError: unsupported operand type(s) for |: 'type' and 'NoneType'\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nFAILED (errors=1)\n"
+  },
+  "metrics": {
+    "taskSuccess": 0,
+    "testsPassed": 1,
+    "totalTokens": 50757,
+    "filesOpened": null,
+    "repeatedReads": null,
+    "toolCalls": 1,
+    "contextExpansions": 0,
+    "latencyMs": 81317,
+    "changedLines": 15,
+    "timeToFirstValidPatchMs": null,
+    "unnecessaryChangedLines": null,
+    "reviewerFindings": 1,
+    "staleContextMistakes": null
+  },
+  "review": {
+    "status": "failed",
+    "artifactHash": "df1306a1f8f9e91411135cdf9aeb3a8a576329c7489b11edd0db60e9f857ee20",
+    "summary": "{\"status\":\"failed\",\"findings\":[{\"severity\":\"high\",\"file\":\"gatehouse/worker.py:17\",\"message\":\"The acceptance command fails during import under the repository's Python 3.9 runtime: `RetryPolicy | None` is evaluated at class definition and raises TypeError. Add `from __future__ import annotations` or use `Optional[RetryPolicy]`; the same issue also applies at line 19.\"}]}"
+  },
+  "artifacts": {
+    "events": "benchmarks/recorded-results/live/benchmark_241d4ecb22537b8de3bce91638935875/events.json",
+    "diff": "benchmarks/recorded-results/live/benchmark_241d4ecb22537b8de3bce91638935875/diff.patch",
+    "tests": "benchmarks/recorded-results/live/benchmark_241d4ecb22537b8de3bce91638935875/tests.txt",
+    "review": "benchmarks/recorded-results/live/benchmark_241d4ecb22537b8de3bce91638935875/review.txt",
+    "receipt": "benchmarks/recorded-results/live/benchmark_241d4ecb22537b8de3bce91638935875/receipt.json"
+  },
+  "artifactHashes": {
+    "events": "f8e1e9fdf9681f104c078b9583a9ac6ccc59ab9ab4dbaad7b5d7b257afb6fc16",
+    "diff": "4c720027cc691a2db78c71d12cdab2b5bacbfbee3498e527aadb495c64822e56",
+    "tests": "5b703dc62676ad282b79b4478ca605a79e58dc442c6d81b2320519b9fc5363d6",
+    "review": "df1306a1f8f9e91411135cdf9aeb3a8a576329c7489b11edd0db60e9f857ee20",
+    "receipt": "e6c9c5c40312b735a3fceddbe17c8ac4c5471858b38985f6215d1ff0496f461c"
+  },
+  "provenance": {
+    "mode": "artifact-derived",
+    "receiptHash": "e6c9c5c40312b735a3fceddbe17c8ac4c5471858b38985f6215d1ff0496f461c",
+    "taskManifestHash": "dc7e719d960972aa85c725cdc4c4e918d7205d1b029c9fbb6ca109b5b34df195",
+    "derivedFields": [
+      "finalStatus",
+      "tests",
+      "taskSuccess",
+      "testsPassed",
+      "totalTokens",
+      "toolCalls",
+      "latencyMs",
+      "changedLines",
+      "review",
+      "reviewerFindings",
+      "contextExpansions"
+    ]
+  },
+  "limitations": [
+    "Requested model was not independently confirmed by an effective-model or reroute event.",
+    "The verified failure named no candidate outside the initial capsule; Kerno recorded zero expansions instead of broadening context.",
+    "Files opened and repeated reads are unavailable because App Server events do not provide a defensible read signal.",
+    "Profile evidence hashes the pre-launch auth-only App Server profile; the auth contents are never exported.",
+    "Metrics and status were reconstructed from hash-bound raw artifacts and the inclusive run receipt."
+  ]
+}

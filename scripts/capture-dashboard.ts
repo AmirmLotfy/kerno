@@ -26,7 +26,7 @@ try {
     await page.getByRole("button", { name: "Routing" }).click();
     await page.screenshot({ path: resolve("docs/assets/submission/kerno-real-routing.png") });
     await page.screenshot({ path: resolve("docs/assets/submission/kerno-real-routing-full.png"), fullPage: true });
-    await page.locator(".runtime-proof").scrollIntoViewIfNeeded();
+    await page.locator(".runtime-proof").first().scrollIntoViewIfNeeded();
     await page.screenshot({ path: resolve("docs/assets/submission/kerno-real-routing-evidence.png") });
     await page.getByRole("button", { name: "Timeline" }).click();
     await page.screenshot({ path: resolve("docs/assets/submission/kerno-real-evidence-timeline.png") });

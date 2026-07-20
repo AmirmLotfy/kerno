@@ -1,0 +1,1 @@
+{"status":"failed","findings":[{"severity":"high","file":"gatehouse/worker.py:17","message":"The acceptance command fails during import under the repository's Python 3.9 runtime: `RetryPolicy | None` is evaluated at class definition and raises TypeError. Add `from __future__ import annotations` or use `Optional[RetryPolicy]`; the same issue also applies at line 19."}]}

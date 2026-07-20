@@ -2,76 +2,83 @@
 
 ## Purpose
 
-Kerno evaluates correctness first, then observed context behavior. It separates a context-controlled experiment from a routing experiment so model choice is not confused with capsule quality.
+Kerno evaluates correctness first, then observed context behavior. Context-controlled runs pin the same live catalog model and reasoning effort in both conditions. The routing experiment is reported separately so model selection is not confused with capsule quality.
 
 ## Pre-registered tasks
 
-| Task | Repository | Kind | Current status |
+| Task | Repository | Kind | Context-controlled result |
 |---|---|---|---|
-| `refund-debug` | original Apache-2.0 `relaycart-ts` | cross-module debugging | one real paired run retained |
-| `queue-retry-refactor` | original Apache-2.0 `gatehouse-python` | interface/refactor with tests | deterministic fixture and tests complete; no App Server pair yet |
-| `refund-transaction-change` | `relaycart-ts` | feature/test addition | manifest only; pinned live pair incomplete |
+| `refund-debug` | original Apache-2.0 `relaycart-ts` | cross-module debugging | fair pair; both conditions passed 3 tests and review |
+| `refund-transaction-change` | original Apache-2.0 `relaycart-ts` | interface/feature change | fair pair; both conditions passed 4 tests and review |
+| `queue-retry-refactor` | original Apache-2.0 `gatehouse-python` | interface/refactor with tests | fair pair; both conditions failed the pinned test and had one review finding |
 
-At least three paired task runs are required before final release. No third-party/open-source repository is checked in; the substantial Python fixture is original and license-safe. This avoids an unverified license/source dependency, but does not waive the three-task requirement.
+The fixtures are substantial original samples rather than copied third-party source. Their task manifests, acceptance commands, and Apache-2.0 license are checked in.
 
-## Fairness
+## Fairness and provenance
 
-Context-controlled pairs must use the same task text, generated starting commit, branch, permissions, acceptance commands, live catalog model ID, and reasoning effort. The Kerno condition may receive only a task-conditioned capsule and child evidence; it receives no hidden solution. The baseline must run in a fresh isolated Codex profile with no Kerno plugin, hook, MCP configuration, or prior repository context. A profile-evidence hash and raw artifact hashes are mandatory. Routing experiments are reported separately.
+Each current pair records an immutable pair ID, identical task text, generated starting commit, branch, permissions, acceptance command, model ID, and reasoning effort. Each condition runs from an auth-only temporary Codex profile with no plugins, hooks, MCP configuration, or prior repository context. The profile evidence and task manifest are hashed. Tests, events, diff, review, receipt, and derived run records carry content hashes.
 
-All attempts, failures, timeouts, and unfavorable results remain. Missing events are `null`; exact cost is omitted. Source commits are deterministic local fixture commits because benchmark worktrees are generated at run time with fixed author/date metadata.
+The Kerno condition receives only its deterministic task-conditioned capsule. It receives no hidden solution. Missing metrics are `null`, not zero. Exact cost is omitted. New runs refuse to overwrite an existing pair/condition artifact; retries require a new pair ID.
 
-## Recorded real pair: refund-debug
+## Current context-controlled case study
 
-- Conditions: `plain-codex`, `codex-with-kerno-capsule`.
-- Runtime: Codex App Server, macOS arm64, Node v22.13.1.
-- Requested model/effort: `gpt-5.6-sol` / `low`, selected from live `model/list`.
-- Effective model: not independently confirmed; no effective/reroute event was observed.
-- Outcome: the latest pair passed pinned tests and fresh independent review with zero findings in both conditions.
-- Fairness validation: **unverified**. These historical runs predate isolated profile evidence and raw-artifact hashes. The current validator rejects them rather than inferring fairness.
-- Retention: eight total attempts are checked in. Six earlier partial runs include timeouts and reviewer findings that exposed and drove fixes for process-local transaction state and a stale authoritative marker.
+All numbers below are actual retained App Server observations. They are a three-task case study with one run per condition, not a generalized productivity claim.
 
-| Measured metric | Plain Codex | Kerno | Interpretation |
-|---|---:|---:|---|
-| Total observed thread tokens | 93,670 | 95,383 | Kerno slightly worse in this pair |
-| Unique observable files | 6 | 2 | Kerno narrower |
-| Repeated observable reads | 2 | 0 | Kerno fewer |
-| Tool calls | 7 | 8 | raw observation only; no causal comparison |
-| Context expansions | 0 | 1 | expected proof loop |
-| Latency | 71,922 ms | 107,289 ms | Kerno worse |
-| Changed lines | 16 | 16 | equal |
-| Unnecessary changed lines | unavailable | unavailable | not inferred |
-| Reviewer findings | 0 | 0 | equal; fresh threads passed |
+| Task | Outcome | Baseline tokens | Kerno tokens | Baseline tools | Kerno tools | Baseline latency | Kerno latency | Changed lines B/K |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| `refund-debug` | both passed 3 tests; 0 findings | 88,788 | 33,952 | 3 | 1 | 64,083 ms | 44,002 ms | 17 / 7 |
+| `refund-transaction-change` | both passed 4 tests; 0 findings | 103,661 | 51,768 | 4 | 1 | 75,879 ms | 71,652 ms | 24 / 13 |
+| `queue-retry-refactor` | both failed; 1 finding each | 103,783 | 50,757 | 3 | 1 | 79,175 ms | 81,317 ms | 23 / 15 |
 
-This pair is operational evidence, not a performance or context-effect claim. Files/reads cover observable command events and may undercount internal runtime reads. Requested models remain unconfirmed because no effective/reroute event was emitted. Earlier failed review artifacts are part of the result set rather than deleted outliers.
+Correctness-passing pairs: **2/3**. The unfavorable Python result is retained and displayed. Files opened, repeated reads, time to first valid patch, unnecessary changed lines, and stale-context mistakes are unavailable because the emitted events do not provide a defensible measurement for those fields.
+
+## Separate full-system routing experiment
+
+`pair_routing_refund_20260720` compares a plain default workflow with Kerno phase routing on `refund-debug`. Both conditions passed three tests and independent review.
+
+| Metric | Plain default workflow | Kerno phase routing |
+|---|---:|---:|
+| Observed tokens | 82,053 | 50,800 |
+| Tool calls | 3 | 1 |
+| Inclusive latency | 203,095 ms | 102,717 ms |
+| Changed lines | 16 | 7 |
+| Reviewer findings | 0 | 0 |
+
+Kerno requested `gpt-5.6-sol/low` for implementation and `gpt-5.6-sol/ultra` for final verification from the live catalog. Both phase turns completed. The runtime emitted no effective-model or reroute event, so the dashboard labels both requests **Requested — not independently confirmed**. This is not presented as proof that the requested model was effective.
+
+## Retained history and known collection incident
+
+Sixteen real runs are retained: eight strengthened artifact-derived runs and eight earlier legacy attempts. Legacy attempts remain `fairness unverified` because they predate immutable pair IDs, auth-only profile evidence, and artifact-bound receipts.
+
+During validation, one timed-out full-system Kerno attempt was overwritten by a retry because the first harness version used a stable output directory. Its raw files are no longer available, so no metrics from that attempt are reported. The runner now refuses any overwrite before consuming model capacity. This limitation is disclosed rather than reconstructed from console output.
 
 ## Metric sources
 
 - Tokens: `thread/tokenUsage/updated` only.
-- Files/repeated reads: canonical paths observed in completed command/tool items; coverage disclosed.
-- Tool calls: completed command-execution, MCP, collaboration, dynamic-tool, or web-search item events; file-change events and protocol notifications are excluded.
+- Tool calls: completed command, MCP, collaboration, dynamic-tool, or web-search items.
 - Expansion: immutable child-capsule events.
-- Latency: monotonic process time from run start to terminal recording.
-- Changed lines: Git numstat.
-- Test status: exact command, exit status, output hash.
+- Latency: monotonic process time from benchmark start through final review recording.
+- Changed lines: Git numstat derived from the retained patch.
+- Tests: exact allowlisted command, exit status, output, and hash.
 - Reviewer findings: parseable fresh-thread JSON only.
 
 ## Reproduction
 
-Use a signed-in Codex CLI. Running live conditions consumes real capacity.
+Live conditions consume Codex capacity. Use a new pair ID for each attempt:
 
 ```bash
-# Remove Kerno from the benchmark profile before baseline.
-KERNO_BENCHMARK_TIMEOUT_MS=120000 npm run benchmark:live -- --baseline
+npm run benchmark:live -- --baseline --experiment context-controlled --task refund-debug --pair-id pair_example_refund
+npm run benchmark:live -- --kerno --experiment context-controlled --task refund-debug --pair-id pair_example_refund
 
-# Reinstall/enable Kerno before its condition.
-KERNO_BENCHMARK_TIMEOUT_MS=120000 npm run benchmark:live -- --kerno
+npm run benchmark:live -- --baseline --experiment full-system --task refund-debug --pair-id pair_example_routing
+npm run benchmark:live -- --kerno --experiment full-system --task refund-debug --pair-id pair_example_routing
 
 npm run benchmark:sanitize
 npm run benchmark:report
 ```
 
-Outputs: nested run JSON/events/diff/test/review artifacts under `benchmarks/recorded-results/live/`, plus JSON, CSV, Markdown, and dashboard data under `benchmarks/reports/`.
+Outputs live under `benchmarks/recorded-results/live/`; JSON, CSV, Markdown, and dashboard exports live under `benchmarks/reports/`. `npm run demo:reset` regenerates the replay and dashboard data from retained artifacts.
 
-## Release blocker
+## Interpretation
 
-The harness exports the required formats and retains one real same-task pair, but no pair currently satisfies the strengthened fairness proof. The three-task matrix and separate routing experiment are also incomplete. Kerno is not benchmark-complete or submission-ready until new isolated runs with artifact hashes are retained and reported without cherry-picking.
+The strengthened matrix is complete and fairness-valid, but its sample size is one run per condition/task. Two tasks passed in both conditions; the Python task failed in both. The observed token/tool/line reductions are promising case-study observations, not population estimates. No exact monetary cost is claimed.

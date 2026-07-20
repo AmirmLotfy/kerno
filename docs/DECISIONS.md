@@ -110,4 +110,11 @@
 - Date: 2026-07-19
 - Status: accepted
 - Decision: Authentication, capacity, usage-limit, and App Server failures are retained and displayed separately from deterministic replay. A requested model remains requested-unconfirmed without effective/reroute evidence.
-- Consequence: The final account-capacity failure blocks live-mode readiness but cannot make the reliable replay appear live.
+- Consequence: A capacity failure cannot make the reliable replay appear live. The latest smoke completed, but still remains `requested-unconfirmed` without an effective/reroute event.
+
+## ADR-017 — Artifact-bound comparisons and immutable attempts
+
+- Date: 2026-07-20
+- Status: accepted; closes the fairness gap in ADR-015
+- Decision: Current benchmark runs use immutable pair IDs, auth-only temporary Codex profiles, task-manifest hashes, content hashes for events/diff/tests/review/receipt, and artifact-derived metrics. A pair/condition directory may never be overwritten; a retry requires a new pair ID.
+- Consequence: Three context-controlled pairs and one separate routing pair now pass the mechanical fairness gate. The one-run-per-condition sample remains a case study, the failed Python pair remains visible, and one pre-fix overwritten timeout is disclosed because its raw files cannot be reconstructed.

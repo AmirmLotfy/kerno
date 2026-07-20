@@ -16,10 +16,10 @@ Target: **2:48** (hard stop 2:55), public YouTube, English narration. Setup, loa
 | 1:39–1:49 | “The deterministic fixture test fails. That is evidence the capsule is incomplete.” | Open Timeline at `test.failed`. | Real artifact and timestamp. |
 | 1:49–1:58 | “Kerno adds only the missing transaction contract as a bounded child capsule.” | Advance to expansion and child-capsule diff. | One 327-token addition. |
 | 1:58–2:09 | “The pinned solution applies the atomic boundary. All three assertions pass without changing the public event shape.” | Advance to pass and outcome. | Passing test artifact. |
-| 2:09–2:18 | “A live workflow uses a fresh read-only review thread. This deterministic replay did not run one, so review is unavailable—not invented.” | Highlight review limitation. | Explicit unavailable state. |
+| 2:09–2:18 | “A fresh read-only review thread checks the final diff. The real routing benchmark passed review; this fixture replay keeps its own review state unavailable rather than borrowing that result.” | Show the separate real-run review evidence, then the replay limitation label. | Passed real review remains separate from unavailable replay review. |
 | 2:18–2:28 | “Then the handler changes. Its hash no longer matches, and the old capsule becomes stale.” | Advance to invalidation. | Stale status with changed file. |
-| 2:28–2:39 | “The benchmark keeps all eight real attempts, including failures and worse results.” | Open Comparison. | Retained run count and raw observations. |
-| 2:39–2:46 | “This historical pair lacks clean-profile proof, so Kerno labels fairness unverified and makes no causal performance claim.” | Highlight fairness banner. | Missing provenance, never zero/fair. |
+| 2:28–2:39 | “The benchmark retains sixteen real runs and three fairness-valid context pairs. Two tasks passed in both conditions; the Python task failed in both and stays visible.” | Open Comparison and select the three-task matrix. | 3/3 fair pairs, 2/3 correctness-passing, unfavorable result retained. |
+| 2:39–2:46 | “On the passing refund task, observed tokens were 88,788 for baseline and 33,952 with Kerno. It is one case study—not a generalized productivity claim.” | Highlight the selected pair and evidence links. | Exact artifact-backed values and sample-size caveat. |
 | 2:46–2:52 | “Codex accelerated implementation and review. GPT-5.6 powered this root build task and the retained requested route; humans set product, security, and evidence boundaries.” | Product wide shot. | Specific collaboration claim. |
 | 2:52–2:55 | “Right context. Right model. Every task.” | End card. | Kerno mark and promise. |
 
@@ -41,14 +41,14 @@ npm run judge
 4. Failure → targeted expansion → passing test.
 5. Review unavailable truth state.
 6. Source-hash invalidation.
-7. Fairness-unverified benchmark view.
+7. Three-task fairness-valid matrix with the retained failed Python pair.
 8. Collaboration and closing mark.
 
 Cut all terminal startup, page loading, cursor hunting, long scrolling, empty waits, repeated explanation, benchmark percentages, price/cost claims, and any implication that the deterministic pinned solution was authored live during the replay.
 
 ## Backup recording path
 
-If live capacity, authentication, or latency is unreliable, use only the deterministic fixture replay plus the retained sanitized App Server evidence panel. Both remain persistently labeled. Never call the combined screen a single live workflow, never imply the replay includes Codex execution, and never replace `requested-unconfirmed` with an effective model. If the dashboard fails, use the latest checked screenshot and terminal acceptance output, while explicitly describing the interface as a captured fallback.
+If live capacity, authentication, or latency is unreliable, use only the deterministic fixture replay plus the retained sanitized App Server and benchmark evidence panels. All remain persistently labeled. Never call the combined screen a single live workflow, never imply the replay includes Codex execution, and never replace `requested-unconfirmed` with an effective model. If the dashboard fails, use the latest checked screenshot and terminal acceptance output, while explicitly describing the interface as a captured fallback.
 
 ## Assets checklist
 

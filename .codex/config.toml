@@ -4,6 +4,6 @@
 [mcp_servers.kerno]
 command = "node"
 args = ["plugins/kerno/dist/kerno-mcp.cjs"]
-env = { KERNO_DATA_DIR = ".kerno", KERNO_MCP_STANDALONE = "1", KERNO_STORAGE = "json" }
+env = { KERNO_DATA_DIR = ".kerno", KERNO_MCP_STANDALONE = "1" }
 startup_timeout_sec = 20
 tool_timeout_sec = 120
