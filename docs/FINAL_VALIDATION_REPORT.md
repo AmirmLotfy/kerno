@@ -6,7 +6,7 @@ Validation refreshed: **July 19, 2026 at 5:32 PM PDT / July 20, 2026 at 3:32 AM 
 
 **PRODUCT RELEASE CANDIDATE: PASS. HACKATHON SUBMISSION: NOT READY.** The code, plugin, MCP server, dashboard, deterministic judge path, signed-in App Server path, three-task evaluation, documentation, security gates, and fresh-clone validation pass. The remaining blockers are external: a public English-audio YouTube video shorter than three minutes, the primary root-task `/feedback` Session ID, authenticated human form choices, and entrant/team eligibility confirmation.
 
-No Devpost field, package, release, repository setting, or video was created or published in this pass. The already-authorized public GitHub repository and Vercel judge replay are updated only after the final documentation commit and revalidation.
+No Devpost field, package, release, or video was created or published in this pass. The already-authorized public GitHub repository was updated. The canonical Vercel URL is healthy but remains on the prior validated eight-run replay: three attempts to publish the current 16-run build remained indefinitely at Vercel `Initializing`, including a locally successful prebuilt deployment. The stuck deployments were removed and the last ready deployment was restored; current source/local judge flow remains authoritative.
 
 ## 2. Exact commit tested
 
@@ -160,6 +160,8 @@ README, LICENSE, SECURITY, CONTRIBUTING, architecture, decisions, threat model, 
 
 Complete URLs: `https://github.com/AmirmLotfy/kerno` and `https://kerno-codex.vercel.app`.
 
+Hosting freshness note: the Vercel URL is reachable and replay-only, but does not yet include the strengthened 16-run benchmark matrix. Retry deployment or promote a ready current build before using the hosted comparison scene; the local `npm run judge` path is current.
+
 ## 20. Final reproduction commands
 
 ```bash
@@ -194,4 +196,4 @@ npm run judge:live
 
 ## 21. READY or NOT READY decision
 
-**NOT READY FOR DEVPOST SUBMISSION.** Kerno is an internally passing release candidate with no known blocking product, evaluation, security, documentation, or judge-path defect. Submission remains blocked solely by the required public video, primary `/feedback` Session ID, authenticated human form choices, and eligibility/team confirmation. Do not submit until those four gates pass.
+**NOT READY FOR DEVPOST SUBMISSION.** Kerno is an internally passing release candidate with no known blocking product, evaluation, security, documentation, or local judge-path defect. Submission remains blocked by the required public video, primary `/feedback` Session ID, authenticated human form choices, and eligibility/team confirmation. The stale-but-working Vercel replay is not a rules blocker, but the current deployment should be promoted before relying on its comparison scene. Do not submit until the four required gates pass.

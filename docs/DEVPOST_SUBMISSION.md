@@ -88,7 +88,7 @@ Repeat the current three-task case study to improve statistical confidence, vali
 ## Judge test field
 
 ```text
-Zero-install replay: https://kerno-codex.vercel.app. It is a read-only deterministic replay with separately labeled real App Server evidence and receives no repository source. For local/plugin testing, use Node >=22.13 <25, npm, and Git; run npm install, npm run doctor, npm run judge, then open http://127.0.0.1:4173. Live mode requires a signed-in Codex CLI and is documented in docs/JUDGE_QUICKSTART.md. All replay/live/model/estimate/unavailable/fairness states are labeled in the UI.
+Zero-install replay: https://kerno-codex.vercel.app. It is a read-only deterministic replay with separately labeled real App Server evidence and receives no repository source. The hosted URL currently serves the prior validated comparison build; the current 16-run matrix is available through the local judge path. For local/plugin testing, use Node >=22.13 <25, npm, and Git; run npm install, npm run doctor, npm run judge, then open http://127.0.0.1:4173. Live mode requires a signed-in Codex CLI and is documented in docs/JUDGE_QUICKSTART.md. All replay/live/model/estimate/unavailable/fairness states are labeled in the UI.
 ```
 
 ## Plugin/developer-tool installation field
