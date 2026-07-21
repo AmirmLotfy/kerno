@@ -14,6 +14,7 @@ import { JsonStateStore, SqliteStateStore, type StateStore } from "@kerno/storag
 
 export type KernoServiceOptions = { databasePath?: string; storage?: "sqlite" | "json"; settingsPath?: string };
 const KERNO_ONBOARDING_VERSION = 1;
+const SETTINGS_LOCK_TIMEOUT_MS = 1_000;
 
 export class KernoService {
   readonly store: StateStore;
@@ -29,18 +30,12 @@ export class KernoService {
   private settingsId(repositoryId?: string): string { return stableId("settings", repositoryId ?? "global"); }
   private storedSettings(id: string): KernoSettings | undefined {
     if (!this.settingsPath) return this.store.get<KernoSettings>("settings", id);
-    const settingsStore = new JsonStateStore(this.settingsPath);
+    const settingsStore = new JsonStateStore(this.settingsPath, { lockTimeoutMs: SETTINGS_LOCK_TIMEOUT_MS });
     try { return settingsStore.get<KernoSettings>("settings", id); }
     finally { settingsStore.close(); }
   }
-  private persistSettings(settings: KernoSettings, repositoryId?: string): void {
-    if (!this.settingsPath) { this.store.put("settings", settings.id, settings, repositoryId); return; }
-    const settingsStore = new JsonStateStore(this.settingsPath);
-    try { settingsStore.put("settings", settings.id, settings, repositoryId); }
-    finally { settingsStore.close(); }
-  }
-  private defaultSettings(repositoryId?: string): KernoSettings {
-    const global = repositoryId ? this.storedSettings(this.settingsId()) : undefined;
+  private defaultSettings(repositoryId?: string, knownGlobal?: KernoSettings | null): KernoSettings {
+    const global = knownGlobal === undefined ? (repositoryId ? this.storedSettings(this.settingsId()) : undefined) : knownGlobal ?? undefined;
     return kernoSettingsSchema.parse({
       id: this.settingsId(repositoryId), schemaVersion: "1", repositoryId: repositoryId ?? null,
       onboardingVersion: global?.onboardingVersion ?? 0, onboardingCompletedAt: global?.onboardingCompletedAt ?? null,
@@ -59,10 +54,22 @@ export class KernoService {
 
   updateSettings(input: unknown): KernoSettings {
     const parsed = updateKernoSettingsInputSchema.parse(input);
-    const current = this.getSettings({ ...(parsed.repositoryId ? { repositoryId: parsed.repositoryId } : {}) });
-    const next = kernoSettingsSchema.parse({ ...current, ...parsed.patch, telemetry: false, updatedAt: new Date().toISOString() });
-    this.persistSettings(next, parsed.repositoryId);
-    return next;
+    if (!this.settingsPath) {
+      const current = this.getSettings({ ...(parsed.repositoryId ? { repositoryId: parsed.repositoryId } : {}) });
+      const next = kernoSettingsSchema.parse({ ...current, ...parsed.patch, telemetry: false, updatedAt: new Date().toISOString() });
+      this.store.put("settings", next.id, next, parsed.repositoryId);
+      return next;
+    }
+    const settingsStore = new JsonStateStore(this.settingsPath, { lockTimeoutMs: SETTINGS_LOCK_TIMEOUT_MS });
+    try {
+      const id = this.settingsId(parsed.repositoryId);
+      const stored = settingsStore.get<KernoSettings>("settings", id);
+      const global = parsed.repositoryId ? settingsStore.get<KernoSettings>("settings", this.settingsId()) : undefined;
+      const current = stored ? kernoSettingsSchema.parse(stored) : this.defaultSettings(parsed.repositoryId, global ?? null);
+      const next = kernoSettingsSchema.parse({ ...current, ...parsed.patch, telemetry: false, updatedAt: new Date().toISOString() });
+      settingsStore.put("settings", next.id, next, parsed.repositoryId);
+      return next;
+    } finally { settingsStore.close(); }
   }
 
   panel(input: unknown): KernoPanelData {

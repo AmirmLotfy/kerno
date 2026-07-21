@@ -42,6 +42,8 @@ async function installHost(page: Page, initial: unknown): Promise<void> {
   await page.setContent(buildKernoAppHtml(), { waitUntil: "domcontentloaded" });
   await page.evaluate((value) => {
     const state = structuredClone(value) as any;
+    (window as any).__hostState = state;
+    (window as any).__toolCalls = [];
     (window as any).openai = {
       toolOutput: state,
       theme: "light",
@@ -50,6 +52,7 @@ async function installHost(page: Page, initial: unknown): Promise<void> {
       requestDisplayMode({ mode }: { mode: string }) { (window as any).__displayMode = mode; return { mode }; },
       sendFollowUpMessage(message: unknown) { (window as any).__followUp = message; },
       async callTool(name: string, args: any) {
+        (window as any).__toolCalls.push({ name, args });
         if (name === "kerno_update_settings") {
           Object.assign(state.settings, args.patch, { updatedAt: "2026-07-20T18:01:00.000Z" });
           state.onboarding.completed = state.settings.onboardingVersion >= 1;
@@ -82,7 +85,7 @@ test("embedded tracker exposes provenance, routing truth, settings, and fullscre
   await page.getByLabel("Default capsule budget").fill("3200");
   await page.getByLabel("Routing preference").selectOption("depth");
   await page.getByRole("button", { name: "Save settings" }).click();
-  await expect(page.getByRole("status")).toHaveText("Settings saved locally");
+  await expect(page.locator(".save-status")).toHaveText("Settings saved locally");
   await expect(page.getByLabel("Default capsule budget")).toHaveValue("3200");
   await expect(page.getByLabel("Telemetry")).toBeDisabled();
   await expect(page.getByLabel("Source upload")).toBeDisabled();
@@ -104,4 +107,59 @@ test("embedded tracker presents first-run privacy onboarding without inventing r
   await expect(page.getByText("Source remains local.")).toBeVisible();
   await expect(page.getByText("Waiting for first index")).toBeVisible();
   await expect(page.getByText("No effective model observed")).toHaveCount(0);
+});
+
+test("identical host snapshots preserve the focused control and DOM node", async ({ page }) => {
+  await installHost(page, panel);
+  const refresh = page.getByRole("button", { name: "Refresh" });
+  await refresh.focus();
+  await page.evaluate(() => {
+    (window as any).__focusedNode = document.activeElement;
+    window.dispatchEvent(new CustomEvent("openai:set_globals", { detail: { globals: { toolOutput: structuredClone((window as any).__hostState) } } }));
+  });
+  await expect(refresh).toBeFocused();
+  expect(await page.evaluate(() => document.activeElement === (window as any).__focusedNode)).toBe(true);
+});
+
+test("refresh is single-flight and an older response cannot replace newer host state", async ({ page }) => {
+  await installHost(page, panel);
+  await page.getByRole("tab", { name: "Overview" }).click();
+  await page.evaluate(() => {
+    const original = (window as any).openai.callTool;
+    (window as any).__resolveRefresh = null;
+    (window as any).openai.callTool = (name: string, args: unknown) => {
+      if (name !== "kerno_render_panel") return original(name, args);
+      (window as any).__toolCalls.push({ name, args });
+      return new Promise((resolve) => { (window as any).__resolveRefresh = resolve; });
+    };
+  });
+  const refresh = page.getByRole("button", { name: "Refresh" });
+  await refresh.click();
+  await expect(refresh).toBeDisabled();
+  await refresh.click({ force: true });
+  expect(await page.evaluate(() => (window as any).__toolCalls.filter((call: any) => call.name === "kerno_render_panel").length)).toBe(1);
+  await page.evaluate(() => {
+    const newer = structuredClone((window as any).__hostState);
+    newer.generatedAt = "2026-07-20T19:00:00.000Z";
+    newer.repository.files = 99;
+    window.dispatchEvent(new CustomEvent("openai:set_globals", { detail: { globals: { toolOutput: newer } } }));
+    (window as any).__resolveRefresh({ structuredContent: { data: (window as any).__hostState } });
+  });
+  await expect(page.getByText("99", { exact: true })).toBeVisible();
+  await expect(refresh).toBeEnabled();
+});
+
+test("incoming host state does not overwrite unsaved settings", async ({ page }) => {
+  await installHost(page, panel);
+  await page.getByRole("tab", { name: "Settings" }).click();
+  const budget = page.getByLabel("Default capsule budget");
+  await budget.fill("3333");
+  await page.evaluate(() => {
+    const newer = structuredClone((window as any).__hostState);
+    newer.generatedAt = "2026-07-20T19:00:00.000Z";
+    newer.settings.capsuleBudget = 4444;
+    window.dispatchEvent(new CustomEvent("openai:set_globals", { detail: { globals: { toolOutput: newer } } }));
+  });
+  await expect(budget).toHaveValue("3333");
+  await expect(page.locator(".operation-status")).toContainText("New local state is available");
 });

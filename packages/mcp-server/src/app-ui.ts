@@ -31,7 +31,7 @@ export function buildKernoAppHtml(): string {
     .button:disabled { cursor: not-allowed; opacity: .55; }
     .truthbar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; min-height: 40px; padding: 8px 16px; border-bottom: 1px solid var(--border); background: var(--brand-primary-soft); font-size: 11px; }
     .truthbar strong { text-transform: uppercase; letter-spacing: .08em; }
-    .truthbar span:last-child { color: var(--text-muted); }
+    .truthbar .operation-status { color: var(--text-muted); text-align: right; }
     .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--brand-primary); }
     .tabs { display: flex; gap: 22px; overflow-x: auto; padding: 0 16px; border-bottom: 1px solid var(--border); background: var(--surface); }
     .tab { min-height: 44px; border: 0; border-bottom: 3px solid transparent; background: transparent; padding: 0; cursor: pointer; color: var(--text-secondary); white-space: nowrap; }
@@ -117,7 +117,7 @@ export function buildKernoAppHtml(): string {
   </style>
 </head>
 <body>
-  <main id="root" class="app" aria-live="polite"><div class="empty"><p>Loading Kerno’s verified local state…</p></div></main>
+  <main id="root" class="app"><div class="empty"><p>Loading Kerno’s verified local state…</p></div></main>
   <script>
     (function () {
       "use strict";
@@ -126,6 +126,11 @@ export function buildKernoAppHtml(): string {
       var view = "overview";
       var selectedItemId = null;
       var saveMessage = "";
+      var dataSignature = "";
+      var pendingAction = null;
+      var settingsDirty = false;
+      var initialized = false;
+      var toolTimeoutMs = 15000;
 
       function escapeHtml(value) {
         return String(value == null ? "" : value).replace(/[&<>"']/g, function (character) {
@@ -159,17 +164,111 @@ export function buildKernoAppHtml(): string {
       }
       async function callTool(name, args) {
         if (!window.openai || !window.openai.callTool) throw new Error("This host does not expose interactive MCP tool calls to the component.");
-        return window.openai.callTool(name, args);
+        var timer;
+        try {
+          return await Promise.race([
+            window.openai.callTool(name, args),
+            new Promise(function (_, reject) { timer = setTimeout(function () { reject(new Error("Kerno’s local tool did not respond within 15 seconds.")); }, toolTimeoutMs); })
+          ]);
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+      function snapshotTime(value) {
+        var parsed = value && value.generatedAt ? Date.parse(value.generatedAt) : NaN;
+        return Number.isFinite(parsed) ? parsed : null;
+      }
+      function activeIdentity() {
+        var active = document.activeElement;
+        if (!active || !root.contains(active)) return null;
+        return {
+          id: active.id || null,
+          action: active.dataset && active.dataset.action || null,
+          view: active.dataset && active.dataset.view || null,
+          item: active.dataset && active.dataset.item || null,
+          name: active.getAttribute("name"),
+          selectionStart: typeof active.selectionStart === "number" ? active.selectionStart : null,
+          selectionEnd: typeof active.selectionEnd === "number" ? active.selectionEnd : null
+        };
+      }
+      function restoreActive(identity) {
+        if (!identity) return;
+        var candidate = identity.id ? document.getElementById(identity.id) : null;
+        if (!candidate) {
+          candidate = Array.from(root.querySelectorAll("[data-action],[data-view],[data-item],[name]")).find(function (element) {
+            return identity.action && element.dataset.action === identity.action || identity.view && element.dataset.view === identity.view || identity.item && element.dataset.item === identity.item || identity.name && element.getAttribute("name") === identity.name;
+          });
+        }
+        if (!candidate || typeof candidate.focus !== "function") return;
+        candidate.focus({ preventScroll: true });
+        if (identity.selectionStart != null && typeof candidate.setSelectionRange === "function") candidate.setSelectionRange(identity.selectionStart, identity.selectionEnd);
+      }
+      function updateOperationState(message) {
+        root.setAttribute("aria-busy", pendingAction ? "true" : "false");
+        root.querySelectorAll("button").forEach(function (button) { button.disabled = Boolean(pendingAction); });
+        var status = root.querySelector(".operation-status");
+        if (status) status.textContent = message || "Unavailable values are never inferred";
+      }
+      function beginOperation(name, message) {
+        if (pendingAction) return false;
+        pendingAction = name;
+        updateOperationState(message);
+        return true;
+      }
+      function endOperation(message) {
+        pendingAction = null;
+        updateOperationState(message);
+      }
+      function setSaveStatus(message) {
+        saveMessage = message;
+        var status = root.querySelector(".save-status");
+        if (status) status.textContent = message;
+      }
+      function applyData(next, preferredView) {
+        if (!next) return false;
+        var currentTime = snapshotTime(data);
+        var nextTime = snapshotTime(next);
+        if (currentTime != null && nextTime != null && nextTime < currentTime) {
+          updateOperationState("Ignored an older local snapshot");
+          return false;
+        }
+        var signature = JSON.stringify(next);
+        var requestedView = preferredView || null;
+        if (signature === dataSignature && (!requestedView || requestedView === view)) return false;
+        var wasInitialized = initialized;
+        data = next;
+        dataSignature = signature;
+        if (!wasInitialized) {
+          var widgetState = window.openai && window.openai.widgetState;
+          view = requestedView || widgetState && widgetState.view || next.view || (!next.onboarding.completed ? "onboarding" : "overview");
+          selectedItemId = widgetState && widgetState.selectedItemId || selectedItemId;
+          initialized = true;
+        } else if (requestedView) {
+          view = requestedView;
+        }
+        if (wasInitialized && settingsDirty && view === "settings" && !requestedView) {
+          updateOperationState("New local state is available—save or refresh to reconcile it");
+          return true;
+        }
+        render();
+        return true;
       }
       async function refresh(nextView) {
-        saveMessage = "Refreshing…"; render();
-        var response = await callTool("kerno_render_panel", { view: nextView || view, repositoryId: data && data.repository ? data.repository.id : undefined, capsuleId: data && data.capsule ? data.capsule.id : undefined, runId: data && data.run ? data.run.id : undefined });
-        var next = unwrap(response);
-        if (next) { data = next; view = nextView || view; saveMessage = "Live local state refreshed"; persistUi(); render(); }
+        if (!beginOperation("refresh", "Refreshing local state…")) return;
+        try {
+          var response = await callTool("kerno_render_panel", { view: nextView || view, repositoryId: data && data.repository ? data.repository.id : undefined, capsuleId: data && data.capsule ? data.capsule.id : undefined, runId: data && data.run ? data.run.id : undefined });
+          var next = unwrap(response);
+          if (!next) throw new Error("Kerno returned no panel state.");
+          var applied = applyData(next, nextView || null);
+          persistUi();
+          endOperation(applied ? "Live local state refreshed" : "Local state is already current");
+        } catch (error) {
+          endOperation(error && error.message ? error.message : "Refresh failed");
+        }
       }
       function header() {
         return '<header class="masthead"><div class="brand">' + icon() + '<span>Kerno</span></div><div class="masthead-actions"><button class="icon-button" data-action="refresh" type="button">Refresh</button><button class="icon-button" data-action="expand" type="button">Open tracker</button></div></header>' +
-          '<div class="truthbar"><span class="dot"></span><strong>Live local state</strong><span>Unavailable values are never inferred</span></div>';
+          '<div class="truthbar"><span class="dot"></span><strong>Live local state</strong><span class="operation-status" role="status" aria-live="polite">Unavailable values are never inferred</span></div>';
       }
       function tabs() {
         var names = [["overview", "Overview"], ["context", "Context"], ["routing", "Routing"], ["timeline", "Timeline"], ["settings", "Settings"]];
@@ -214,61 +313,87 @@ export function buildKernoAppHtml(): string {
       function limits() { return '<aside class="limits"><span class="eyebrow">Truth boundaries</span><ul>' + data.limitations.map(function (item) { return '<li>' + text(item) + '</li>'; }).join('') + '</ul></aside>'; }
       function render() {
         if (!data) return;
+        var focus = activeIdentity();
+        var scrollX = window.scrollX;
+        var scrollY = window.scrollY;
         setTheme(data.settings.theme === 'system' ? null : data.settings.theme);
         document.documentElement.dataset.density = data.settings.density;
         var body = !data.onboarding.completed || view === 'onboarding' ? onboarding() : view === 'context' ? context() : view === 'routing' ? routing() : view === 'timeline' ? timeline() : view === 'settings' ? settings() : overview();
         root.innerHTML = header() + (data.onboarding.completed && view !== 'onboarding' ? tabs() : '') + body;
+        updateOperationState();
+        restoreActive(focus);
+        window.scrollTo(scrollX, scrollY);
       }
       root.addEventListener('click', async function (event) {
         var target = event.target.closest('[data-action],[data-view],[data-item]');
         if (!target) return;
         try {
-          if (target.dataset.view) { view = target.dataset.view; saveMessage = ''; persistUi(); render(); return; }
+          if (target.dataset.view) { if (view === 'settings' && target.dataset.view !== 'settings') settingsDirty = false; view = target.dataset.view; saveMessage = ''; persistUi(); render(); return; }
           if (target.dataset.item) { selectedItemId = target.dataset.item; persistUi(); render(); return; }
           if (target.dataset.action === 'expand' && window.openai && window.openai.requestDisplayMode) { await window.openai.requestDisplayMode({ mode: 'fullscreen' }); return; }
           if (target.dataset.action === 'refresh') { await refresh(); return; }
           if (target.dataset.action === 'index-current') { sendMessage('Use Kerno to index the current project incrementally, then render the Kerno overview.'); return; }
           if (target.dataset.action === 'complete-onboarding') {
+            if (!beginOperation('onboarding', 'Saving local onboarding state…')) return;
             var response = await callTool('kerno_update_settings', { repositoryId: data.repository ? data.repository.id : undefined, patch: { onboardingVersion: data.onboarding.currentVersion, onboardingCompletedAt: new Date().toISOString() } });
             if (!response) throw new Error('The settings update returned no result.');
-            view = 'overview'; await refresh('overview');
+            var refreshed = await callTool("kerno_render_panel", { view: "overview", repositoryId: data.repository ? data.repository.id : undefined });
+            var next = unwrap(refreshed);
+            if (!next) throw new Error("Kerno returned no panel state after onboarding.");
+            applyData(next, 'overview');
+            persistUi();
+            endOperation('Onboarding saved locally');
           }
-        } catch (error) { saveMessage = error && error.message ? error.message : 'Action failed'; render(); }
+        } catch (error) { endOperation(error && error.message ? error.message : 'Action failed'); }
+      });
+      root.addEventListener('input', function (event) {
+        if (event.target.closest && event.target.closest('#settings-form')) {
+          settingsDirty = true;
+          setSaveStatus('Unsaved local changes');
+        }
+      });
+      root.addEventListener('change', function (event) {
+        if (event.target.closest && event.target.closest('#settings-form')) {
+          settingsDirty = true;
+          setSaveStatus('Unsaved local changes');
+        }
       });
       root.addEventListener('submit', async function (event) {
         if (event.target.id !== 'settings-form') return;
         event.preventDefault();
+        if (!beginOperation('settings', 'Saving settings locally…')) return;
         var form = new FormData(event.target);
         var patch = { capsuleBudget: Number(form.get('capsuleBudget')), routingPreference: String(form.get('routingPreference')), maxAutomaticExpansions: Number(form.get('maxAutomaticExpansions')), theme: String(form.get('theme')), density: String(form.get('density')), showEstimates: form.has('showEstimates') };
         try {
-          saveMessage = 'Saving locally…'; render();
+          setSaveStatus('Saving locally…');
           var response = await callTool('kerno_update_settings', { repositoryId: data.repository ? data.repository.id : undefined, patch: patch });
           var envelope = response && (response.structuredContent || response.result && response.result.structuredContent);
           var updated = envelope && envelope.data;
           if (updated && updated.id) data.settings = updated;
-          saveMessage = 'Settings saved locally'; render();
-        } catch (error) { saveMessage = error && error.message ? error.message : 'Settings could not be saved'; render(); }
+          dataSignature = JSON.stringify(data);
+          settingsDirty = false;
+          setSaveStatus('Settings saved locally');
+          render();
+          endOperation('Settings saved locally');
+        } catch (error) {
+          setSaveStatus(error && error.message ? error.message : 'Settings could not be saved');
+          endOperation('Settings could not be saved');
+        }
       });
       window.addEventListener('openai:set_globals', function (event) {
         if (event.detail && event.detail.globals) {
           if (event.detail.globals.theme) setTheme(event.detail.globals.theme);
           var next = unwrap(event.detail.globals.toolOutput);
-          if (next) { data = next; view = (window.openai && window.openai.widgetState && window.openai.widgetState.view) || next.view; selectedItemId = window.openai && window.openai.widgetState && window.openai.widgetState.selectedItemId || selectedItemId; render(); }
+          if (next) applyData(next);
         }
       }, { passive: true });
       window.addEventListener('message', function (event) {
         if (event.source !== window.parent || !event.data || event.data.method !== 'ui/notifications/tool-result') return;
         var next = unwrap(event.data.params && event.data.params.structuredContent);
-        if (next) { data = next; render(); }
+        if (next) applyData(next);
       }, { passive: true });
       var initial = unwrap(window.openai && window.openai.toolOutput);
-      if (initial) {
-        data = initial;
-        var widgetState = window.openai && window.openai.widgetState;
-        view = widgetState && widgetState.view || initial.view || (!initial.onboarding.completed ? 'onboarding' : 'overview');
-        selectedItemId = widgetState && widgetState.selectedItemId || null;
-        render();
-      }
+      if (initial) applyData(initial);
     }());
   </script>
 </body>

@@ -21,11 +21,23 @@ const browser = await chromium.launch({ headless: true });
 try {
   for (const render of renders) {
     const svg = await readFile(resolve(sourceRoot, render.source), "utf8");
-    const page = await browser.newPage({ viewport: { width: render.width, height: render.height }, deviceScaleFactor: 1 });
-    await page.setContent(`<style>html,body{margin:0;width:${render.width}px;height:${render.height}px;overflow:hidden}svg{display:block;width:100%;height:100%}</style>${svg}`);
     const output = resolve(renderRoot, render.name);
-    await page.screenshot({ path: output, omitBackground: true });
-    await page.close();
+    let lastError: unknown;
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      const page = await browser.newPage({ viewport: { width: render.width, height: render.height }, deviceScaleFactor: 1 });
+      try {
+        await page.setContent(`<style>html,body{margin:0;width:${render.width}px;height:${render.height}px;overflow:hidden}svg{display:block;width:100%;height:100%}</style>${svg}`, { waitUntil: "domcontentloaded" });
+        await page.waitForFunction(() => document.fonts.status === "loaded" && document.querySelector("svg") !== null);
+        await page.screenshot({ path: output, omitBackground: true, animations: "disabled", timeout: 15_000 });
+        lastError = undefined;
+        await page.close();
+        break;
+      } catch (error) {
+        lastError = error;
+        await page.close().catch(() => undefined);
+      }
+    }
+    if (lastError) throw new Error(`Failed to render ${render.name} after 3 attempts`, { cause: lastError });
     for (const destination of destinations) await copyFile(output, resolve(destination, render.name));
   }
 } finally {

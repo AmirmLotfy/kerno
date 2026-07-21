@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-import { appendFile, mkdir } from "node:fs/promises";
+import { appendFile, mkdir, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const eventName = process.argv[2] ?? "unknown";
+const maxLogBytes = 1024 * 1024;
 let input = "";
 for await (const chunk of process.stdin) {
   input += chunk;
@@ -20,7 +21,13 @@ try {
   const dataDir = process.env.PLUGIN_DATA;
   if (dataDir) {
     await mkdir(dataDir, { recursive: true, mode: 0o700 });
-    await appendFile(join(dataDir, "hook-events.jsonl"), `${JSON.stringify(safe)}\n`, { mode: 0o600 });
+    const logPath = join(dataDir, "hook-events.jsonl");
+    try {
+      if ((await stat(logPath)).size >= maxLogBytes) await writeFile(logPath, "", { mode: 0o600 });
+    } catch (error) {
+      if (!(error && typeof error === "object" && "code" in error && error.code === "ENOENT")) throw error;
+    }
+    await appendFile(logPath, `${JSON.stringify(safe)}\n`, { mode: 0o600 });
   }
 } catch {
   // Advisory hook: fail open and never block Codex.

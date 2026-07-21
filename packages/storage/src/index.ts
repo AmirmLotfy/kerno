@@ -297,6 +297,8 @@ export class SqliteStateStore {
 
 type JsonEntity = { kind: EntityKind; id: string; repositoryId?: string; createdAt: string; status?: string; value: any };
 type JsonState = { schemaVersion: 1; entities: JsonEntity[]; events: RunEvent[] };
+export type JsonStateStoreOptions = { lockTimeoutMs?: number };
+const LOCK_WAIT_BUFFER = new Int32Array(new SharedArrayBuffer(4));
 
 /** Portable plugin-cache fallback. It preserves the StateStore contract without a native addon. */
 export class JsonStateStore implements StateStore {
@@ -305,7 +307,7 @@ export class JsonStateStore implements StateStore {
   private transactionDepth = 0;
   private readonly lockPath: string;
   private closed = false;
-  constructor(private path: string) {
+  constructor(private path: string, private readonly options: JsonStateStoreOptions = {}) {
     assertSafeStatePath(path);
     this.lockPath = `${path}.lock`;
     this.acquireExclusiveLock();
@@ -340,18 +342,34 @@ export class JsonStateStore implements StateStore {
         return false;
       }
     };
-    if (tryCreate()) return;
-    const stat = lstatSync(this.lockPath);
-    if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1 || !isCurrentOwner(stat.uid)) throw new KernoError("SYMLINK_ESCAPE", `Refusing unsafe Kerno portable storage lock: ${this.lockPath}`);
-    let ownerPid: number | undefined;
-    try { ownerPid = Number((JSON.parse(readFileSync(this.lockPath, "utf8")) as { pid?: unknown }).pid); } catch { /* actionable busy error below */ }
-    if (Number.isSafeInteger(ownerPid) && ownerPid! > 0) {
-      try { process.kill(ownerPid!, 0); }
+    const timeoutMs = Math.max(0, this.options.lockTimeoutMs ?? 0);
+    const deadline = Date.now() + timeoutMs;
+    let retryDelayMs = 2;
+    while (true) {
+      if (tryCreate()) return;
+      let stat;
+      try { stat = lstatSync(this.lockPath); }
       catch (error) {
-        if ((error as NodeJS.ErrnoException).code === "ESRCH") { unlinkSync(this.lockPath); if (tryCreate()) return; }
+        if ((error as NodeJS.ErrnoException).code === "ENOENT") continue;
+        throw error;
       }
+      if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1 || !isCurrentOwner(stat.uid)) throw new KernoError("SYMLINK_ESCAPE", `Refusing unsafe Kerno portable storage lock: ${this.lockPath}`);
+      let ownerPid: number | undefined;
+      try { ownerPid = Number((JSON.parse(readFileSync(this.lockPath, "utf8")) as { pid?: unknown }).pid); } catch { /* bounded retry or actionable busy error below */ }
+      if (Number.isSafeInteger(ownerPid) && ownerPid! > 0) {
+        try { process.kill(ownerPid!, 0); }
+        catch (error) {
+          if ((error as NodeJS.ErrnoException).code === "ESRCH") {
+            try { unlinkSync(this.lockPath); } catch (unlinkError) { if ((unlinkError as NodeJS.ErrnoException).code !== "ENOENT") throw unlinkError; }
+            continue;
+          }
+        }
+      }
+      const remainingMs = deadline - Date.now();
+      if (remainingMs <= 0) throw new KernoError("INDEX_BUSY", `Portable Kerno state is already open by another process; close the other Kerno MCP/CLI process or remove a verified stale lock at ${this.lockPath}`, true);
+      Atomics.wait(LOCK_WAIT_BUFFER, 0, 0, Math.min(retryDelayMs, remainingMs));
+      retryDelayMs = Math.min(25, retryDelayMs * 2);
     }
-    throw new KernoError("INDEX_BUSY", `Portable Kerno state is already open by another process; close the other Kerno MCP/CLI process or remove a verified stale lock at ${this.lockPath}`, true);
   }
   private releaseExclusiveLock(): void {
     if (!existsSync(this.lockPath)) return;
