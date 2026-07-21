@@ -1,10 +1,12 @@
 # Final validation report
 
-Validation refreshed: **July 20, 2026 at 2:30 PM PDT / July 21, 2026 at 12:30 AM Africa/Cairo / July 20, 2026 at 9:30 PM UTC**.
+Validation refreshed: **July 20, 2026 at 10:43 PM PDT / July 21, 2026 at 8:43 AM Africa/Cairo / July 21, 2026 at 5:43 AM UTC**.
 
 ## 1. Executive readiness result
 
 **CORE/DASHBOARD RELEASE CANDIDATE: PASS. COMPLETE PLUGIN EXPERIENCE: PARTIAL. HACKATHON SUBMISSION: NOT READY.** The code, 16-tool skill/MCP plugin, component resource and browser harness, dashboard, deterministic judge path, signed-in App Server evidence, three-task evaluation, documentation, security gates, and fresh-clone validation pass. A clean reinstall at July 21, 2026 12:47 AM Africa/Cairo proved the installed manifest has no `apps` field or `.app.json`; its MCP server is local STDIO. Therefore Codex correctly shows structured tool output rather than inline onboarding/settings/tracking UI. Genuine inline UI remains blocked on a reachable streaming MCP endpoint, ChatGPT developer-mode app registration, a real `plugin_asdk_app…` ID, manifest wiring, reinstall, and host observation. External submission blockers also remain: the public English-audio YouTube video shorter than three minutes, primary root-task `/feedback` Session ID, authenticated human form choices, and entrant/team eligibility.
+
+The July 21 reliability pass fixed the two concrete risks found during load testing: transient shared-settings `INDEX_BUSY` failures across simultaneous Codex tasks and destructive embedded-panel rerenders that could replace focused controls or accept stale refresh responses. A two-process regression completed 80 contending tool calls with zero errors and proved concurrent setting patches are merged. Five embedded-component browser flows prove identical snapshots retain the exact focused DOM node, refresh is single-flight, newer host state wins, and unsaved settings are preserved. Post-tool hooks now match Kerno tools only and rotate their owner-local advisory log at 1 MiB.
 
 No Devpost field or video was published in this pass. The authorized GitHub push and Vercel production deployment completed: public `main` contains the embedded-plugin upgrade, and `https://itkerno.site` is backed by ready deployment `dpl_88z7ptmpqdAgWYVmHPM1dFVfDsAo`. The local judge flow remains the authoritative full reproduction path.
 
@@ -14,6 +16,7 @@ The previous production deployment was superseded by `dpl_88z7ptmpqdAgWYVmHPM1dF
 
 - Embedded-experience implementation commit: `3ff0572cfc94c63083549d33ae924226f5241558`.
 - Clean-room release-candidate commit: `6a8ab81530a8f1001f487f4f9f2616d87ba1e0ba`.
+- Reliability implementation commit: `53dea22020a74437edba491929ee224c27bdfb44`.
 - Branch: `main`.
 - Clean-room method: local `git clone --no-hardlinks` into a new `/tmp/kerno-embedded-clean.*` directory.
 - The final documentation commit may differ only by this report, quickstart validation record, and release metadata. Its lightweight gates are rerun separately and the final hash is reported to the user.
@@ -23,7 +26,7 @@ The previous production deployment was superseded by `dpl_88z7ptmpqdAgWYVmHPM1dF
 - macOS arm64.
 - Node `v22.13.1`; npm `10.9.2`; Git `2.50.1 (Apple Git-155)`.
 - Codex CLI `0.145.0-alpha.18`.
-- Kerno `0.1.0`; plugin manifest cachebuster `0.1.0+codex.20260720210343`.
+- Kerno `0.1.0`; installed plugin manifest cachebuster `0.1.0+codex.20260721053851`.
 - CI targets macOS/Linux on Node 22 and 24. Linux was not exercised locally; Windows is not claimed.
 
 ## 4. Hackathon compliance matrix
@@ -47,8 +50,8 @@ The controlling deadline remains Tuesday, July 21, 2026 at 5:00 PM PDT / Wednesd
 
 | Criterion | Evidence | Residual risk |
 |---|---|---|
-| Technological Implementation | Strict contracts/storage/indexer/MCP/plugin/App Server code; 72 deterministic tests; 16-tool bundle plus MCP Apps resource; real catalog, route, usage, tests, and review artifacts | Effective model identity is absent from runtime events and is labeled `requested-unconfirmed` |
-| Design | Warm Context Core identity; structured onboarding/settings; complete dashboard state tour; component harness; nine browser and 20 contrast checks | Inline Codex app registration is incomplete; current visual evidence is the dashboard, not the plugin chat surface |
+| Technological Implementation | Strict contracts/storage/indexer/MCP/plugin/App Server code; 76 deterministic tests; 16-tool bundle plus MCP Apps resource; real catalog, route, usage, tests, and review artifacts | Effective model identity is absent from runtime events and is labeled `requested-unconfirmed` |
+| Design | Warm Context Core identity; structured onboarding/settings; complete dashboard state tour; component harness; 12 browser and 20 contrast checks | Inline Codex app registration is incomplete; current visual evidence is the dashboard, not the plugin chat surface |
 | Potential Impact | Specific repository-truth problem; three fairness-valid task pairs; correctness and unfavorable result shown first | One run per condition is a case study, not statistical proof |
 | Quality of the Idea | Falsifiable capsules, provenance, progressive expansion, conservative invalidation, phase routing, independent verification | Outcome utility learning remains intentionally neutral in P0 |
 
@@ -61,6 +64,9 @@ The controlling deadline remains Tuesday, July 21, 2026 at 5:00 PM PDT / Wednesd
 - A genuine failed test creates one targeted 327-estimated-token transaction-contract child item; three pinned assertions then pass.
 - A handler hash change makes the original capsule stale.
 - JS/TS, Python, and lower-confidence generic parsing; memory states; branch/commit/file/symbol/worktree invalidation; CLI; HTTP/SSE; MCP; App Server; reviewer; and comparison paths are covered.
+- Shared portable settings use bounded lock acquisition and one-lock read–modify–write transactions. The default portable store remains fail-fast for competing writers. The two-process plugin regression completed 80 contending calls with no `INDEX_BUSY` response and retained both independent setting patches.
+- The component deduplicates identical host snapshots, preserves focus and scroll across necessary renders, rejects older snapshots, prevents overlapping actions, bounds local tool waits at 15 seconds, and does not overwrite dirty settings. Broad root-level live announcements were replaced by a focused operation status region.
+- Advisory hook capture is limited to Kerno tools; logs contain allowlisted metadata only, rotate at 1 MiB, and fail open. The normal global Codex tool path no longer pays a Kerno Node-process spawn.
 
 ## 7. Clean-room validation
 
@@ -70,15 +76,17 @@ The clone ran `npm ci`, the corrected `npm run clean-room`, 72 deterministic tes
 
 Generated timestamped replay/report files changed in the clone by design and were not copied back.
 
+After commit `53dea22`, the complete local clean-room-equivalent command passed again: formatting, lint, type checking, brand generation, 20 contrast pairs, 76 deterministic tests, all workspace builds, plugin packaging, CLI help/doctor, judge check, 12 Playwright flows, screenshot capture, and bundled-plugin smoke. Brand raster generation was executed successfully three consecutive times before the full gate. This later run used the working repository, not a new isolated clone, so the earlier fresh-clone evidence remains scoped to `6a8ab81`.
+
 ## 8. Plugin validation
 
-- Installed and enabled as `kerno@personal`, version `0.1.0+codex.20260720210343`.
+- Installed and enabled as `kerno@personal`, version `0.1.0+codex.20260721053851`.
 - Manifest, Context skill, cache-portable MCP executable/config, optional reviewed hooks, license, warm Context Core assets, starter prompts, and screenshots are packaged.
 - Bundled MCP exposes 16 tools plus one self-contained `text/html;profile=mcp-app` resource and completes index → fresh status → task → capsule → structured panel state; the browser harness renders that state.
 - The plugin metadata uses icon-only Context Core assets for `composerIcon`, `logo`, and `logoDark`; the existing real plugin-card capture remains at `docs/assets/submission/kerno-real-plugin-codex.png`.
 - Plugin and skill validators pass in the existing isolated validator environment; the source/bundle MCP hashes match after reinstall.
-- Two Playwright host-harness flows pass. A clean reinstall confirmed the current plugin manifest has `apps: null`, no `.app.json`, and only a local STDIO MCP transport. Rendering inside an actual Codex task cannot be claimed until developer-app registration and manifest wiring are completed.
-- A later activation investigation found and fixed two independent MCP launcher defects: the project-scoped config omitted portable-store flags, and the plugin config passed a non-expanded `${PLUGIN_ROOT}` token as a Node argument. Plugin version `0.1.0+codex.20260720215729` now uses a cache-relative executable and portable state. Fresh `codex exec` tasks in both the Kerno repository and an unrelated temporary repository successfully called `kerno_render_panel` and received `mode: live-local-state` with the attached component resource. Desktop component rendering still requires a new post-reinstall task and remains unclaimed until observed.
+- Five Playwright host-harness flows pass. A clean reinstall confirmed the current plugin manifest has `apps: null`, no `.app.json`, and only a local STDIO MCP transport. Rendering inside an actual Codex task cannot be claimed until developer-app registration and manifest wiring are completed.
+- A later activation investigation found and fixed two independent MCP launcher defects: the project-scoped config omitted portable-store flags, and the plugin config passed a non-expanded `${PLUGIN_ROOT}` token as a Node argument. Plugin version `0.1.0+codex.20260721053851` uses a cache-relative executable, portable process-scoped run state, serialized owner-local settings, a scoped/rotated hook, and the stabilized component resource. The installed cache—not only source—completed the 16-tool index → status → task → capsule → panel smoke. Desktop component rendering still requires a new post-reinstall task and remains unclaimed until observed.
 
 Clean-clone SHA-256:
 
@@ -99,7 +107,7 @@ Clean-clone SHA-256:
 ## 10. Model-routing validation
 
 - Live `model/list` discovered four entries.
-- Latest smoke requested `gpt-5.6-sol/low`, completed, and recorded 33,859 observed tokens.
+- The July 21 signed-in smoke requested `gpt-5.6-sol`; it completed with the truthful state `requested-unconfirmed`. The retained benchmark artifact continues to hold the previously recorded token evidence; the smoke rerun was not substituted into benchmark results.
 - The full-system Kerno run requested `gpt-5.6-sol/low` for implementation and `gpt-5.6-sol/ultra` for final verification; both completed, tests passed, and fresh review passed.
 - No effective-model or reroute event arrived. Kerno displays `Requested — not independently confirmed`; no simulated or inferred effective model is shown.
 - Plugin Mode recommends/manual-falls back. Only Orchestrator Mode starts explicit App Server phase turns.

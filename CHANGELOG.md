@@ -12,5 +12,9 @@ Initial Kerno hackathon release candidate.
 - Added deterministic judge replay, three fairness-valid context-controlled benchmark pairs, a separate phase-routing pair, and hash-bound artifact exports.
 - Added security, accessibility, license, link, secret, dependency, plugin, browser, and clean-clone validation gates.
 - Fixed both Codex MCP launch paths: the project-scoped bundle now selects the portable JSON store, and the installed plugin uses a cache-relative executable with plugin-owned data. Fresh CLI tasks in the Kerno repository and an unrelated repository both expose `kerno_render_panel` successfully.
+- Serialized shared plugin settings with bounded lock waiting and atomic read–modify–write updates so simultaneous Codex tasks do not return transient `INDEX_BUSY` errors or lose independent preference changes.
+- Stabilized the embedded panel with snapshot deduplication, focus/scroll preservation, single-flight actions, stale-response rejection, dirty-settings protection, and bounded MCP call timeouts.
+- Scoped `PostToolUse` capture to Kerno tools and capped the allowlisted owner-local hook log at 1 MiB.
+- Hardened brand raster generation with deterministic readiness checks and bounded screenshot retry after the clean-room gate exposed a transient browser capture failure.
 
 Known truth boundary: requested App Server models remain `requested-unconfirmed` unless the runtime emits effective-model or reroute evidence.
